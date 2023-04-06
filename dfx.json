@@ -1,0 +1,28 @@
+{
+  "canisters": {
+    "sardinesaregood_backend": {
+      "main": "src/sardinesaregood_backend/main.mo",
+      "type": "motoko"
+    },
+    "sardinesaregood_frontend": {
+      "dependencies": [
+        "sardinesaregood_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/sardinesaregood_frontend/src/index.html"
+      },
+      "source": [
+        "src/sardinesaregood_frontend/assets",
+        "dist/sardinesaregood_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}
