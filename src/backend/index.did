@@ -1,0 +1,5 @@
+type Message = record { "principal" : text; date : text; message : text };
+service : () -> {
+  getMessages : () -> (vec Message) query;
+  setMessage : (Message) -> ();
+}

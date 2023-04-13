@@ -11,8 +11,10 @@
 .dfx/
 
 # generated files
-src/declarations/
+src/frontend/src/declarations
 
 # frontend code
 node_modules/
 dist/
+.azle
+.history
