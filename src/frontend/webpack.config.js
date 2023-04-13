@@ -8,7 +8,7 @@ function initCanisterEnv() {
   let localCanisters, prodCanisters;
   try {
     localCanisters = require(path.resolve(
-      ".dfx",
+      "../../.dfx",
       "local",
       "canister_ids.json"
     ));
@@ -16,7 +16,7 @@ function initCanisterEnv() {
     console.log("No local canister_ids.json found. Continuing production");
   }
   try {
-    prodCanisters = require(path.resolve("canister_ids.json"));
+    prodCanisters = require(path.resolve("../../canister_ids.json"));
   } catch (error) {
     console.log("No production canister_ids.json found. Continuing with local");
   }
@@ -38,9 +38,7 @@ const canisterEnvVariables = initCanisterEnv();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-const frontendDirectory = "sardinesaregood_frontend";
-
-const frontend_entry = path.join("src", frontendDirectory, "src", "index.html");
+const frontend_entry = path.join( "src", "index.html");
 
 module.exports = {
   target: "web",
@@ -48,7 +46,7 @@ module.exports = {
   entry: {
     // The frontend.entrypoint points to the HTML file for this build, so we need
     // to replace the extension to `.js`.
-    index: path.join(__dirname, frontend_entry).replace(/\.html$/, ".js"),
+    index: path.join(__dirname, frontend_entry).replace(/\.html$/, ".jsx"),
   },
   devtool: isDevelopment ? "source-map" : false,
   optimization: {
@@ -67,7 +65,7 @@ module.exports = {
   },
   output: {
     filename: "index.js",
-    path: path.join(__dirname, "dist", frontendDirectory),
+    path: path.join(__dirname, "../../dist"),
   },
 
   // Depending in the language or framework you are using for
@@ -75,12 +73,12 @@ module.exports = {
   // webpack configuration. For example, if you are using React
   // modules and CSS as described in the "Adding a stylesheet"
   // tutorial, uncomment the following lines:
-  // module: {
-  //  rules: [
-  //    { test: /\.(ts|tsx|jsx)$/, loader: "ts-loader" },
-  //    { test: /\.css$/, use: ['style-loader','css-loader'] }
-  //  ]
-  // },
+  module: {
+   rules: [
+     { test: /\.(ts|tsx|jsx)$/, loader: "ts-loader" },
+     { test: /\.css$/, use: ['style-loader','css-loader'] }
+   ]
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, frontend_entry),
@@ -97,7 +95,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: `src/${frontendDirectory}/src/.ic-assets.json*`,
+          from: `src/.ic-assets.json*`,
           to: ".ic-assets.json5",
           noErrorOnMissing: true
         },
@@ -116,9 +114,9 @@ module.exports = {
         },
       },
     },
-    static: path.resolve(__dirname, "src", frontendDirectory, "assets"),
+    static: path.resolve(__dirname, "assets"),
     hot: true,
-    watchFiles: [path.resolve(__dirname, "src", frontendDirectory)],
+    watchFiles: [path.resolve(__dirname)],
     liveReload: true,
   },
 };
