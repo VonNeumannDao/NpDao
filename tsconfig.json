@@ -8,6 +8,6 @@
     "allowJs": true,
     "outDir": "HACK_BECAUSE_OF_ALLOW_JS"
   },
-  "include": ["src/backend"],
+  "include": ["src/backend", "src/token"],
   "exclude": ["src/frontend"]
 }
