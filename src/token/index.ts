@@ -9,6 +9,7 @@ export {
     icrc1_supported_standards,
     icrc1_symbol,
     icrc1_total_supply,
-    icrc1_transfer
+    icrc1_transfer,
+    mint_tokens
 } from './api';
 export { init } from './init';

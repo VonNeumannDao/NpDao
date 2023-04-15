@@ -10,7 +10,7 @@ import {
 } from '../types';
 
 $update;
-export function mintTokens(): TransferResult {
+export function mint_tokens(): TransferResult {
     const from: Account = {
         owner: ic.id(),
         subaccount: null
@@ -25,7 +25,7 @@ export function mintTokens(): TransferResult {
 
     if (from_is_minting_account) {
         const transferArgs: TransferArgs = {
-            amount: 100n,
+            amount: 10000000000n,
             created_at_time: null,
             fee: null,
             from_subaccount: null,

@@ -49,4 +49,4 @@ export function icrc1_total_supply(): nat {
     return state.total_supply;
 }
 
-export { icrc1_transfer } from './transfer';
+export { icrc1_transfer, mint_tokens } from './transfer';

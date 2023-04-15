@@ -50,5 +50,5 @@ service : () -> {
   icrc1_total_supply : () -> (nat) query;
   icrc1_transfer : (TransferArgs) -> (TransferResult);
   init : () -> (bool);
-  mintTokens : () -> (TransferResult);
+  mint_tokens : () -> (TransferResult);
 }

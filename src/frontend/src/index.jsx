@@ -11,6 +11,7 @@ import "@connect2ic/core/style.css"
 import { ConnectButton, ConnectDialog, Connect2ICProvider, useConnect } from "@connect2ic/react"
 import { idlFactory as ledgerFactory } from "./ldl/ledgerIdlFactory.did";
 import {canisterId as backendCanisterId, idlFactory as backendFactory} from "./declarations/backend";
+import {canisterId as tokenCanister, idlFactory as tokenIdlFactory} from "./declarations/icrc_1";
 
 const client = createClient({
     globalProviderConfig: {
@@ -22,6 +23,9 @@ const client = createClient({
         },
         ["backend"]: {
             canisterId: backendCanisterId, idlFactory: backendFactory
+        },
+        ["token"]: {
+            canisterId: tokenCanister, idlFactory: tokenIdlFactory
         }
     },
     providers: [new PlugWallet(), new StoicWallet(), new NFID()],

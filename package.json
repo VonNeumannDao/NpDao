@@ -5,7 +5,7 @@
   "main": "src/backend/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cd src/frontend && npm run build",
+    "build": "echo \"test\" ",
     "start": "cd src/frontend && npm run start",
     "postinstall": "cd src/frontend && npm install"
   },
