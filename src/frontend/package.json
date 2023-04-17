@@ -13,7 +13,7 @@
     "prebuild": "npm run generate",
     "start": "node_modules/.bin/webpack serve --mode development --env development",
     "prestart": "npm run generate",
-    "generate": "dfx generate backend && dfx generate icrc_1"
+    "generate": "dfx generate backend --identity anonymous && dfx generate icrc_1 --identity anonymous"
   },
   "devDependencies": {
     "@dfinity/agent": "^0.15.5",

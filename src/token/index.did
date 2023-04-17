@@ -16,9 +16,12 @@ type ProposalViewResponse = record {
   title : text;
   endTime : nat64;
   description : text;
+  ended : bool;
   proposalType : ProposalType;
-  proposer : principal;
+  proposer : Account;
   executed : bool;
+  amount : nat64;
+  receiver : Account;
 };
 type SupportedStandard = record { url : text; name : text };
 type Transaction = record {
