@@ -12,4 +12,17 @@ export {
     icrc1_transfer,
     mint_tokens
 } from './api';
-export { init } from './init';
+export {
+    init,
+    preUpgrade,
+    postUpgrade
+} from './init';
+export {
+    vote,
+    createProposal,
+    startTimer,
+    clearTimer,
+    voteStatus,
+    pastProposals,
+    activeProposal
+} from './dao'

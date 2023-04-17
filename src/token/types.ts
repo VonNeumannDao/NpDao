@@ -1,4 +1,4 @@
-import {blob, int, nat, nat8, nat64, Opt, Principal, Variant, Record, Vec, Tuple} from 'azle';
+import {blob, int, nat, nat8, nat64, Opt, Principal, Variant, Record, Vec, Tuple, nat32} from 'azle';
 
 export type Account = Record<{
     owner: Principal;
@@ -34,6 +34,11 @@ export type State = {
     transactions: Vec<Transaction>;
     transaction_window_nanos: nat64;
     init_ran: boolean;
+    proposals: Map<nat64, Proposal>,
+    proposal: Opt<Proposal>,
+    proposalCount: nat64,
+    duration: nat8,
+    proposalCost: nat64,
 };
 
 
@@ -58,6 +63,10 @@ export type TransactionKind = Variant<{
     Transfer: null;
 }>;
 
+export type ProposalType = Variant<{
+    treasuryAction: null
+}>
+
 export type TransferArgs = Record<{
     amount: nat;
     created_at_time: Opt<nat64>;
@@ -78,13 +87,28 @@ export type TransferError = Variant<{
     TooOld: null;
 }>;
 
+export type ProposalResponse = Variant<{
+    Ok: nat64;
+    Err: ProposalError
+}>
+
+export type ProposalError = Variant<{
+    InsufficientFunds: Record<{ balance: nat }>;
+    VotingPeriodEnded: null;
+    ProposalNotFound: null;
+    ExistingProposal: null;
+    AccessDenied: null;
+    VotingOngoing: null;
+    AlreadyExecuted: null;
+}>
+
 export type TransferResult = Variant<{
     Ok: nat;
     Err: TransferError;
 }>;
 
 export type ValidateTransferResult = Variant<{
-    ok: boolean;
+    Ok: boolean;
     err: TransferError;
 }>;
 
@@ -94,3 +118,54 @@ export type Value = Variant<{
     Nat: nat;
     Text: string;
 }>;
+
+
+export type Proposal = {
+    id: nat64;
+    proposer: Principal;
+    title: string;
+    description: string;
+    endTime: nat64;
+    executed: boolean;
+    votes: { [key: string]: Vote };
+    proposalType: ProposalType;
+    amount: nat64;
+    receiver: Account;
+    error: Opt<ProposalError>;
+
+};
+
+export type Vote = Record<{
+    voter: Principal;
+    voteYes: nat64;
+    voteNo: nat64;
+}>;
+
+export type VoteStatus = Record<{
+    voteYes: nat64,
+    voteNo: nat64,
+    myVoteYes: nat64,
+    myVoteNo: nat64
+}>
+
+export type VoteStatusResponse = Variant<{
+    Ok: VoteStatus,
+    Err: string
+}>
+
+export type ProposalViewResponse = Record<{
+    id: nat64;
+    proposer: Principal;
+    title: string;
+    description: string;
+    endTime: nat64;
+    proposalType: ProposalType;
+    executed: boolean;
+}>
+
+export type ActiveProposal = Variant<{
+    Ok: ProposalViewResponse,
+    Err: string
+}>
+
+

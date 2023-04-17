@@ -166,7 +166,7 @@ export function validate_transfer(
     }
 
     return {
-        ok: true
+        Ok: true
     };
 }
 
@@ -175,7 +175,7 @@ function is_anonymous(principal: Principal): boolean {
 }
 
 export function is_subaccount_valid(subaccount: Opt<blob>): boolean {
-    return subaccount === null || subaccount.length === 4;
+    return subaccount === null || subaccount.length === 32;
 }
 
 function is_memo_valid(memo: Opt<blob>): boolean {

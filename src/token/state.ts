@@ -1,4 +1,5 @@
-import { State } from './types';
+import {Proposal, State} from './types';
+import {nat64} from "azle";
 
 export let state: State = {
     accounts: {},
@@ -13,5 +14,10 @@ export let state: State = {
     total_supply: 0n,
     transactions: [],
     transaction_window_nanos: 24n * 60n * 60n * 1_000_000_000n,
-    init_ran: false
+    init_ran: false,
+    proposals: new Map<nat64, Proposal>(),
+    proposalCount: 0n,
+    duration: 120,
+    proposal: null,
+    proposalCost: 3_00000000n
 };

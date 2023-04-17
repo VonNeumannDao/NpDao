@@ -1,26 +1,31 @@
-import {ic, Opt, Principal, $init, $update} from 'azle';
+import {ic, Opt, $init, $preUpgrade, $postUpgrade, StableBTreeMap} from 'azle';
 import { state } from './state';
 import { handle_mint } from './transfer/mint';
 import { is_subaccount_valid, stringify } from './transfer/validate';
 
 import {
     Account,
-    InitialAccountBalance,
+    InitialAccountBalance, State,
     TransferArgs
 } from './types';
+import {MINTING_ACCOUNT} from "./constants";
 
-$update;
-export function init(): boolean {
+let stableStorage = new StableBTreeMap<string, string>(0, 25, 1_000);
 
-    if (state.init_ran) {
-        return false
-    }
+$preUpgrade;
+export function preUpgrade(): void {
+    console.log('This runs before every canister upgrade');
+}
 
+$postUpgrade;
+export function postUpgrade(): void {
+    console.log('This runs after every canister upgrade');
+}
+$init;
+export function init(): void {
+    console.log('this runs the init');
     state.init_ran = true;
-    const mintingAccount: Account = {
-        subaccount: null,
-        owner: ic.id()
-    };
+    const mintingAccount: Account = MINTING_ACCOUNT;
 
     state.decimals = 8;
     state.fee = 0n;
@@ -40,11 +45,12 @@ export function init(): boolean {
         ['icrc1:symbol', { Text: state.symbol }]
     ];
     initialize_account_balance({
-        account: mintingAccount,
-        balance: 0n
+        account: {
+            subaccount: null,
+            owner: ic.id()
+        },
+        balance: 100000000000000n
     });
-
-    return true;
 }
 
 function validate_minting_account(minting_account: Opt<Account>): Opt<Account> {

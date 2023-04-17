@@ -8,13 +8,11 @@ import {
     TransferArgs,
     TransferResult
 } from '../types';
+import {MINTING_ACCOUNT} from "../constants";
 
 $update;
 export function mint_tokens(): TransferResult {
-    const from: Account = {
-        owner: ic.id(),
-        subaccount: null
-    };
+    const from: Account = MINTING_ACCOUNT;
 
     const toAccount: Account = {
         owner: ic.caller(),
@@ -65,7 +63,7 @@ export function icrc1_transfer(args: TransferArgs): TransferResult {
     const from_is_minting_account = is_minting_account(from.owner);
     const to_is_minting_account = is_minting_account(args.to.owner);
 
-    if (from_is_minting_account === true) {
+    if (from_is_minting_account) {
         return handle_mint(args, from);
     }
 
