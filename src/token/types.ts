@@ -122,7 +122,7 @@ export type Value = Variant<{
 
 export type Proposal = {
     id: nat64;
-    proposer: Principal;
+    proposer: Account;
     title: string;
     description: string;
     endTime: nat64;
@@ -132,6 +132,7 @@ export type Proposal = {
     amount: nat64;
     receiver: Account;
     error: Opt<ProposalError>;
+    ended: boolean;
 
 };
 
@@ -155,12 +156,15 @@ export type VoteStatusResponse = Variant<{
 
 export type ProposalViewResponse = Record<{
     id: nat64;
-    proposer: Principal;
+    proposer: Account;
     title: string;
     description: string;
     endTime: nat64;
     proposalType: ProposalType;
     executed: boolean;
+    ended: boolean;
+    receiver: Account;
+    amount: nat64;
 }>
 
 export type ActiveProposal = Variant<{

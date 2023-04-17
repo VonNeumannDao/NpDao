@@ -32,7 +32,11 @@ export function pastProposals(): Vec<ProposalViewResponse> {
             description: proposal.description,
             endTime: proposal.endTime,
             proposalType: proposal.proposalType,
-            executed: proposal.executed
+            executed: proposal.executed,
+            ended: proposal.ended,
+            amount: proposal.amount,
+            receiver: proposal.receiver
+
         });
     }
 
@@ -54,7 +58,11 @@ export function activeProposal(): ActiveProposal {
         description: proposal.description,
         endTime: proposal.endTime,
         proposalType: proposal.proposalType,
-        executed: proposal.executed
+        executed: proposal.executed,
+        ended: proposal.ended,
+        amount: proposal.amount,
+        receiver: proposal.receiver
+
     }
 
     return {
@@ -140,7 +148,7 @@ export function createProposal(account: Account,
     const proposal: Proposal = {
         id: state.proposalCount,
         title,
-        proposer: account.owner,
+        proposer: account,
         description,
         executed: false,
         votes: {},
@@ -148,7 +156,8 @@ export function createProposal(account: Account,
         endTime,
         amount: amount,
         receiver: receiver,
-        error: null
+        error: null,
+        ended: false
     };
     state.proposalCount++;
 
@@ -309,6 +318,7 @@ async function _executeProposal(): Promise<void> {
             console.log("transfer succeeded");
         }
     }
-
+    proposal.ended = true;
+    state.proposals.set(proposal?.id, proposal);
     state.proposal = null;
 }
