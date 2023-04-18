@@ -10,7 +10,7 @@ import {
     VoteStatus, ProposalViewResponse, ActiveProposal
 } from "./types"
 import {state} from './state';
-import {$update, ic, nat, nat64, $query, Vec, TimerId, Opt} from "azle";
+import {$update, ic, nat, nat64, $query, Vec, TimerId, Opt, blob} from "azle";
 import {handle_burn} from "./transfer/burn";
 import {balance_of} from "./account";
 import {icrc1_transfer} from "./transfer";
@@ -100,15 +100,99 @@ export function voteStatus(): VoteStatusResponse {
 }
 
 $update;
+export async function createWasmProposal(account: Account,
+                                       description: string,
+                                       title: string,
+                                       wasm: blob,
+                                       args: Opt<blob>,
+                                       canister: Opt<Principal>): Promise<ProposalResponse> {
+    if (account.owner !== ic.caller()) {
+        return {
+            Err: {
+                AccessDenied: null
+            }
+        }
+    }
 
-export function createProposal(account: Account,
+    const canisterStatusResultCallResult = await managementCanister
+        .canister_status({
+            canister_id: ic.id()
+        })
+        .call();
+    if (canisterStatusResultCallResult.Err) {
+        return {
+            Err: {
+                other: canisterStatusResultCallResult.Err
+            }
+        }
+    }
+    const cycleCount = canisterStatusResultCallResult.Ok?.cycles as bigint;
+
+    // @ts-ignore
+    if (cycleCount < 3_000_000_000_000n) {
+        return {
+            Err: {
+                InsufficientCycles: {balance: cycleCount}
+            }
+        }
+    }
+
+    if (state.proposal !== null) {
+        return {
+            Err: {ExistingProposal: null}
+        }
+    }
+    const transferArgs: TransferArgs = {
+        amount: state.proposalCost,
+        created_at_time: null,
+        fee: null,
+        from_subaccount: null,
+        memo: null,
+        to: DAO_TREASURY
+    };
+    const balance = balance_of(account)
+    if (balance < state.proposalCost) {
+        return {
+            Err: {
+                InsufficientFunds: {balance}
+            }
+        }
+    }
+
+    handle_burn(transferArgs, account);
+    const endTime = ic.time() + BigInt(state.duration * 1e8);
+    const proposal: Proposal = {
+        id: state.proposalCount,
+        title,
+        proposer: account,
+        description,
+        executed: false,
+        votes: {},
+        proposalType: {installAppAction: null},
+        endTime,
+        amount: null,
+        receiver: null,
+        error: null,
+        ended: false,
+        wasm: wasm,
+        canister,
+        args
+    };
+    state.proposalCount++;
+    state.proposal = proposal;
+    state.proposals.set(proposal.id, proposal);
+
+    return {Ok: proposal.id};
+}
+
+$update;
+export function createTreasuryProposal(account: Account,
                                description: string,
                                title: string,
                                receiver: Account,
-                               amount: nat64,
-                               proposalType: ProposalType): ProposalResponse {
+                               amount: nat64): ProposalResponse {
 
-    if (account.owner === ic.caller()) {
+    if (account.owner !== ic.caller()) {
         return {
             Err: {
                 AccessDenied: null
@@ -149,12 +233,15 @@ export function createProposal(account: Account,
         description,
         executed: false,
         votes: {},
-        proposalType,
+        proposalType: {treasuryAction: null},
         endTime,
         amount: amount,
         receiver: receiver,
         error: null,
-        ended: false
+        ended: false,
+        wasm: null,
+        canister: null,
+        args: null
     };
     state.proposalCount++;
 
@@ -301,15 +388,54 @@ async function _executeProposal(): Promise<void> {
 
         if ("treasuryAction" in type) {
             const transferArgs: TransferArgs = {
-                amount: proposal.amount,
+                amount: proposal.amount as bigint,
                 created_at_time: null,
                 fee: null,
                 from_subaccount: null,
                 memo: null,
-                to: proposal.receiver
+                to: proposal.receiver as Account
             };
             handle_transfer(transferArgs, DAO_TREASURY);
             console.log("transfer succeeded");
+        } else if ("InstallAppAction" in type) {
+            let canisterId = proposal.canister as Principal;
+
+            if (!canisterId) {
+                const createCanisterResultCallResult = await managementCanister
+                    .create_canister({
+                        settings: null
+                    })
+                    .cycles(1_500_000_000_000n)
+                    .call();
+                if (createCanisterResultCallResult.Err) {
+                    proposal.error = {
+                        other: createCanisterResultCallResult.Err
+                    }
+                    state.proposals.set(proposal?.id, proposal);
+                    return;
+                }
+
+                canisterId = (createCanisterResultCallResult.Ok?.canister_id) as Principal;
+            }
+
+
+            const callResult = await managementCanister
+                .install_code({
+                    mode: {
+                        install: null
+                    },
+                    canister_id: canisterId,
+                    wasm_module: proposal.wasm as blob,
+                    arg: proposal.args as blob
+                })
+                .call();
+            if (callResult.Err) {
+                proposal.error = {
+                    other: callResult.Err
+                }
+                state.proposals.set(proposal?.id, proposal);
+            }
+
         }
     }
     proposal.ended = true;

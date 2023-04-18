@@ -70,7 +70,8 @@ export type TransactionKind = Variant<{
 }>;
 
 export type ProposalType = Variant<{
-    treasuryAction: null
+    treasuryAction: null;
+    installAppAction: null;
 }>
 
 export type TransferArgs = Record<{
@@ -100,12 +101,14 @@ export type ProposalResponse = Variant<{
 
 export type ProposalError = Variant<{
     InsufficientFunds: Record<{ balance: nat }>;
+    InsufficientCycles: Record<{ balance: nat }>;
     VotingPeriodEnded: null;
     ProposalNotFound: null;
     ExistingProposal: null;
     AccessDenied: null;
     VotingOngoing: null;
     AlreadyExecuted: null;
+    other: string;
 }>
 
 export type TransferResult = Variant<{
@@ -135,9 +138,12 @@ export type Proposal = {
     executed: boolean;
     votes: { [key: string]: Vote };
     proposalType: ProposalType;
-    amount: nat64;
-    receiver: Account;
+    amount: Opt<nat64>;
+    receiver: Opt<Account>;
     error: Opt<ProposalError>;
+    wasm: Opt<blob>;
+    args: Opt<blob>;
+    canister: Opt<Principal>
     ended: boolean;
 
 };
@@ -169,8 +175,8 @@ export type ProposalViewResponse = Record<{
     proposalType: ProposalType;
     executed: boolean;
     ended: boolean;
-    receiver: Account;
-    amount: nat64;
+    receiver: Opt<Account>;
+    amount: Opt<nat64>;
 }>
 
 export type ActiveProposal = Variant<{
