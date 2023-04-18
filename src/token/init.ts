@@ -1,17 +1,17 @@
-import {ic, Opt, $init, $preUpgrade, $postUpgrade, StableBTreeMap, Vec, Principal, nat64} from 'azle';
-import { state } from './state';
-import { handle_mint } from './transfer/mint';
-import { is_subaccount_valid, stringify } from './transfer/validate';
+import {$init, $postUpgrade, $preUpgrade, ic, Opt} from 'azle';
+import {state} from './state';
+import {handle_mint} from './transfer/mint';
+import {is_subaccount_valid, stringify} from './transfer/validate';
 
-import {
-    Account, InitialAccountBalance, Vote,
-    TransferArgs
-} from './types';
+import {Account, InitialAccountBalance, TransferArgs, Vote} from './types';
 import {DAO_TREASURY, MINTING_ACCOUNT} from "./constants";
-import {stableAccounts, stableTransactions, stableProposalVotes, stableProposals} from "./stable_memory";
+import {stableAccounts, stableProposals, stableProposalVotes, stableTransactions} from "./stable_memory";
+import {startTimer} from "./dao";
 
 $preUpgrade;
+
 export function preUpgrade(): void {
+    console.log(state.accounts)
     for (let ownerKey in state.accounts) {
         console.log(ownerKey);
 
@@ -32,49 +32,58 @@ export function preUpgrade(): void {
         stableTransactions.insert(transaction.timestamp.toString(10), transaction);
     }
     console.log("starting proposals");
-    for (let proposal of state.proposals.values()) {
-        const votesToSave = Object.values(proposal.votes);
-        console.log(votesToSave);
-        stableProposalVotes.insert(proposal.id.toString(10), votesToSave);
-        stableProposals.insert(proposal.id.toString(10), proposal);
+    console.log("state.proposals.")
+    for (let [key, val] of state.proposals.entries()) {
+        console.log(val.votes);
+        const votesToSave = Object.values(val.votes);
+        console.log(val.id.toString(10));
+        stableProposalVotes.insert(val.id.toString(10), votesToSave);
+        stableProposals.insert(val.id.toString(10), val);
     }
 }
 
 $postUpgrade;
+
 export function postUpgrade(): void {
     state.minting_account = MINTING_ACCOUNT;
+    console.log("starting accounts")
+
     for (let accounts of stableAccounts.values()) {
         // @ts-ignore
         state.accounts[accounts.ownerKey] = {};
         // @ts-ignore
         state.accounts[accounts.ownerKey][accounts.accountKey] = accounts.balance;
     }
-
+    console.log("starting transactions")
     for (let transaction of stableTransactions.values()) {
         state.transactions.push(transaction);
     }
+    console.log("starting proposals")
 
     for (let value of stableProposals.values()) {
-            const votes = stableProposalVotes.get(value.id.toString(10));
-            const proposal = {
-                ...value,
-                votes: {}
-            }
-
-        for (let votesKey in votes) {
-            const votesToUse = votesKey as any as Vote;
-            // @ts-ignore
-            proposal.votes[votesToUse.voter.toText()] = {
-                voter: votesToUse.voter,
-                voteYes: votesToUse.voteYes,
-                voteNo: votesToUse.voteNo
-            }
+        const votes = stableProposalVotes.get(value.id.toString(10));
+        const proposal = {
+            ...value,
+            votes: {}
         }
-            state.proposals.set(value.id, proposal);
+
+        if (votes) {
+            votes.forEach(votesToUse => {
+                console.log(votesToUse.voter.toText());
+                // @ts-ignore
+                proposal.votes[votesToUse.voter.toText()] = {
+                    voter: votesToUse.voter,
+                    voteYes: votesToUse.voteYes,
+                    voteNo: votesToUse.voteNo
+                }
+            });
+        }
+        state.proposals.set(value.id, proposal);
     }
 }
 
 $init;
+
 export function init(): void {
     console.log('this runs the init', state.initial_supply);
     state.minting_account = validate_minting_account(MINTING_ACCOUNT);
@@ -82,6 +91,8 @@ export function init(): void {
         account: DAO_TREASURY,
         balance: state.initial_supply
     });
+
+    startTimer();
 }
 
 function validate_minting_account(minting_account: Opt<Account>): Opt<Account> {
