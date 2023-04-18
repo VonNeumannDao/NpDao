@@ -128,6 +128,22 @@ export type Value = Variant<{
     Text: string;
 }>;
 
+export type SerializableProposal = Record<{
+    id: nat64;
+    proposer: Account;
+    title: string;
+    description: string;
+    endTime: nat64;
+    executed: boolean;
+    proposalType: ProposalType;
+    amount: Opt<nat64>;
+    receiver: Opt<Account>;
+    error: Opt<ProposalError>;
+    wasm: Opt<blob>;
+    args: Opt<blob>;
+    canister: Opt<Principal>
+    ended: boolean;
+}>
 
 export type Proposal = {
     id: nat64;

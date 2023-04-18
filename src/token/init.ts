@@ -1,17 +1,19 @@
-import {ic, Opt, $init, $preUpgrade, $postUpgrade, StableBTreeMap, Vec} from 'azle';
+import {ic, Opt, $init, $preUpgrade, $postUpgrade, StableBTreeMap, Vec, Principal, nat64} from 'azle';
 import { state } from './state';
 import { handle_mint } from './transfer/mint';
 import { is_subaccount_valid, stringify } from './transfer/validate';
 
 import {
     Account, AccountsRecord,
-    InitialAccountBalance, State, Transaction,
-    TransferArgs
+    InitialAccountBalance, Vote, SerializableProposal, Transaction,
+    TransferArgs, Proposal
 } from './types';
 import {DAO_TREASURY, MINTING_ACCOUNT} from "./constants";
 
 let stableAccounts = new StableBTreeMap<string, AccountsRecord>(0, 100, 200);
 let stableTransactions = new StableBTreeMap<string, Transaction>(1, 100, 500);
+let stableProposals= new StableBTreeMap<string, SerializableProposal>(2, 100, 5242880);
+let stableProposalVotes = new StableBTreeMap<string, Vec<Vote>>(3, 100, 200);
 
 $preUpgrade;
 export function preUpgrade(): void {
@@ -30,6 +32,13 @@ export function preUpgrade(): void {
     for (let transaction of state.transactions) {
         stableTransactions.insert(transaction.timestamp.toString(10), transaction);
     }
+    for (let proposal of state.proposals.values()) {
+        const votesToSave = Object.values(proposal.votes);
+        stableProposalVotes.insert(proposal.id.toString(10), votesToSave);
+        // @ts-ignore
+        delete proposal.votes;
+        stableProposals.insert(proposal.id.toString(10), proposal);
+    }
 }
 
 $postUpgrade;
@@ -44,7 +53,27 @@ export function postUpgrade(): void {
     for (let transaction of stableTransactions.values()) {
         state.transactions.push(transaction);
     }
+
+    for (let value of stableProposals.values()) {
+            const votes = stableProposalVotes.get(value.id.toString(10));
+            const proposal = {
+                ...value,
+                votes: {}
+            }
+
+        for (let votesKey in votes) {
+            const votesToUse = votesKey as any as Vote;
+            // @ts-ignore
+            proposal.votes[votesToUse.voter.toText()] = {
+                voter: votesToUse.voter,
+                voteYes: votesToUse.voteYes,
+                voteNo: votesToUse.voteNo
+            }
+        }
+            state.proposals.set(value.id, proposal);
+    }
 }
+
 $init;
 export function init(): void {
     console.log('this runs the init', state.initial_supply);
