@@ -7,3 +7,11 @@ export const MINTING_ACCOUNT: Account = {
     ),
     owner: ic.id()
 };
+
+export const DAO_TREASURY: Account = {
+    subaccount: Uint8Array.from(
+        [95,233,40,101,109,16,182,59,91,116,171,178,142,184,104,221,170,38,250,217,215,18,168,102,128,236,120,72,36,239,37,16]
+    ),
+    owner: ic.id()
+};
+

@@ -14,6 +14,12 @@ export type Metadatum = Tuple<[string, Value]>;
 
 export type OwnerKey = string;
 
+export type AccountsRecord = Record<{
+    ownerKey: string;
+    accountKey: string;
+    balance: nat
+}>
+
 export type State = {
     accounts: {
         [key: OwnerKey]:
@@ -33,12 +39,12 @@ export type State = {
     total_supply: nat;
     transactions: Vec<Transaction>;
     transaction_window_nanos: nat64;
-    init_ran: boolean;
     proposals: Map<nat64, Proposal>,
     proposal: Opt<Proposal>,
     proposalCount: nat64,
     duration: nat8,
     proposalCost: nat64,
+    initial_supply: nat64
 };
 
 

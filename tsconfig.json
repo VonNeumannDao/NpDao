@@ -6,8 +6,10 @@
     "strictPropertyInitialization": false,
     "moduleResolution": "node",
     "allowJs": true,
-    "outDir": "HACK_BECAUSE_OF_ALLOW_JS"
+    "outDir": "HACK_BECAUSE_OF_ALLOW_JS",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/backend", "src/token"],
-  "exclude": ["src/frontend"]
+  "exclude": ["src/frontend", "src/cli"]
 }

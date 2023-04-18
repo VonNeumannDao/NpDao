@@ -1,55 +1,57 @@
-import {ic, Opt, $init, $preUpgrade, $postUpgrade, StableBTreeMap} from 'azle';
+import {ic, Opt, $init, $preUpgrade, $postUpgrade, StableBTreeMap, Vec} from 'azle';
 import { state } from './state';
 import { handle_mint } from './transfer/mint';
 import { is_subaccount_valid, stringify } from './transfer/validate';
 
 import {
-    Account,
-    InitialAccountBalance, State,
+    Account, AccountsRecord,
+    InitialAccountBalance, State, Transaction,
     TransferArgs
 } from './types';
-import {MINTING_ACCOUNT} from "./constants";
+import {DAO_TREASURY, MINTING_ACCOUNT} from "./constants";
 
-let stableStorage = new StableBTreeMap<string, string>(0, 25, 1_000);
+let stableAccounts = new StableBTreeMap<string, AccountsRecord>(0, 100, 200);
+let stableTransactions = new StableBTreeMap<string, Transaction>(1, 100, 500);
 
 $preUpgrade;
 export function preUpgrade(): void {
-    console.log('This runs before every canister upgrade');
+    for (let ownerKey in state.accounts) {
+        for (let accountKey in state.accounts?.[ownerKey]) {
+            // @ts-ignore
+            const balance: bigint = state.accounts?.[ownerKey]?.[accountKey];
+            stableAccounts.insert(ownerKey + accountKey, {
+                ownerKey: ownerKey,
+                accountKey: accountKey,
+                balance: balance
+            });
+        }
+    }
+
+    for (let transaction of state.transactions) {
+        stableTransactions.insert(transaction.timestamp.toString(10), transaction);
+    }
 }
 
 $postUpgrade;
 export function postUpgrade(): void {
-    console.log('This runs after every canister upgrade');
+    for (let accounts of stableAccounts.values()) {
+        // @ts-ignore
+        state.accounts[accounts.ownerKey] = {};
+        // @ts-ignore
+        state.accounts[accounts.ownerKey][accounts.accountKey] = accounts.balance;
+    }
+
+    for (let transaction of stableTransactions.values()) {
+        state.transactions.push(transaction);
+    }
 }
 $init;
 export function init(): void {
-    console.log('this runs the init');
-    state.init_ran = true;
-    const mintingAccount: Account = MINTING_ACCOUNT;
-
-    state.decimals = 8;
-    state.fee = 0n;
-    state.name = "Sardines are Good";
-    state.minting_account = validate_minting_account(mintingAccount);
-    state.supported_standards = [
-        {
-            name: 'ICRC-1',
-            url: 'https://github.com/dfinity/ICRC-1'
-        }
-    ];
-    state.symbol = "SAG";
-    state.metadata = [
-        ['icrc1:decimals', { Nat: BigInt(state.decimals) }],
-        ['icrc1:fee', { Nat: state.fee }],
-        ['icrc1:name', { Text: state.name }],
-        ['icrc1:symbol', { Text: state.symbol }]
-    ];
+    console.log('this runs the init', state.initial_supply);
+    state.minting_account = validate_minting_account(MINTING_ACCOUNT);
     initialize_account_balance({
-        account: {
-            subaccount: null,
-            owner: ic.id()
-        },
-        balance: 100000000000000n
+        account: DAO_TREASURY,
+        balance: state.initial_supply
     });
 }
 

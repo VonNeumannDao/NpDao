@@ -16,6 +16,7 @@ import {balance_of} from "./account";
 import {icrc1_transfer} from "./transfer";
 import {handle_transfer} from "./transfer/transfer";
 import { managementCanister } from 'azle/canisters/management';
+import {DAO_TREASURY} from "./constants";
 
 let timerId: Opt<TimerId> = null;
 
@@ -121,17 +122,13 @@ export function createProposal(account: Account,
         }
     }
 
-    const mintingAccount: Account = {
-        subaccount: null,
-        owner: ic.id()
-    };
     const transferArgs: TransferArgs = {
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
         from_subaccount: null,
         memo: null,
-        to: mintingAccount
+        to: DAO_TREASURY
     };
     const balance = balance_of(account)
     if (balance < state.proposalCost) {
@@ -311,10 +308,7 @@ async function _executeProposal(): Promise<void> {
                 memo: null,
                 to: proposal.receiver
             };
-            handle_transfer(transferArgs, {
-                subaccount: null,
-                owner: ic.id()
-            });
+            handle_transfer(transferArgs, DAO_TREASURY);
             console.log("transfer succeeded");
         }
     }
