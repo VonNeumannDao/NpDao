@@ -4,21 +4,19 @@ import { handle_mint } from './transfer/mint';
 import { is_subaccount_valid, stringify } from './transfer/validate';
 
 import {
-    Account, AccountsRecord,
-    InitialAccountBalance, Vote, SerializableProposal, Transaction,
-    TransferArgs, Proposal
+    Account, InitialAccountBalance, Vote,
+    TransferArgs
 } from './types';
 import {DAO_TREASURY, MINTING_ACCOUNT} from "./constants";
-
-let stableAccounts = new StableBTreeMap<string, AccountsRecord>(0, 100, 200);
-let stableTransactions = new StableBTreeMap<string, Transaction>(1, 100, 500);
-let stableProposals= new StableBTreeMap<string, SerializableProposal>(2, 100, 500);
-let stableProposalVotes = new StableBTreeMap<string, Vec<Vote>>(3, 100, 200);
+import {stableAccounts, stableTransactions, stableProposalVotes, stableProposals} from "./stable_memory";
 
 $preUpgrade;
 export function preUpgrade(): void {
     for (let ownerKey in state.accounts) {
+        console.log(ownerKey);
+
         for (let accountKey in state.accounts?.[ownerKey]) {
+            console.log(accountKey, ownerKey);
             // @ts-ignore
             const balance: bigint = state.accounts?.[ownerKey]?.[accountKey];
             stableAccounts.insert(ownerKey + accountKey, {
@@ -28,21 +26,23 @@ export function preUpgrade(): void {
             });
         }
     }
+    console.log("starting transactions");
 
     for (let transaction of state.transactions) {
         stableTransactions.insert(transaction.timestamp.toString(10), transaction);
     }
+    console.log("starting proposals");
     for (let proposal of state.proposals.values()) {
         const votesToSave = Object.values(proposal.votes);
+        console.log(votesToSave);
         stableProposalVotes.insert(proposal.id.toString(10), votesToSave);
-        // @ts-ignore
-        delete proposal.votes;
         stableProposals.insert(proposal.id.toString(10), proposal);
     }
 }
 
 $postUpgrade;
 export function postUpgrade(): void {
+    state.minting_account = MINTING_ACCOUNT;
     for (let accounts of stableAccounts.values()) {
         // @ts-ignore
         state.accounts[accounts.ownerKey] = {};

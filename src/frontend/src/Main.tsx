@@ -1,8 +1,9 @@
 import * as React from "react";
 import TopBar from "./components/TopBar";
-import MintTokens from "./components/MintTokens";
 import {useConnect} from "@connect2ic/react";
-import Comment from "./components/Comment";
+import {BrowserRouter as Router, Route, Link, Routes} from 'react-router-dom';
+import Home from "./components/Home";
+import ProposalFetcher from "./components/ProposalFetcher";
 
 const Main = () => {
   const {isConnected} = useConnect();
@@ -10,8 +11,12 @@ const Main = () => {
   return (<>
     <TopBar/>
     {isConnected && <>
-        <MintTokens/>
-        <Comment/>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home/>} />
+          <Route path="/proposals/:id" element={<ProposalFetcher/>} />
+        </Routes>
+      </Router>
     </>
     }
   </>);

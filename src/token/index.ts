@@ -26,4 +26,5 @@ export {
     voteStatus,
     pastProposals,
     activeProposal
-} from './dao'
+} from './dao';
+export {canisters} from "./canister_registry";

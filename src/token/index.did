@@ -1,5 +1,6 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
 type ActiveProposal = variant { Ok : ProposalViewResponse; Err : text };
+type Canisters = record { ratifiedDate : text; canisterId : text };
 type ProposalError = variant {
   AccessDenied;
   ProposalNotFound;
@@ -72,6 +73,7 @@ type _InlineTransferErrorGenericError = record {
 };
 service : () -> {
   activeProposal : () -> (ActiveProposal) query;
+  canisters : () -> (vec Canisters) query;
   clearTimer : () -> ();
   createTreasuryProposal : (Account, text, text, Account, nat64) -> (
       ProposalResponse,

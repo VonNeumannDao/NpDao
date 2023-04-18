@@ -17,6 +17,7 @@ import {balance_of} from "./account";
 import {handle_transfer} from "./transfer/transfer";
 import {managementCanister} from 'azle/canisters/management';
 import {DAO_TREASURY} from "./constants";
+import {registerCanister} from "./canister_registry";
 
 let timerId: Opt<TimerId> = null;
 
@@ -191,8 +192,7 @@ export function createTreasuryProposal(account: Account,
                                title: string,
                                receiver: Account,
                                amount: nat64): ProposalResponse {
-
-    if (account.owner !== ic.caller()) {
+    if (account.owner.toText() !== ic.caller().toText()) {
         return {
             Err: {
                 AccessDenied: null
@@ -430,6 +430,7 @@ async function _executeProposal(): Promise<void> {
                     arg: proposal.args as blob
                 })
                 .call();
+
             if (callResult.Err) {
                 proposal.error = {
                     other: callResult.Err
@@ -437,6 +438,7 @@ async function _executeProposal(): Promise<void> {
                 state.proposals.set(proposal?.id, proposal);
             }else {
                 proposal.wasm = null;
+                registerCanister(proposal.endTime.toString(10), canisterId.toText());
                 state.proposals.set(proposal?.id, proposal);
             }
 

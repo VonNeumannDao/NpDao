@@ -10,42 +10,14 @@ import Avatar from '@mui/material/Avatar';
 import ImageIcon from '@mui/icons-material/Image';
 import WorkIcon from '@mui/icons-material/Work';
 import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+import {useAppContext} from "./AppContext";
 
 export default function MintTokens() {
-    const {connect, principal, isInitializing, disconnect, isConnected} = useConnect();
+    const {principal} = useConnect();
     const [_tokenActor] = useCanister('token');
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const [loading, setLoading] = useState(false);
-    const [balance, setBalance] = useState(0n);
-
-    const decimals = 100000000;
-
-    useEffect(() => {
-        init().then();
-    }, [principal]);
-
-    async function init(){
-        const balance = await tokenActor.icrc1_balance_of({
-            owner: Principal.fromText(principal),
-            subaccount: []
-        })
-
-        setBalance(balance);
-    }
-
-
-    async function mint() {
-        setLoading(true);
-        await tokenActor.mint_tokens();
-        const balance = await tokenActor.icrc1_balance_of({
-            owner: Principal.fromText(principal),
-            subaccount: []
-        })
-
-        setBalance(balance);
-        setLoading(false);
-    }
-
+    const { setBalanceVal, balancePretty } = useAppContext();
 
     return (
         <Card
@@ -75,7 +47,7 @@ export default function MintTokens() {
                                 <WorkIcon />
                             </Avatar>
                         </ListItemAvatar>
-                        <ListItemText primary="Balance" secondary={(Number(balance) / decimals).toString(10)} />
+                        <ListItemText primary="Balance" secondary={balancePretty} />
                     </ListItem>
                     <ListItem>
                         <ListItemAvatar>
@@ -87,11 +59,6 @@ export default function MintTokens() {
                     </ListItem>
                 </List>
             </CardContent>
-            <CardActions>
-                <Box sx={{ display: 'flex', marginLeft: "auto", marginRight:"auto", flexDirection: 'row', marginBottom: "4px", marginTop: "50px" }}>
-                    <LoadingButton loading={loading} onClick={mint} variant="text">Mint</LoadingButton>
-                </Box>
-            </CardActions>
         </Card>
     );
 }

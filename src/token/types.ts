@@ -200,4 +200,9 @@ export type ActiveProposal = Variant<{
     Err: string
 }>
 
+export type Canisters = Record<{
+    ratifiedDate: string;
+    canisterId: string;
+}>
+
 

@@ -54,8 +54,10 @@
     "@mui/lab": "^5.0.0-alpha.126",
     "@mui/material": "^5.11.16",
     "css-loader": "^6.7.3",
+    "js-big-decimal": "^1.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.10.0",
     "style-loader": "^3.3.2",
     "zwift-mobile-api": "^0.3.19"
   }
