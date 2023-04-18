@@ -19,7 +19,8 @@ export {
 } from './init';
 export {
     vote,
-    createProposal,
+    createTreasuryProposal,
+    createWasmProposal,
     startTimer,
     clearTimer,
     voteStatus,

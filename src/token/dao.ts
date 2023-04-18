@@ -1,21 +1,21 @@
 import {Principal} from "@dfinity/principal";
 import {
     Account,
-    ProposalResponse,
+    ActiveProposal,
     Proposal,
-    ProposalType,
+    ProposalResponse,
+    ProposalViewResponse,
     TransferArgs,
     Vote,
-    VoteStatusResponse,
-    VoteStatus, ProposalViewResponse, ActiveProposal
+    VoteStatus,
+    VoteStatusResponse
 } from "./types"
 import {state} from './state';
-import {$update, ic, nat, nat64, $query, Vec, TimerId, Opt, blob} from "azle";
+import {$query, $update, blob, ic, nat, nat64, Opt, TimerId, Vec} from "azle";
 import {handle_burn} from "./transfer/burn";
 import {balance_of} from "./account";
-import {icrc1_transfer} from "./transfer";
 import {handle_transfer} from "./transfer/transfer";
-import { managementCanister } from 'azle/canisters/management';
+import {managementCanister} from 'azle/canisters/management';
 import {DAO_TREASURY} from "./constants";
 
 let timerId: Opt<TimerId> = null;
@@ -279,6 +279,7 @@ export function vote(account: Account, proposalId: nat, voteAmount: nat64, direc
     }
 
     const balance = balance_of(account)
+    // @ts-ignore
     if (balance <= voteAmount) {
         return {
             Err: {
@@ -337,7 +338,7 @@ export function startTimer(): TimerId {
     }
     console.log("this is happening", timerId);
 
-
+    // @ts-ignore
     timerId = ic.setTimerInterval(
         60n,
         _executeProposal
@@ -433,6 +434,9 @@ async function _executeProposal(): Promise<void> {
                 proposal.error = {
                     other: callResult.Err
                 }
+                state.proposals.set(proposal?.id, proposal);
+            }else {
+                proposal.wasm = null;
                 state.proposals.set(proposal?.id, proposal);
             }
 

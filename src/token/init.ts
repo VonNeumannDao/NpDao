@@ -12,7 +12,7 @@ import {DAO_TREASURY, MINTING_ACCOUNT} from "./constants";
 
 let stableAccounts = new StableBTreeMap<string, AccountsRecord>(0, 100, 200);
 let stableTransactions = new StableBTreeMap<string, Transaction>(1, 100, 500);
-let stableProposals= new StableBTreeMap<string, SerializableProposal>(2, 100, 5242880);
+let stableProposals= new StableBTreeMap<string, SerializableProposal>(2, 100, 500);
 let stableProposalVotes = new StableBTreeMap<string, Vec<Vote>>(3, 100, 200);
 
 $preUpgrade;
