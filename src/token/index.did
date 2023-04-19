@@ -75,7 +75,6 @@ type _InlineTransferErrorGenericError = record {
 service : () -> {
   activeProposal : () -> (ActiveProposal) query;
   canisters : () -> (vec Canisters) query;
-  clearTimer : () -> ();
   createTreasuryProposal : (Account, text, text, Account, nat64) -> (
       ProposalResponse,
     );
