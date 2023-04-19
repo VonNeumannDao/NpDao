@@ -11,15 +11,42 @@ import {
     VoteStatusResponse
 } from "./types"
 import {state} from './state';
-import {$query, $update, blob, ic, nat, nat64, Opt, TimerId, Vec} from "azle";
+import {$query, $update, blob, ic, nat, nat64, Opt, TimerId, Tuple, Vec} from "azle";
 import {handle_burn} from "./transfer/burn";
 import {balance_of} from "./account";
 import {handle_transfer} from "./transfer/transfer";
 import {managementCanister} from 'azle/canisters/management';
 import {DAO_TREASURY} from "./constants";
-import {registerCanister} from "./canister_registry";
+import {canisters, registerCanister} from "./canister_registry";
 
-let timerId: Opt<TimerId> = null;
+let timerIdProposal: Opt<TimerId> = null;
+let timerIdCycle: Opt<TimerId> = null;
+
+
+$update
+export async function cycleBalances(): Promise<Vec<Tuple<[string, nat64]>>> {
+    const cans = canisters();
+    const balances: Vec<[string, bigint]> = [];
+
+    for (let can of cans) {
+        const canisterStatusResultCallResult = await managementCanister
+            .canister_status({
+                canister_id: Principal.fromText(can.canisterId)
+            })
+            .call();
+        balances.push([can.appName, canisterStatusResultCallResult.Ok?.cycles || 0n]);
+    }
+
+    const results = await managementCanister
+        .canister_status({
+            canister_id: ic.id()
+        })
+        .call();
+    balances.push(["DAO", results.Ok?.cycles || 0n]);
+
+
+    return balances;
+}
 
 $query
 
@@ -331,19 +358,58 @@ export function vote(account: Account, proposalId: nat, voteAmount: nat64, direc
 $update;
 
 export function startTimer(): TimerId {
-    if (timerId) {
+    if (timerIdProposal) {
         console.log("this is happening");
         ic.trap("timer already exists");
     }
-    console.log("this is happening", timerId);
+    console.log("this is happening", timerIdProposal);
 
     // @ts-ignore
-    timerId = ic.setTimerInterval(
+    timerIdProposal = ic.setTimerInterval(
         60n,
         _executeProposal
     );
 
-    return timerId;
+    timerIdCycle = ic.setTimerInterval(
+        60n,
+        _checkCycles
+    );
+
+    console.log("cyclesTimer", timerIdCycle);
+
+    return timerIdProposal;
+}
+
+async function _checkCycles(): Promise<void> {
+    var canisters1 = canisters();
+
+    console.log("cycle check for ", canisters1.length)
+    for (let canister of canisters1) {
+        const canisterId = Principal.fromText(canister.canisterId);
+        console.log("attempting to top off ", canisterId.toText());
+        const canisterStatusResultCallResult = await managementCanister
+            .canister_status({
+                canister_id: canisterId
+            })
+            .call();
+        // @ts-ignore
+        if (canisterStatusResultCallResult.Ok && canisterStatusResultCallResult.Ok?.cycles < 3_000_000_000_000n ) {
+            const callResult = await managementCanister
+                .deposit_cycles({
+                    canister_id: canisterId
+                })
+                .cycles(3_000_000_000_000n)
+                .call();
+            if ("Ok" in callResult) {
+                console.log("sucessfully topped off cycles")
+            } else {
+                console.log("cycle top off failed", callResult.Err)
+            }
+        } else {
+            console.log("cycles are probably fine", canisterStatusResultCallResult.Err, "balance: ", canisterStatusResultCallResult.Ok?.cycles)
+        }
+    }
+
 }
 
 async function _executeProposal(): Promise<void> {

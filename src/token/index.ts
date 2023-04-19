@@ -24,6 +24,7 @@ export {
     startTimer,
     voteStatus,
     pastProposals,
-    activeProposal
+    activeProposal,
+    cycleBalances
 } from './dao';
 export {canisters} from "./canister_registry";

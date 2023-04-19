@@ -8,7 +8,7 @@ import {MINTING_ACCOUNT} from "../constants";
 
 $update;
 
-export function mint_tokens(): TransferResult {
+export async function mint_tokens(): Promise<TransferResult> {
     const from: Account = MINTING_ACCOUNT;
 
     const toAccount: Account = {
