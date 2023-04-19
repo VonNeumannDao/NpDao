@@ -1,15 +1,15 @@
 import React, {useState} from 'react';
-import {Button, createStyles, makeStyles, Modal, styled} from "@mui/material";
+import {Button, Modal, styled} from "@mui/material";
 
 
-function ContentModal({ trigger, children, disabled }) {
+function ContentModal({trigger, children, disabled}) {
     const ModalWrapper = styled(Modal)({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
     });
 
-    const PaperWrapper = styled('div')(({ theme }) => ({
+    const PaperWrapper = styled('div')(({theme}) => ({
         backgroundColor: theme.palette.background.paper,
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),

@@ -1,28 +1,36 @@
-import type { Principal } from "@dfinity/principal";
+import type {Principal} from "@dfinity/principal";
 
 export interface AccountBalanceArgs {
     account: AccountIdentifier;
 }
+
 export type AccountIdentifier = Array<number>;
+
 export interface Archive {
     canister_id: Principal;
 }
+
 export interface Archives {
     archives: Array<Archive>;
 }
+
 export interface Block {
     transaction: Transaction;
     timestamp: TimeStamp;
     parent_hash: [] | [Array<number>];
 }
+
 export type BlockIndex = bigint;
+
 export interface BlockRange {
     blocks: Array<Block>;
 }
+
 export interface GetBlocksArgs {
     start: BlockIndex;
     length: bigint;
 }
+
 export type Memo = bigint;
 export type Operation =
     | {
@@ -47,6 +55,7 @@ export type QueryArchiveError =
     | { Other: { error_message: string; error_code: bigint } };
 export type QueryArchiveFn = (arg_0: GetBlocksArgs) => Promise<QueryArchiveResult>;
 export type QueryArchiveResult = { Ok: BlockRange } | { Err: QueryArchiveError };
+
 export interface QueryBlocksResponse {
     certificate: [] | [Array<number>];
     blocks: Array<Block>;
@@ -54,18 +63,23 @@ export interface QueryBlocksResponse {
     first_block_index: BlockIndex;
     archived_blocks: Array<{ callback: QueryArchiveFn; start: BlockIndex; length: bigint }>;
 }
+
 export type SubAccount = Array<number>;
+
 export interface TimeStamp {
     timestamp_nanos: bigint;
 }
+
 export interface Tokens {
     e8s: bigint;
 }
+
 export interface Transaction {
     memo: Memo;
     operation: [] | [Operation];
     created_at_time: TimeStamp;
 }
+
 export interface TransferArgs {
     to: AccountIdentifier;
     fee: Tokens;
@@ -74,6 +88,7 @@ export interface TransferArgs {
     created_at_time: [] | [TimeStamp];
     amount: Tokens;
 }
+
 export type TransferError =
     | {
     TxTooOld: { allowed_window_nanos: bigint };
@@ -82,11 +97,14 @@ export type TransferError =
     | { TxDuplicate: { duplicate_of: BlockIndex } }
     | { TxCreatedInFuture: null }
     | { InsufficientFunds: { balance: Tokens } };
+
 export interface TransferFee {
     transfer_fee: Tokens;
 }
+
 export type TransferFeeArg = {};
 export type TransferResult = { Ok: BlockIndex } | { Err: TransferError };
+
 export interface _SERVICE {
     account_balance: (arg_0: AccountBalanceArgs) => Promise<Tokens>;
     archives: () => Promise<Archives>;
@@ -98,12 +116,12 @@ export interface _SERVICE {
     transfer_fee: (arg_0: TransferFeeArg) => Promise<TransferFee>;
 }
 
-export const idlFactory = ({ IDL }) => {
+export const idlFactory = ({IDL}) => {
     const AccountIdentifier = IDL.Vec(IDL.Nat8);
-    const AccountBalanceArgs = IDL.Record({ account: AccountIdentifier });
-    const Tokens = IDL.Record({ e8s: IDL.Nat64 });
-    const Archive = IDL.Record({ canister_id: IDL.Principal });
-    const Archives = IDL.Record({ archives: IDL.Vec(Archive) });
+    const AccountBalanceArgs = IDL.Record({account: AccountIdentifier});
+    const Tokens = IDL.Record({e8s: IDL.Nat64});
+    const Archive = IDL.Record({canister_id: IDL.Principal});
+    const Archives = IDL.Record({archives: IDL.Vec(Archive)});
     const BlockIndex = IDL.Nat64;
     const GetBlocksArgs = IDL.Record({
         start: BlockIndex,
@@ -111,8 +129,8 @@ export const idlFactory = ({ IDL }) => {
     });
     const Memo = IDL.Nat64;
     const Operation = IDL.Variant({
-        Burn: IDL.Record({ from: AccountIdentifier, amount: Tokens }),
-        Mint: IDL.Record({ to: AccountIdentifier, amount: Tokens }),
+        Burn: IDL.Record({from: AccountIdentifier, amount: Tokens}),
+        Mint: IDL.Record({to: AccountIdentifier, amount: Tokens}),
         Transfer: IDL.Record({
             to: AccountIdentifier,
             fee: Tokens,
@@ -120,7 +138,7 @@ export const idlFactory = ({ IDL }) => {
             amount: Tokens,
         }),
     });
-    const TimeStamp = IDL.Record({ timestamp_nanos: IDL.Nat64 });
+    const TimeStamp = IDL.Record({timestamp_nanos: IDL.Nat64});
     const Transaction = IDL.Record({
         memo: Memo,
         operation: IDL.Opt(Operation),
@@ -131,7 +149,7 @@ export const idlFactory = ({ IDL }) => {
         timestamp: TimeStamp,
         parent_hash: IDL.Opt(IDL.Vec(IDL.Nat8)),
     });
-    const BlockRange = IDL.Record({ blocks: IDL.Vec(Block) });
+    const BlockRange = IDL.Record({blocks: IDL.Vec(Block)});
     const QueryArchiveError = IDL.Variant({
         BadFirstBlockIndex: IDL.Record({
             requested_index: BlockIndex,
@@ -170,25 +188,25 @@ export const idlFactory = ({ IDL }) => {
         amount: Tokens,
     });
     const TransferError = IDL.Variant({
-        TxTooOld: IDL.Record({ allowed_window_nanos: IDL.Nat64 }),
-        BadFee: IDL.Record({ expected_fee: Tokens }),
-        TxDuplicate: IDL.Record({ duplicate_of: BlockIndex }),
+        TxTooOld: IDL.Record({allowed_window_nanos: IDL.Nat64}),
+        BadFee: IDL.Record({expected_fee: Tokens}),
+        TxDuplicate: IDL.Record({duplicate_of: BlockIndex}),
         TxCreatedInFuture: IDL.Null,
-        InsufficientFunds: IDL.Record({ balance: Tokens }),
+        InsufficientFunds: IDL.Record({balance: Tokens}),
     });
     const TransferResult = IDL.Variant({
         Ok: BlockIndex,
         Err: TransferError,
     });
     const TransferFeeArg = IDL.Record({});
-    const TransferFee = IDL.Record({ transfer_fee: Tokens });
+    const TransferFee = IDL.Record({transfer_fee: Tokens});
     return IDL.Service({
         account_balance: IDL.Func([AccountBalanceArgs], [Tokens], ["query"]),
         archives: IDL.Func([], [Archives], ["query"]),
-        decimals: IDL.Func([], [IDL.Record({ decimals: IDL.Nat32 })], ["query"]),
-        name: IDL.Func([], [IDL.Record({ name: IDL.Text })], ["query"]),
+        decimals: IDL.Func([], [IDL.Record({decimals: IDL.Nat32})], ["query"]),
+        name: IDL.Func([], [IDL.Record({name: IDL.Text})], ["query"]),
         query_blocks: IDL.Func([GetBlocksArgs], [QueryBlocksResponse], ["query"]),
-        symbol: IDL.Func([], [IDL.Record({ symbol: IDL.Text })], ["query"]),
+        symbol: IDL.Func([], [IDL.Record({symbol: IDL.Text})], ["query"]),
         transfer: IDL.Func([TransferArgs], [TransferResult], []),
         transfer_fee: IDL.Func([TransferFeeArg], [TransferFee], ["query"]),
     });

@@ -1,4 +1,4 @@
-import React, {createContext, useState, useContext, useEffect} from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import {Principal} from "@dfinity/principal";
 import {useCanister, useConnect} from "@connect2ic/react";
@@ -13,7 +13,8 @@ interface AppContextType {
 const AppContext = createContext<AppContextType>({
     balance: 0n,
     balancePretty: "0",
-    setBalanceVal: (balance: bigint) => {}
+    setBalanceVal: (balance: bigint) => {
+    }
 });
 
 const AppProvider: React.FC = (param: { children }) => {
@@ -24,16 +25,18 @@ const AppProvider: React.FC = (param: { children }) => {
     const {principal} = useConnect();
 
     useEffect(() => {
-        if(principal)
-        init().then();
+        if (principal)
+            init().then();
     }, [principal]);
-    async function init(){
+
+    async function init() {
         const balance = await tokenActor.icrc1_balance_of({
             owner: Principal.fromText(principal),
             subaccount: []
         });
         setBalanceVal(balance);
     }
+
     const setBalanceVal = (balance: bigint) => {
         setBalance(balance);
         setBalancePretty(bigIntToDecimalPrettyString(balance))
@@ -54,4 +57,4 @@ const AppProvider: React.FC = (param: { children }) => {
 
 const useAppContext = (): AppContextType => useContext(AppContext);
 
-export { AppProvider, useAppContext };
+export {AppProvider, useAppContext};

@@ -1,16 +1,13 @@
-import {$update, blob, ic, nat, nat64, Opt} from 'azle';
-import { handle_burn } from './burn';
-import { handle_mint, is_minting_account } from './mint';
-import { handle_transfer } from './transfer';
-import { validate_transfer } from './validate';
-import {
-    Account,
-    TransferArgs,
-    TransferResult
-} from '../types';
+import {$update, ic} from 'azle';
+import {handle_burn} from './burn';
+import {handle_mint, is_minting_account} from './mint';
+import {handle_transfer} from './transfer';
+import {validate_transfer} from './validate';
+import {Account, TransferArgs, TransferResult} from '../types';
 import {MINTING_ACCOUNT} from "../constants";
 
 $update;
+
 export function mint_tokens(): TransferResult {
     const from: Account = MINTING_ACCOUNT;
 
@@ -45,6 +42,7 @@ export function mint_tokens(): TransferResult {
 }
 
 $update;
+
 export function icrc1_transfer(args: TransferArgs): TransferResult {
     const from: Account = {
         owner: ic.caller(),
@@ -55,9 +53,9 @@ export function icrc1_transfer(args: TransferArgs): TransferResult {
 
     if ('err' in validate_transfer_result) {
         if (validate_transfer_result.err)
-        return {
-            Err: validate_transfer_result.err
-        };
+            return {
+                Err: validate_transfer_result.err
+            };
     }
 
     const from_is_minting_account = is_minting_account(from.owner);

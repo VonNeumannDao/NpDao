@@ -1,12 +1,8 @@
-import { balance_of } from '../account';
-import { blob, ic, nat, nat64, Opt, Principal} from 'azle';
-import { state } from '../state';
-import { is_minting_account } from '../transfer/mint';
-import {
-    Account,
-    TransferArgs,
-    ValidateTransferResult
-} from '../types';
+import {balance_of} from '../account';
+import {blob, ic, nat, nat64, Opt, Principal} from 'azle';
+import {state} from '../state';
+import {is_minting_account} from '../transfer/mint';
+import {Account, TransferArgs, ValidateTransferResult} from '../types';
 
 export function validate_transfer(
     args: TransferArgs,
@@ -226,7 +222,7 @@ function find_duplicate_transaction_index(
             }) &&
             transaction.timestamp < now + state.permitted_drift_nanos &&
             now - transaction.timestamp <
-                state.transaction_window_nanos + state.permitted_drift_nanos
+            state.transaction_window_nanos + state.permitted_drift_nanos
         ) {
             return BigInt(i);
         }

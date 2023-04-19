@@ -1,13 +1,13 @@
 import React from 'react';
-import { Grid, Paper, Typography } from '@mui/material';
-import { ProposalType, ProposalViewResponse } from '../declarations/icrc_1/icrc_1.did';
+import {Grid, Paper, Typography} from '@mui/material';
+import {ProposalType, ProposalViewResponse} from '../declarations/icrc_1/icrc_1.did';
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 
 interface ProposalViewProps {
     proposal: ProposalViewResponse;
 }
 
-function ProposalView({ proposal }: ProposalViewProps) {
+function ProposalView({proposal}: ProposalViewProps) {
     const proposalTypeLabel = getProposalTypeLabel(proposal.proposalType);
 
     return (
@@ -27,40 +27,40 @@ function ProposalView({ proposal }: ProposalViewProps) {
                 }}
             >
                 <Typography variant="h4"
-                    sx={{
-                        color: '#fff',
-                    }}
+                            sx={{
+                                color: '#fff',
+                            }}
                 >
                     {proposal.title}
                 </Typography>
             </div>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                    <Typography sx={{ fontWeight: 'bold' }}>Proposal ID:</Typography>
+                    <Typography sx={{fontWeight: 'bold'}}>Proposal ID:</Typography>
                     <Typography>{proposal.id.toString(10)}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <Typography sx={{ fontWeight: 'bold' }}>Proposal Type:</Typography>
+                    <Typography sx={{fontWeight: 'bold'}}>Proposal Type:</Typography>
                     <Typography>{proposalTypeLabel}</Typography>
                 </Grid>
                 <Grid item xs={12}>
-                    <Typography sx={{ fontWeight: 'bold' }}>Description:</Typography>
+                    <Typography sx={{fontWeight: 'bold'}}>Description:</Typography>
                     <Typography>{proposal.description}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <Typography sx={{ fontWeight: 'bold' }}>Proposer:</Typography>
+                    <Typography sx={{fontWeight: 'bold'}}>Proposer:</Typography>
                     <Typography>{proposal.proposer.owner.toText()}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                    <Typography sx={{ fontWeight: 'bold' }}>End Time:</Typography>
+                    <Typography sx={{fontWeight: 'bold'}}>End Time:</Typography>
                     <Typography>{new Date(Number(proposal.endTime / 1000000n)).toLocaleString()}</Typography>
                 </Grid>
                 <Grid item xs={12}>
-                    <Typography sx={{ fontWeight: 'bold' }}>Amount:</Typography>
+                    <Typography sx={{fontWeight: 'bold'}}>Amount:</Typography>
                     <Typography>{proposal.amount.length > 0 ? bigIntToDecimalPrettyString(proposal.amount[0]) : '-'}</Typography>
                 </Grid>
                 <Grid item xs={12}>
-                    <Typography sx={{ fontWeight: 'bold' }}>Receiver:</Typography>
+                    <Typography sx={{fontWeight: 'bold'}}>Receiver:</Typography>
                     <Typography>{proposal.receiver.length > 0 ? proposal.receiver[0].owner.toText() : '-'}</Typography>
                 </Grid>
             </Grid>

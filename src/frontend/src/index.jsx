@@ -5,11 +5,11 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import Main from "./Main";
-import { NFID, PlugWallet, StoicWallet, AstroX} from "@connect2ic/core/providers"
-import { createClient } from "@connect2ic/core"
+import {NFID, PlugWallet, StoicWallet} from "@connect2ic/core/providers"
+import {createClient} from "@connect2ic/core"
 import "@connect2ic/core/style.css"
-import { ConnectButton, ConnectDialog, Connect2ICProvider, useConnect } from "@connect2ic/react"
-import { idlFactory as ledgerFactory } from "./ldl/ledgerIdlFactory.did";
+import {Connect2ICProvider} from "@connect2ic/react"
+import {idlFactory as ledgerFactory} from "./ldl/ledgerIdlFactory.did";
 import {canisterId as backendCanisterId, idlFactory as backendFactory} from "./declarations/backend";
 import {canisterId as tokenCanister, idlFactory as tokenIdlFactory} from "./declarations/icrc_1";
 import {AppProvider} from "./components/AppContext";

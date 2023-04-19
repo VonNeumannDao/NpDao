@@ -1,9 +1,9 @@
-import {$query, $update, blob, nat, nat32, Opt} from 'azle';
-import { state } from './state';
-import { Account, OwnerKey, SubaccountKey } from './types';
+import {blob, nat, nat32, Opt} from 'azle';
+import {state} from './state';
+import {Account, OwnerKey, SubaccountKey} from './types';
 
 export function set_account_balance(account: Account, balance: nat): void {
-    const { owner_key, subaccount_key } = get_account_keys(account);
+    const {owner_key, subaccount_key} = get_account_keys(account);
 
     let owner_account = state.accounts[owner_key];
 
@@ -41,7 +41,7 @@ export function subaccount_to_nat32(subaccount: Opt<blob>): nat32 {
 }
 
 export function balance_of(account: Account): nat {
-    const { owner_key, subaccount_key } = get_account_keys(account);
+    const {owner_key, subaccount_key} = get_account_keys(account);
 
     return state.accounts?.[owner_key]?.[subaccount_key] ?? 0n;
 }

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import {Button, InputAdornment, makeStyles, styled, TextField, Typography, useTheme} from "@mui/material";
+import React, {useState} from 'react';
+import {InputAdornment, styled, TextField, Typography} from "@mui/material";
 import config from "../../../../cig-config.json";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
@@ -7,6 +7,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import {Principal} from "@dfinity/principal";
 import ErrorDialog from "./ErrorDialog";
 import {convertToBigInt} from "../util/bigintutils";
+
 const Form = styled('form')({
     display: 'flex',
     flexDirection: 'column',
@@ -35,7 +36,7 @@ function TreasuryProposal() {
         const response = await tokenActor.createTreasuryProposal({
             owner: Principal.fromText(principal),
             subaccount: []
-        },description, title, {
+        }, description, title, {
             owner: Principal.fromText(receiver),
             subaccount: []
         }, convertToBigInt(amount));
@@ -51,7 +52,7 @@ function TreasuryProposal() {
 
     return (
         <Form onSubmit={handleSubmit}>
-            <Typography style={{ textAlign: 'center', margin: '16px' }} variant="h2">
+            <Typography style={{textAlign: 'center', margin: '16px'}} variant="h2">
                 Treasury Proposal
             </Typography>
             <TextField

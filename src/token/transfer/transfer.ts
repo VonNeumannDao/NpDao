@@ -1,13 +1,7 @@
-import { balance_of, set_account_balance } from '../account';
-import {$update, ic} from 'azle';
-import { state } from '../state';
-import {
-    Account,
-    Transaction,
-    TransactionKind,
-    TransferArgs,
-    TransferResult
-} from '../types';
+import {balance_of, set_account_balance} from '../account';
+import {ic} from 'azle';
+import {state} from '../state';
+import {Account, Transaction, TransactionKind, TransferArgs, TransferResult} from '../types';
 
 export function handle_transfer(args: TransferArgs, from: Account): TransferResult {
     const kind: TransactionKind = {

@@ -1,7 +1,7 @@
-import { Box, Button, Grid, LinearProgress, TextField } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import {Box, Grid, LinearProgress, TextField} from "@mui/material";
+import React, {useEffect, useState} from "react";
 import {useCanister, useConnect} from "@connect2ic/react";
-import { _SERVICE, VoteStatus } from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE, VoteStatus} from "../declarations/icrc_1/icrc_1.did";
 import {useAppContext} from "./AppContext";
 import {Principal} from "@dfinity/principal";
 import {bigIntToDecimalPrettyString, convertToBigInt} from "../util/bigintutils";
@@ -11,7 +11,7 @@ interface VotingProps {
     proposalId: bigint;
 }
 
-function Voting({ proposalId }: VotingProps) {
+function Voting({proposalId}: VotingProps) {
     const [yesVotes, setYesVotes] = useState(0n);
     const [noVotes, setNoVotes] = useState(0n);
 
@@ -22,7 +22,7 @@ function Voting({ proposalId }: VotingProps) {
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const [voteStatus, setVoteStatus] = useState<VoteStatus>();
     const [voteAmount, setVoteAmount] = useState<string>("");
-    const { setBalanceVal, balancePretty, balance } = useAppContext();
+    const {setBalanceVal, balancePretty, balance} = useAppContext();
     const {principal} = useConnect();
 
     useEffect(() => {
@@ -88,7 +88,7 @@ function Voting({ proposalId }: VotingProps) {
                         value={voteAmount}
                         onChange={handleVoteAmountChange}
                         type="number"
-                        inputProps={{ max:Number(balancePretty), min: 0, step: 0.00000001 }}
+                        inputProps={{max: Number(balancePretty), min: 0, step: 0.00000001}}
                         fullWidth
                     />
                 </Grid>
@@ -98,7 +98,8 @@ function Voting({ proposalId }: VotingProps) {
                     </LoadingButton>
                 </Grid>
                 <Grid item xs={6} md={6}>
-                    <LoadingButton loading={loadingButton} fullWidth variant="contained" color="error" onClick={() => onVote(false)}>
+                    <LoadingButton loading={loadingButton} fullWidth variant="contained" color="error"
+                                   onClick={() => onVote(false)}>
                         No ({bigIntToDecimalPrettyString(noVotes)})
                     </LoadingButton>
                 </Grid>

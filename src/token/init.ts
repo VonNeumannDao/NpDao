@@ -3,7 +3,7 @@ import {state} from './state';
 import {handle_mint} from './transfer/mint';
 import {is_subaccount_valid, stringify} from './transfer/validate';
 
-import {Account, InitialAccountBalance, TransferArgs, Vote} from './types';
+import {Account, InitialAccountBalance, TransferArgs} from './types';
 import {DAO_TREASURY, MINTING_ACCOUNT} from "./constants";
 import {stableAccounts, stableProposals, stableProposalVotes, stableTransactions} from "./stable_memory";
 import {startTimer} from "./dao";

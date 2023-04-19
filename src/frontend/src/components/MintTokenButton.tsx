@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import LoadingButton from "@mui/lab/LoadingButton";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
@@ -7,7 +7,7 @@ import {useAppContext} from "./AppContext";
 
 const MintTokenButton = () => {
     const {principal} = useConnect();
-    const { setBalanceVal, balancePretty } = useAppContext();
+    const {setBalanceVal, balancePretty} = useAppContext();
 
 
     const [loading, setLoading] = useState(false);
@@ -28,7 +28,8 @@ const MintTokenButton = () => {
 
     return (
         <>
-            <LoadingButton  sx={{marginLeft: 2}} loading={loading} onClick={handleClick} variant='contained' color='warning'>Mint</LoadingButton>
+            <LoadingButton sx={{marginLeft: 2}} loading={loading} onClick={handleClick} variant='contained'
+                           color='warning'>Mint</LoadingButton>
         </>
     );
 };

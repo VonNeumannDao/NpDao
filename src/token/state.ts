@@ -8,10 +8,10 @@ export let state: State = {
     decimals: config.decimal,
     fee: BigInt(config.fee),
     metadata: [
-        ['icrc1:decimals', { Nat: BigInt(config.decimal) }],
-        ['icrc1:fee', { Nat: BigInt(config.fee) }],
-        ['icrc1:name', { Text: config.name }],
-        ['icrc1:symbol', { Text: config.symbol }]
+        ['icrc1:decimals', {Nat: BigInt(config.decimal)}],
+        ['icrc1:fee', {Nat: BigInt(config.fee)}],
+        ['icrc1:name', {Text: config.name}],
+        ['icrc1:symbol', {Text: config.symbol}]
     ],
     minting_account: null,
     name: config.name,

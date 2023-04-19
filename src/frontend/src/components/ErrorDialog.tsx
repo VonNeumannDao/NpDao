@@ -1,5 +1,5 @@
 import React from 'react';
-import {Dialog, DialogTitle, DialogContent, DialogActions, Button, styled} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, styled} from "@mui/material";
 
 interface ErrorDialogProps {
     open: boolean;
@@ -7,15 +7,15 @@ interface ErrorDialogProps {
     message: string;
 }
 
-export default function ErrorDialog({ open, onClose, message }: ErrorDialogProps) {
+export default function ErrorDialog({open, onClose, message}: ErrorDialogProps) {
     const ErrorDialogTitle = styled(DialogTitle)`
-          background-color: ${(props) => props.theme.palette.error.main};
-          color: ${(props) => props.theme.palette.common.white};
-        `;
+      background-color: ${(props) => props.theme.palette.error.main};
+      color: ${(props) => props.theme.palette.common.white};
+    `;
 
     const ErrorDialogContent = styled(DialogContent)`
-          color: ${(props) => props.theme.palette.error.main};
-        `;
+      color: ${(props) => props.theme.palette.error.main};
+    `;
     return (
         <Dialog open={open} onClose={onClose}>
             <ErrorDialogTitle>Error</ErrorDialogTitle>

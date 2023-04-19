@@ -1,9 +1,7 @@
-import {Box, CardActions, CardContent, List, ListItem, ListItemAvatar, Typography, ListItemText} from '@mui/material';
-import React, {useEffect, useState} from 'react';
+import {CardContent, List, ListItem, ListItemAvatar, ListItemText, Typography} from '@mui/material';
+import React, {useState} from 'react';
 import {useCanister, useConnect} from '@connect2ic/react';
 import Card from "@mui/material/Card";
-import LoadingButton from "@mui/lab/LoadingButton";
-import {Principal} from "@dfinity/principal";
 import {canisterId as tokenCanister} from "../declarations/icrc_1";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import Avatar from '@mui/material/Avatar';
@@ -17,7 +15,7 @@ export default function MintTokens() {
     const [_tokenActor] = useCanister('token');
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const [loading, setLoading] = useState(false);
-    const { setBalanceVal, balancePretty } = useAppContext();
+    const {setBalanceVal, balancePretty} = useAppContext();
 
     return (
         <Card
@@ -32,30 +30,30 @@ export default function MintTokens() {
 
                 Token: {tokenCanister}
 
-                <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                <List sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
                     <ListItem>
                         <ListItemAvatar>
                             <Avatar>
-                                <ImageIcon />
+                                <ImageIcon/>
                             </Avatar>
                         </ListItemAvatar>
-                        <ListItemText primary="Sardines are Good" />
+                        <ListItemText primary="Sardines are Good"/>
                     </ListItem>
                     <ListItem>
                         <ListItemAvatar>
                             <Avatar>
-                                <WorkIcon />
+                                <WorkIcon/>
                             </Avatar>
                         </ListItemAvatar>
-                        <ListItemText primary="Balance" secondary={balancePretty} />
+                        <ListItemText primary="Balance" secondary={balancePretty}/>
                     </ListItem>
                     <ListItem>
                         <ListItemAvatar>
                             <Avatar>
-                                <BeachAccessIcon />
+                                <BeachAccessIcon/>
                             </Avatar>
                         </ListItemAvatar>
-                        <ListItemText primary="Token" secondary={tokenCanister} />
+                        <ListItemText primary="Token" secondary={tokenCanister}/>
                     </ListItem>
                 </List>
             </CardContent>

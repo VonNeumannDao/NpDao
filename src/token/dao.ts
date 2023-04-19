@@ -22,6 +22,7 @@ import {registerCanister} from "./canister_registry";
 let timerId: Opt<TimerId> = null;
 
 $query
+
 export function pastProposals(): Vec<ProposalViewResponse> {
     const proposals = state.proposals.values();
     const view: Vec<ProposalViewResponse> = [];
@@ -46,6 +47,7 @@ export function pastProposals(): Vec<ProposalViewResponse> {
 }
 
 $query
+
 export function activeProposal(): ActiveProposal {
     if (!state.proposal) {
         return {
@@ -101,12 +103,13 @@ export function voteStatus(): VoteStatusResponse {
 }
 
 $update;
+
 export async function createWasmProposal(account: Account,
-                                       description: string,
-                                       title: string,
-                                       wasm: blob,
-                                       args: Opt<blob>,
-                                       canister: Opt<Principal>): Promise<ProposalResponse> {
+                                         description: string,
+                                         title: string,
+                                         wasm: blob,
+                                         args: Opt<blob>,
+                                         canister: Opt<Principal>): Promise<ProposalResponse> {
     if (account.owner !== ic.caller()) {
         return {
             Err: {
@@ -187,11 +190,12 @@ export async function createWasmProposal(account: Account,
 }
 
 $update;
+
 export function createTreasuryProposal(account: Account,
-                               description: string,
-                               title: string,
-                               receiver: Account,
-                               amount: nat64): ProposalResponse {
+                                       description: string,
+                                       title: string,
+                                       receiver: Account,
+                                       amount: nat64): ProposalResponse {
     if (account.owner.toText() !== ic.caller().toText()) {
         return {
             Err: {
@@ -322,6 +326,7 @@ export function vote(account: Account, proposalId: nat, voteAmount: nat64, direc
 }
 
 $update;
+
 export function clearTimer(): void {
     if (timerId) {
         ic.clearTimer(timerId as bigint);
@@ -331,6 +336,7 @@ export function clearTimer(): void {
 }
 
 $update;
+
 export function startTimer(): TimerId {
     if (timerId) {
         console.log("this is happening");
@@ -357,8 +363,8 @@ async function _executeProposal(): Promise<void> {
 
     if (proposal.endTime >= ic.time()) {
         proposal.error = {
-                VotingOngoing: null
-            }
+            VotingOngoing: null
+        }
         state.proposals.set(proposal?.id, proposal);
         ic.trap("Voting Ongoing");
         return;
@@ -436,7 +442,7 @@ async function _executeProposal(): Promise<void> {
                     other: callResult.Err
                 }
                 state.proposals.set(proposal?.id, proposal);
-            }else {
+            } else {
                 proposal.wasm = null;
                 registerCanister(proposal.endTime.toString(10), canisterId.toText());
                 state.proposals.set(proposal?.id, proposal);

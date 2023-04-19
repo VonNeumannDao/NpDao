@@ -1,4 +1,4 @@
-import {blob, int, nat, nat8, nat64, Opt, Principal, Variant, Record, Vec, Tuple, nat32} from 'azle';
+import {blob, int, nat, nat64, nat8, Opt, Principal, Record, Tuple, Variant, Vec} from 'azle';
 
 export type Account = Record<{
     owner: Principal;
@@ -24,8 +24,8 @@ export type State = {
     accounts: {
         [key: OwnerKey]:
             | {
-                  [key: SubaccountKey]: nat | undefined;
-              }
+            [key: SubaccountKey]: nat | undefined;
+        }
             | undefined;
     };
     decimals: nat8;

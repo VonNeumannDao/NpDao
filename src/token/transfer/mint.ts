@@ -1,12 +1,7 @@
-import { balance_of, set_account_balance } from '../account';
-import {$update, ic, Opt, Principal} from 'azle';
-import { state } from '../state';
-import {
-    Account,
-    Transaction,
-    TransferArgs,
-    TransferResult
-} from '../types';
+import {balance_of, set_account_balance} from '../account';
+import {ic, Opt, Principal} from 'azle';
+import {state} from '../state';
+import {Account, Transaction, TransferArgs, TransferResult} from '../types';
 
 export function handle_mint(args: TransferArgs, from: Opt<Account>): TransferResult {
     set_account_balance(args.to, balance_of(args.to) + args.amount);
