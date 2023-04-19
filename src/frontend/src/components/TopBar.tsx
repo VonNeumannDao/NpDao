@@ -19,6 +19,8 @@ import ContentModal from "./ContentModal";
 import TreasuryProposal from "./TreasuryProposal";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import {useAppContext} from "./AppContext";
+import WasmProposal from "./WasmProposal";
+import CanisterDropdown from "./CanisterDropdown";
 
 export default function TopBar() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -27,7 +29,16 @@ export default function TopBar() {
     const {connect, isInitializing, disconnect, isConnected, principal} = useConnect();
     const [activeProposal, setActiveProposal] = useState<boolean>(false);
     const {balancePretty} = useAppContext();
+    const [proposalAnchorEl, setProposalAnchorEl] = useState(null);
+    const [canisters, setCanisters] = useState<Map<string, string>>(new Map());
 
+    const handleProposalClick = (event) => {
+        setProposalAnchorEl(event.currentTarget);
+    };
+
+    const handleProposalClose = () => {
+        setProposalAnchorEl(null);
+    };
 
     useEffect(() => {
         if (principal)
@@ -37,6 +48,12 @@ export default function TopBar() {
     async function init() {
         const activeProposal = await tokenActor.activeProposal();
         setActiveProposal(!!activeProposal["Ok"]);
+        const canisters = await tokenActor.canisters();
+        const map = new Map<string, string>();
+        for (let canister of canisters) {
+            map.set(canister.canisterId, canister.appName);
+        }
+        setCanisters(map);
     }
 
     function handleLoginClick(provider: string) {
@@ -53,13 +70,31 @@ export default function TopBar() {
                         <Box sx={{paddingLeft: 2, flexGrow: 1, display: {xs: 'none', md: 'flex'}}}>
                             <Typography variant='h6'>{config.symbol} DAO</Typography>
                         </Box>
-                        <Box sx={{display: 'flex', alignItems: 'center'}}>
+                        {canisters.size >0 &&
+                            <CanisterDropdown menuItems={Array.from(canisters.entries()).map((x) => {
+                                return {
+                                    label: x[1], to: x[0]
+                                }
+                            })} />
+                        }
+
+                        <Box sx={{display: 'flex', alignItems: 'center', marginLeft: 2}}>
                             <Typography variant='subtitle1'
                                         sx={{marginRight: 1}}>Balance: {balancePretty}${config.symbol}</Typography>
                         </Box>
-                        <ContentModal disabled={!isConnected || activeProposal} trigger={"Create Proposal"}>
-                            <TreasuryProposal/>
-                        </ContentModal>
+                        <Button sx={{marginLeft: 2}} variant='contained' color='secondary' onClick={handleProposalClick}>Create Proposal</Button>
+                        <Menu
+                            anchorEl={proposalAnchorEl}
+                            open={Boolean(proposalAnchorEl)}
+                            onClose={handleProposalClose}
+                        >
+                            <ContentModal disabled={!isConnected || activeProposal} trigger={"Wasm Proposal"}>
+                                <WasmProposal/>
+                            </ContentModal>
+                            <ContentModal disabled={!isConnected || activeProposal} trigger={"Treasury Proposal"}>
+                                <TreasuryProposal/>
+                            </ContentModal>
+                        </Menu>
                         <MintTokenButton/>
                         <Button sx={{marginLeft: 2}} disabled={isInitializing} variant='outlined' color='inherit'
                                 onClick={e => {

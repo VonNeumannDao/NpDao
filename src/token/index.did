@@ -1,6 +1,6 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
 type ActiveProposal = variant { Ok : ProposalViewResponse; Err : text };
-type Canisters = record { ratifiedDate : text; canisterId : text };
+type Canisters = record { appName : text; canisterId : text };
 type ProposalError = variant {
   AccessDenied;
   ProposalNotFound;
@@ -20,6 +20,7 @@ type ProposalViewResponse = record {
   endTime : nat64;
   description : text;
   ended : bool;
+  error : opt ProposalError;
   proposalType : ProposalType;
   proposer : Account;
   executed : bool;
@@ -84,7 +85,8 @@ service : () -> {
       text,
       vec nat8,
       opt vec nat8,
-      opt principal,
+      opt text,
+      opt text,
     ) -> (ProposalResponse);
   get_transactions : (opt nat64, opt nat64) -> (vec Transaction) query;
   icrc1_balance_of : (Account) -> (nat) query;

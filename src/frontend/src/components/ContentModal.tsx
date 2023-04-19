@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, Modal, styled} from "@mui/material";
+import {Button, MenuItem, Modal, styled} from "@mui/material";
 
 
 function ContentModal({trigger, children, disabled}) {
@@ -29,7 +29,7 @@ function ContentModal({trigger, children, disabled}) {
 
     return (
         <>
-            <Button variant='contained' color='secondary' disabled={disabled} onClick={handleOpen}>{trigger}</Button>
+            <MenuItem disabled={disabled} onClick={handleOpen}>{trigger}</MenuItem>
             <ModalWrapper
                 open={open}
                 onClose={handleClose}

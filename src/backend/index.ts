@@ -18,3 +18,7 @@ $update;
 export function setMessage(newMessage: Message): void {
     messages.push(newMessage);
 }
+$query;
+export function hello(): string {
+    return "world";
+}

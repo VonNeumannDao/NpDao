@@ -44,7 +44,7 @@ export type State = {
     proposalCount: nat64,
     duration: nat8,
     proposalCost: nat64,
-    initial_supply: nat64
+    initial_supply: nat64,
 };
 
 
@@ -141,8 +141,9 @@ export type SerializableProposal = Record<{
     error: Opt<ProposalError>;
     wasm: Opt<blob>;
     args: Opt<blob>;
-    canister: Opt<Principal>
+    canister: Opt<Principal>;
     ended: boolean;
+    appName: Opt<string>;
 }>
 
 export type Proposal = {
@@ -158,6 +159,8 @@ export type Proposal = {
     receiver: Opt<Account>;
     error: Opt<ProposalError>;
     wasm: Opt<blob>;
+
+    appName: Opt<string>;
     args: Opt<blob>;
     canister: Opt<Principal>
     ended: boolean;
@@ -193,6 +196,7 @@ export type ProposalViewResponse = Record<{
     ended: boolean;
     receiver: Opt<Account>;
     amount: Opt<nat64>;
+    error: Opt<ProposalError>;
 }>
 
 export type ActiveProposal = Variant<{
@@ -201,7 +205,7 @@ export type ActiveProposal = Variant<{
 }>
 
 export type Canisters = Record<{
-    ratifiedDate: string;
+    appName: string;
     canisterId: string;
 }>
 

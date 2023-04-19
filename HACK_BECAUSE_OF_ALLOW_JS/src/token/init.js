@@ -1,25 +1,19 @@
-import {$init, $postUpgrade, $preUpgrade, ic, Opt} from 'azle';
-import {state} from './state';
-import {handle_mint} from './transfer/mint';
-import {is_subaccount_valid, stringify} from './transfer/validate';
-
-import {Account, InitialAccountBalance, TransferArgs} from './types';
-import {DAO_TREASURY, MINTING_ACCOUNT} from "./constants";
-import {stableAccounts, stableIds, stableProposals, stableProposalVotes, stableTransactions} from "./stable_memory";
-import {startTimer} from "./dao";
-
+import { $init, $postUpgrade, $preUpgrade, ic } from 'azle';
+import { state } from './state';
+import { handle_mint } from './transfer/mint';
+import { is_subaccount_valid, stringify } from './transfer/validate';
+import { DAO_TREASURY, MINTING_ACCOUNT } from "./constants";
+import { stableAccounts, stableProposals, stableProposalVotes, stableTransactions } from "./stable_memory";
+import { startTimer } from "./dao";
 $preUpgrade;
-
-export function preUpgrade(): void {
-    console.log(state.accounts)
-    stableIds.insert("proposalCount", state.proposalCount.toString(10));
+export function preUpgrade() {
+    console.log(state.accounts);
     for (let ownerKey in state.accounts) {
         console.log(ownerKey);
-
         for (let accountKey in state.accounts?.[ownerKey]) {
             console.log(accountKey, ownerKey);
             // @ts-ignore
-            const balance: bigint = state.accounts?.[ownerKey]?.[accountKey];
+            const balance = state.accounts?.[ownerKey]?.[accountKey];
             stableAccounts.insert(ownerKey + accountKey, {
                 ownerKey: ownerKey,
                 accountKey: accountKey,
@@ -28,46 +22,40 @@ export function preUpgrade(): void {
         }
     }
     console.log("starting transactions");
-
     for (let transaction of state.transactions) {
         stableTransactions.insert(transaction.timestamp.toString(10), transaction);
     }
     console.log("starting proposals");
-    console.log("state.proposals.")
+    console.log("state.proposals.");
     for (let [key, val] of state.proposals.entries()) {
+        console.log(val.votes);
         const votesToSave = Object.values(val.votes);
         console.log(val.id.toString(10));
         stableProposalVotes.insert(val.id.toString(10), votesToSave);
         stableProposals.insert(val.id.toString(10), val);
     }
 }
-
 $postUpgrade;
-
-export function postUpgrade(): void {
+export function postUpgrade() {
     state.minting_account = MINTING_ACCOUNT;
-    state.proposalCount = BigInt(stableIds.get("proposalCount") || 0);
-    console.log("starting accounts")
-
+    console.log("starting accounts");
     for (let accounts of stableAccounts.values()) {
         // @ts-ignore
         state.accounts[accounts.ownerKey] = {};
         // @ts-ignore
         state.accounts[accounts.ownerKey][accounts.accountKey] = accounts.balance;
     }
-    console.log("starting transactions")
+    console.log("starting transactions");
     for (let transaction of stableTransactions.values()) {
         state.transactions.push(transaction);
     }
-    console.log("starting proposals")
-
+    console.log("starting proposals");
     for (let value of stableProposals.values()) {
         const votes = stableProposalVotes.get(value.id.toString(10));
         const proposal = {
             ...value,
             votes: {}
-        }
-
+        };
         if (votes) {
             votes.forEach(votesToUse => {
                 console.log(votesToUse.voter.toText());
@@ -76,52 +64,35 @@ export function postUpgrade(): void {
                     voter: votesToUse.voter,
                     voteYes: votesToUse.voteYes,
                     voteNo: votesToUse.voteNo
-                }
+                };
             });
         }
         state.proposals.set(value.id, proposal);
     }
-
-    startTimer();
 }
-
 $init;
-
-export function init(): void {
+export function init() {
     console.log('this runs the init', state.initial_supply);
     state.minting_account = validate_minting_account(MINTING_ACCOUNT);
     initialize_account_balance({
         account: DAO_TREASURY,
         balance: state.initial_supply
     });
-
     startTimer();
 }
-
-function validate_minting_account(minting_account: Opt<Account>): Opt<Account> {
-    if (
-        minting_account !== null &&
-        is_subaccount_valid(minting_account.subaccount) === false
-    ) {
+function validate_minting_account(minting_account) {
+    if (minting_account !== null &&
+        is_subaccount_valid(minting_account.subaccount) === false) {
         ic.trap(`subaccount for minting account must be 32 bytes in length`);
     }
-
     return minting_account;
 }
-
-function initialize_account_balance(
-    initial_account_balance: InitialAccountBalance
-) {
-    if (
-        is_subaccount_valid(initial_account_balance.account.subaccount) ===
-        false
-    ) {
-        ic.trap(
-            `subaccount for initial account ${initial_account_balance.account.owner.toText()} must be 32 bytes in length`
-        );
+function initialize_account_balance(initial_account_balance) {
+    if (is_subaccount_valid(initial_account_balance.account.subaccount) ===
+        false) {
+        ic.trap(`subaccount for initial account ${initial_account_balance.account.owner.toText()} must be 32 bytes in length`);
     }
-
-    const args: TransferArgs = {
+    const args = {
         amount: initial_account_balance.balance,
         created_at_time: ic.time(),
         fee: null,
@@ -129,9 +100,7 @@ function initialize_account_balance(
         memo: null,
         to: initial_account_balance.account
     };
-
     const mint_result = handle_mint(args, state.minting_account);
-
     if ('Err' in mint_result) {
         ic.trap(stringify(mint_result.Err));
     }

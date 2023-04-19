@@ -4,12 +4,11 @@ import {Canisters} from './types';
 import {stableCanisterRegister} from "./stable_memory";
 
 $query;
-
 export function canisters(): Vec<Canisters> {
     const canisters: Canisters[] = [];
     for (let keyname of stableCanisterRegister.keys()) {
         canisters.push({
-            ratifiedDate: stableCanisterRegister.get(keyname) as string,
+            appName: stableCanisterRegister.get(keyname) as string,
             canisterId: keyname
         })
     }
@@ -17,6 +16,6 @@ export function canisters(): Vec<Canisters> {
     return canisters;
 }
 
-export function registerCanister(ratifiedDate: string, canisterId: string): void {
-    stableCanisterRegister.insert(canisterId, ratifiedDate);
+export function registerCanister(appName: string, canisterId: string): void {
+    stableCanisterRegister.insert(canisterId, appName);
 }

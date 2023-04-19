@@ -22,7 +22,6 @@ export {
     createTreasuryProposal,
     createWasmProposal,
     startTimer,
-    clearTimer,
     voteStatus,
     pastProposals,
     activeProposal
