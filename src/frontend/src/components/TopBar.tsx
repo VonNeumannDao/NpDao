@@ -21,7 +21,8 @@ import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import {useAppContext} from "./AppContext";
 import WasmProposal from "./WasmProposal";
 import CanisterDropdown from "./CanisterDropdown";
-import BurgerButtonWithDrawer from "./BurgerButtonWithDrawer";
+import BalanceList from "./BalanceList";
+import DeleteWasmProposal from "./DeleteWasmProposal";
 
 export default function TopBar() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -67,8 +68,6 @@ export default function TopBar() {
         <AppBar style={{zIndex: 10}} position='static' elevation={0}>
             <Container maxWidth='xl'>
                 <Toolbar disableGutters sx={{width: '100%', margin: "auto"}}>
-                    <BurgerButtonWithDrawer />
-
                     <Box sx={{display: 'flex', width: '100%', justifyContent: 'space-between'}}>
                         <Box sx={{paddingLeft: 2, flexGrow: 1, display: {xs: 'none', md: 'flex'}}}>
                             <Typography variant='h6'>{config.symbol} DAO</Typography>
@@ -96,6 +95,9 @@ export default function TopBar() {
                             </ContentModal>
                             <ContentModal disabled={!isConnected || activeProposal} trigger={"Treasury Proposal"}>
                                 <TreasuryProposal/>
+                            </ContentModal>
+                            <ContentModal disabled={!isConnected || activeProposal} trigger={"Delete Wasm Proposal"}>
+                                <DeleteWasmProposal/>
                             </ContentModal>
                         </Menu>
                         <MintTokenButton/>

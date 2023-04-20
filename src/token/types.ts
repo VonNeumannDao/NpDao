@@ -72,6 +72,7 @@ export type TransactionKind = Variant<{
 export type ProposalType = Variant<{
     treasuryAction: null;
     installAppAction: null;
+    deleteAppAction: null;
 }>
 
 export type TransferArgs = Record<{

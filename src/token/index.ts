@@ -25,6 +25,8 @@ export {
     voteStatus,
     pastProposals,
     activeProposal,
-    cycleBalances
+    cycleBalances,
+    createDeleteWasmProposal,
+    executeProposal
 } from './dao';
 export {canisters} from "./canister_registry";

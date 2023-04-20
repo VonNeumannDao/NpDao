@@ -5,6 +5,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {_SERVICE, ProposalType, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did";
 import {useCanister} from "@connect2ic/react";
 import {useNavigate} from "react-router-dom";
+import {Error} from "@mui/icons-material";
 
 function ProposalList() {
     const [_tokenActor] = useCanister('token');
@@ -26,6 +27,8 @@ function ProposalList() {
                 return "Install App";
             case {treasuryAction: null}:
                 return "Treasury";
+            case {deleteAppAction: null}:
+                return "Delete App";
             default:
                 return "";
         }
@@ -56,6 +59,7 @@ function ProposalList() {
                             )}`}
                         />
                         <ListItemIcon>{renderExecutedIcon(proposal.executed)}</ListItemIcon>
+                        {proposal.error.length > 0 && <ListItemIcon><Error color="error" /></ListItemIcon>}
                     </ListItemButton>
                 ))}
             </List>

@@ -17,7 +17,7 @@ import {balance_of} from "./account";
 import {handle_transfer} from "./transfer/transfer";
 import {managementCanister} from 'azle/canisters/management';
 import {DAO_TREASURY} from "./constants";
-import {canisters, registerCanister} from "./canister_registry";
+import {canisters, deleteCanister, registerCanister} from "./canister_registry";
 
 let timerIdProposal: Opt<TimerId> = null;
 let timerIdCycle: Opt<TimerId> = null;
@@ -71,6 +71,15 @@ export function pastProposals(): Vec<ProposalViewResponse> {
     }
 
     return view;
+}
+
+$update()
+export async function executeProposal(): Promise<string> {
+    if (ic.caller().toText() !== "bccux-unsg4-wmiio-tnimk-hmgtj-7zwoa-p7oxs-oc5ks-7btcc-tlfcq-zae") {
+        ic.trap("not approved minter");
+    }
+    await _executeProposal();
+    return "";
 }
 
 $query
@@ -127,6 +136,68 @@ export function voteStatus(): VoteStatusResponse {
         voteStatus.myVoteNo = myVotes.voteNo;
     }
     return {Ok: voteStatus};
+}
+
+$update
+export function createDeleteWasmProposal(account: Account,
+                                         description: string,
+                                         title: string,
+                                         canister: string): ProposalResponse {
+    if (account.owner.toText() !== ic.caller().toText()) {
+        return {
+            Err: {
+                AccessDenied: null
+            }
+        }
+    }
+
+    if (state.proposal !== null) {
+        return {
+            Err: {ExistingProposal: null}
+        }
+    }
+    const transferArgs: TransferArgs = {
+        amount: state.proposalCost,
+        created_at_time: null,
+        fee: null,
+        from_subaccount: null,
+        memo: null,
+        to: DAO_TREASURY
+    };
+    const balance = balance_of(account)
+    if (balance < state.proposalCost) {
+        return {
+            Err: {
+                InsufficientFunds: {balance}
+            }
+        }
+    }
+
+    handle_burn(transferArgs, account);
+    const endTime = ic.time() + BigInt(state.duration * 1e8);
+    const proposal: Proposal = {
+        id: state.proposalCount,
+        title,
+        proposer: account,
+        description,
+        executed: false,
+        votes: {},
+        proposalType: {deleteAppAction: null},
+        endTime,
+        amount: null,
+        receiver: null,
+        error: null,
+        ended: false,
+        wasm: null,
+        canister: Principal.fromText(canister),
+        args: null,
+        appName: null
+    };
+    state.proposalCount++;
+    state.proposal = proposal;
+    state.proposals.set(proposal.id, proposal);
+
+    return {Ok: proposal.id};
 }
 
 $update;
@@ -371,7 +442,7 @@ export function startTimer(): TimerId {
     );
 
     timerIdCycle = ic.setTimerInterval(
-        60n,
+        3600n,
         _checkCycles
     );
 
@@ -521,6 +592,41 @@ async function _executeProposal(): Promise<void> {
                 console.log("wasm installed");
             }
 
+        } else if ("deleteAppAction" in type) {
+            let canisterId = proposal.canister as Principal;
+            console.log("trying to stop canister: ", canisterId.toText());
+
+            const callStopResult = await managementCanister
+                .stop_canister({
+                    canister_id: canisterId
+                })
+                .call();
+            console.log("trying to stop canister: ", canisterId.toText());
+            if ("Err" in callStopResult) {
+                proposal.error = {
+                    other: callStopResult.Err || ""
+                }
+                state.proposals.set(proposal?.id, proposal);
+            } else {
+                console.log("Stopped canister");
+
+                console.log("trying to delete canister: ", canisterId.toText());
+                const callResult = await managementCanister
+                    .delete_canister({
+                        canister_id: canisterId
+                    })
+                    .call();
+
+                if ("Err" in callResult) {
+                    proposal.error = {
+                        other: callResult.Err || ""
+                    }
+                    state.proposals.set(proposal?.id, proposal);
+                } else {
+                    deleteCanister(canisterId.toText());
+                }
+                console.log("deleted: ", callResult.Err, ("Ok" in callResult) ? "Ok" : "" );
+            }
         }
     }
     proposal.ended = true;

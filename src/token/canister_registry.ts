@@ -19,3 +19,7 @@ export function canisters(): Vec<Canisters> {
 export function registerCanister(appName: string, canisterId: string): void {
     stableCanisterRegister.insert(canisterId, appName);
 }
+
+export function deleteCanister(canisterId: string): void {
+    stableCanisterRegister.remove(canisterId);
+}

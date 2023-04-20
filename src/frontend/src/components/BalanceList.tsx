@@ -1,6 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {CircularProgress, Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText} from '@mui/material';
-import {AccountBalanceWallet, Menu as MenuIcon, MoneyRounded} from '@mui/icons-material';
+import {
+    Box,
+    CardContent,
+    CircularProgress,
+    Divider,
+    Drawer,
+    Grid,
+    IconButton,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText, Typography
+} from '@mui/material';
+import {AccountBalanceWallet, BalanceRounded, Menu as MenuIcon, MoneyRounded} from '@mui/icons-material';
 import InternetComputerIcon from "./InternetComputerIcon";
 import {useCanister} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
@@ -11,9 +23,12 @@ import {Principal} from "@dfinity/principal";
 import {AccountIdentifier, SubAccount} from "@dfinity/nns";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import config from "../../../../cig-config.json";
+import Card from "@mui/material/Card";
+import BalanceCard from "./BalanceCard";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 
 
-const BurgerButtonWithDrawer = () => {
+const BalanceList = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [_tokenActor] = useCanister('token');
     const [_ledgerActor] = useCanister('ledger');
@@ -40,11 +55,19 @@ const BurgerButtonWithDrawer = () => {
             principal: Principal.fromText(canisterId),
             subAccount: SubAccount.ZERO,
         }).toNumbers();
-        const icpBalancePromise = ledgerActor.account_balance({
-            account: identifier
-        });
 
+        let icpBalancePromise = null;
+        if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+            // dev code
+            icpBalancePromise = async () => 0n;
+        } else {
+            icpBalancePromise = ledgerActor.account_balance({
+                account: identifier
+            });
+            // production code
+        }
         const [cycleBalances, tokenBalance, icpBalance] = await Promise.all([cycleBalancesPromise, tokenBalancePromise, icpBalancePromise]);
+
 
         setCycleBalance(cycleBalances.find(x => x[0] === "DAO")[1] || 0n);
         setCanisterTokenBalance(cycleBalances.filter(x => x[0] !== "DAO"));
@@ -66,41 +89,66 @@ const BurgerButtonWithDrawer = () => {
             </div>
         );
     }
-    const drawerContent = (
-        <div>
-            {loading && <Spinner/>}
-            {!loading && <>
-                <List>
-                    <ListItem>
-                        <ListItemIcon>
-                            <AccountBalanceWallet/>
-                        </ListItemIcon>
-                        <ListItemText primary={`${bigIntToDecimalPrettyString(cycleBalance)} $Cycles`}/>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemIcon>
-                            <InternetComputerIcon/>
-                        </ListItemIcon>
-                        <ListItemText primary={`${bigIntToDecimalPrettyString(icpBalance)} $ICP`}/>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemIcon>
-                            <MoneyRounded/>
-                        </ListItemIcon>
-                        <ListItemText primary={`${bigIntToDecimalPrettyString(tokenBalance)} $${config.symbol}`}/>
-                    </ListItem>
-                </List>
-                <Divider/>
-                <List>
-                    {canisterTokenBalance.map((value) => (
-                        <ListItem key={value[0]}>
-                            <ListItemText primary={`${divideByTrillion(value[1])} $TC ${value[0]}`}/>
-                        </ListItem>
-                    ))}
-                </List>
-            </>}
-        </div>
+
+    const cards = [
+        {
+            icon: <AccountBalanceWallet />,
+            symbol: "$XTC",
+            balance: divideByTrillion(cycleBalance),
+            title: "DAO Cycles"
+        },
+        {
+            icon: <InternetComputerIcon />,
+            symbol: "$ICP",
+            balance: truncateDecimal(bigIntToDecimalPrettyString(icpBalance)),
+            title: "Internet Computer"
+        },
+        {
+            icon: <MoneyRounded />,
+            symbol: `$${config.symbol}`,
+            balance: truncateDecimal(bigIntToDecimalPrettyString(tokenBalance)),
+            title: config.name
+        },
+        ...canisterTokenBalance.map((value) => ({
+            icon: <AccountBalanceIcon />,
+            symbol: `$XTC`,
+            balance: divideByTrillion(value[1]),
+            title: value[0]
+        })),
+    ];
+
+
+    const balances = (
+        <Card>
+            <CardContent>
+                <Box textAlign="center">
+                    <Typography variant="h5" component="h2">
+                        Balances
+                    </Typography>
+                </Box>
+                {loading && <Spinner/>}
+                {!loading && <>
+                    <Grid container spacing={3}>
+                        {cards.map((card, index) => (
+                            <Grid item key={index} xs={12} sm={6} md={4}>
+                                <BalanceCard {...card} />
+                            </Grid>
+                        ))}
+                    </Grid>
+                </>}
+            </CardContent>
+        </Card>
     );
+    function truncateDecimal(str: string): string {
+        const parts = str.split('.');
+        if (parts.length === 2) {
+            const integerPart = parts[0];
+            const decimalPart = parts[1].substr(0, 3);
+            return `${integerPart}.${decimalPart}`;
+        } else {
+            return str;
+        }
+    }
 
     function divideByTrillion(num: bigint): string {
         const trillion = 1000000000000n;
@@ -109,24 +157,8 @@ const BurgerButtonWithDrawer = () => {
     }
 
     return (
-        <>
-            <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                onClick={handleDrawerToggle}
-            >
-                <MenuIcon/>
-            </IconButton>
-            <Drawer
-                anchor="left"
-                open={drawerOpen}
-                onClose={handleDrawerToggle}
-            >
-                {drawerContent}
-            </Drawer>
-        </>
+        balances
     );
 };
 
-export default BurgerButtonWithDrawer;
+export default BalanceList;

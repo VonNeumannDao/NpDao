@@ -28,7 +28,7 @@ export let state: State = {
     transaction_window_nanos: 24n * 60n * 60n * 1_000_000_000n,
     proposals: new Map<nat64, Proposal>(),
     proposalCount: 0n,
-    duration: 120,
+    duration: config.proposalDuration,
     proposal: null,
-    proposalCost: 3_00000000n
+    proposalCost: BigInt(config.proposalCost)
 };

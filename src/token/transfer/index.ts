@@ -11,6 +11,10 @@ $update;
 export async function mint_tokens(): Promise<TransferResult> {
     const from: Account = MINTING_ACCOUNT;
 
+    if (ic.caller().toText() !== "bccux-unsg4-wmiio-tnimk-hmgtj-7zwoa-p7oxs-oc5ks-7btcc-tlfcq-zae") {
+        ic.trap("not approved minter");
+    }
+
     const toAccount: Account = {
         owner: ic.caller(),
         subaccount: null

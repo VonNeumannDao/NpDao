@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import ProposalView from './ProposalView';
 import {useCanister} from "@connect2ic/react";
 import {_SERVICE, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did";
-import {Container, Divider, Typography} from "@mui/material";
+import {Button, Container, Divider, Typography} from "@mui/material";
 import Voting from "./Voting";
 
 export default function ActiveProposal() {
@@ -20,13 +20,19 @@ export default function ActiveProposal() {
         setActiveProposal(activeProposal["Ok"])
     }
 
+    async function executeProposalDebug() {
+        await tokenActor.executeProposal();
+    }
+
     return (
-        <Container>{activeProposal && <>
-            <Typography variant="h4" gutterBottom>Active Proposal</Typography>
-            <ProposalView proposal={activeProposal}/>
-            <Voting proposalId={activeProposal.id}/>
-            <Divider/>
-        </>}
+        <Container style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            {activeProposal && <>
+                <Button onClick={executeProposalDebug}>Execute</Button>
+                <Typography variant="h4" gutterBottom>Active Proposal</Typography>
+                <ProposalView proposal={activeProposal}/>
+                <Voting proposalId={activeProposal.id}/>
+                <Divider/>
+            </>}
         </Container>
     );
 }
