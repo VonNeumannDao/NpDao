@@ -93,7 +93,6 @@ service : () -> {
       opt text,
     ) -> (ProposalResponse);
   cycleBalances : () -> (vec record { text; nat64 });
-  executeProposal : () -> (text);
   get_transactions : (opt nat64, opt nat64) -> (vec Transaction) query;
   icrc1_balance_of : (Account) -> (nat) query;
   icrc1_decimals : () -> (nat8) query;

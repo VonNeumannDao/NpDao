@@ -26,6 +26,7 @@ import config from "../../../../cig-config.json";
 import Card from "@mui/material/Card";
 import BalanceCard from "./BalanceCard";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import {isDebugOn} from "./DebugOnly";
 
 
 const BalanceList = () => {
@@ -57,14 +58,12 @@ const BalanceList = () => {
         }).toNumbers();
 
         let icpBalancePromise = null;
-        if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-            // dev code
+        if (isDebugOn) {
             icpBalancePromise = async () => 0n;
         } else {
             icpBalancePromise = ledgerActor.account_balance({
                 account: identifier
             });
-            // production code
         }
         const [cycleBalances, tokenBalance, icpBalance] = await Promise.all([cycleBalancesPromise, tokenBalancePromise, icpBalancePromise]);
 

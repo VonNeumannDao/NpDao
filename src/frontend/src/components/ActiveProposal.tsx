@@ -4,6 +4,7 @@ import {useCanister} from "@connect2ic/react";
 import {_SERVICE, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did";
 import {Button, Container, Divider, Typography} from "@mui/material";
 import Voting from "./Voting";
+import DebugOnly from "./DebugOnly";
 
 export default function ActiveProposal() {
     const [_tokenActor] = useCanister('token');
@@ -27,7 +28,9 @@ export default function ActiveProposal() {
     return (
         <Container style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             {activeProposal && <>
-                <Button onClick={executeProposalDebug}>Execute</Button>
+                <DebugOnly>
+                    <Button onClick={executeProposalDebug}>Execute</Button>
+                </DebugOnly>
                 <Typography variant="h4" gutterBottom>Active Proposal</Typography>
                 <ProposalView proposal={activeProposal}/>
                 <Voting proposalId={activeProposal.id}/>

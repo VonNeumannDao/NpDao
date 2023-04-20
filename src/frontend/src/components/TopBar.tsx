@@ -23,6 +23,7 @@ import WasmProposal from "./WasmProposal";
 import CanisterDropdown from "./CanisterDropdown";
 import BalanceList from "./BalanceList";
 import DeleteWasmProposal from "./DeleteWasmProposal";
+import DebugOnly from "./DebugOnly";
 
 export default function TopBar() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -100,7 +101,10 @@ export default function TopBar() {
                                 <DeleteWasmProposal/>
                             </ContentModal>
                         </Menu>
-                        <MintTokenButton/>
+                        <DebugOnly>
+                            <MintTokenButton/>
+                        </DebugOnly>
+
                         <Button sx={{marginLeft: 2}} disabled={isInitializing} variant='outlined' color='inherit'
                                 onClick={e => {
                                     disconnect();

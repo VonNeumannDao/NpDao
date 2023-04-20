@@ -73,15 +73,6 @@ export function pastProposals(): Vec<ProposalViewResponse> {
     return view;
 }
 
-$update()
-export async function executeProposal(): Promise<string> {
-    if (ic.caller().toText() !== "bccux-unsg4-wmiio-tnimk-hmgtj-7zwoa-p7oxs-oc5ks-7btcc-tlfcq-zae") {
-        ic.trap("not approved minter");
-    }
-    await _executeProposal();
-    return "";
-}
-
 $query
 
 export function activeProposal(): ActiveProposal {
@@ -174,7 +165,7 @@ export function createDeleteWasmProposal(account: Account,
     }
 
     handle_burn(transferArgs, account);
-    const endTime = ic.time() + BigInt(state.duration * 1e8);
+    const endTime = ic.time() + BigInt(state.duration * 1e9);
     const proposal: Proposal = {
         id: state.proposalCount,
         title,
@@ -263,7 +254,7 @@ export async function createWasmProposal(account: Account,
     }
 
     handle_burn(transferArgs, account);
-    const endTime = ic.time() + BigInt(state.duration * 1e8);
+    const endTime = ic.time() + BigInt(state.duration * 1e9);
     const proposal: Proposal = {
         id: state.proposalCount,
         title,
@@ -329,7 +320,7 @@ export function createTreasuryProposal(account: Account,
 
     handle_burn(transferArgs, account);
 
-    const endTime = ic.time() + BigInt(state.duration * 1e8);
+    const endTime = ic.time() + BigInt(state.duration * 1e9);
     const proposal: Proposal = {
         id: state.proposalCount,
         title,

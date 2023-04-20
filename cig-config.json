@@ -4,6 +4,6 @@
   "name": "No Profit",
   "symbol": "NP",
   "initialSupply": "100000000000000",
-  "proposalDuration": 60,
-  "proposalCost": "10000000000"
+  "proposalDuration": 259200,
+  "proposalCost": "26500000000"
 }
