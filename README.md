@@ -6,10 +6,9 @@ Sardines are Good is a web application built using the Azle library, which is a 
 
 Before you can install and use Sardines are Good, you'll need to install the DFX and Azle library on your machine. See the [Azle installation documentation](https://demergent-labs.github.io/azle/installation.html) for instructions.
 
-
 ## Installation
 
-To install My Project, follow these steps:
+To install Sardines are Good, follow these steps:
 
 1. Clone this repository to your local machine.
 2. Navigate to the project directory.
@@ -22,7 +21,7 @@ npm install
 
 ## Usage
 
-To use My Project, open a terminal and navigate to the project directory. Then, run the following command to start the local development server:
+To use Sardines are Good, open a terminal and navigate to the project directory. Then, run the following command to start the local development server:
 
 
 This will start the development server and launch the web interface in your default browser.
@@ -33,12 +32,6 @@ dfx deploy;
 npm start;
 
 ```
-
-## Contributing
-
-If you'd like to contribute to My Project, feel free to open a pull request or issue on GitHub. Contributions are welcome and appreciated!
-
-Before contributing, please read the [contributing guidelines](CONTRIBUTING.md) and sign the [Azle License Extension](LICENSE_EXTENSION.md).
 
 ## Token Parameters
 
@@ -54,28 +47,14 @@ The Sardines are Good has the following parameters in cig-config.json:
 
 ## Contributing
 
-If you'd like to contribute to My Project, feel free to open a pull request or issue on GitHub. Contributions are welcome and appreciated!
+If you'd like to contribute to Sardines are Good, feel free to open a pull request or issue on GitHub. Contributions are welcome and appreciated!
 
-Before contributing, please read the [contributing guidelines](CONTRIBUTING.md) and sign the [Azle License Extension](LICENSE_EXTENSION.md).
-
-## Credits
-
-My Project was created by [Your Name] using the Azle library developed by Demergent Labs.
-
-## License
-
-My Project is licensed under the [MIT License](LICENSE).
-
-
-
-
-
-
+Before contributing, please read the [contributing guidelines](CONTRIBUTING.md)
 
 ## Credits
 
-My Project was created by [Your Name] using the Azle library developed by Demergent Labs.
+Sardines are Good was created by Daniel Andrade using the Azle library developed by Demergent Labs.
 
 ## License
 
-My Project is licensed under the [MIT License](LICENSE).
+Sardines are Good is licensed under the [GPL v3 License](LICENSE.md).
