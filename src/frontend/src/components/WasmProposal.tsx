@@ -116,6 +116,7 @@ export default function WasmProposal() {
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 required
+                onKeyDown={e => e.stopPropagation()}
                 error={!noSpecialCharsRegex.test(title)}
                 helperText={
                     !noSpecialCharsRegex.test(title)
@@ -130,6 +131,7 @@ export default function WasmProposal() {
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 required
+                onKeyDown={e => e.stopPropagation()}
                 multiline
                 rows={10} // Set the number of rows to fit the story
                 error={!urlSafeNoCodeRegex.test(description)}
@@ -145,6 +147,7 @@ export default function WasmProposal() {
                 value={appName}
                 onChange={(event) => setAppName(event.target.value)}
                 required
+                onKeyDown={e => e.stopPropagation()}
                 error={!noSpecialCharsRegex.test(appName)}
                 helperText={
                     !noSpecialCharsRegex.test(appName)
@@ -157,6 +160,7 @@ export default function WasmProposal() {
                 label="Wasm"
                 type="file"
                 required
+                onKeyDown={e => e.stopPropagation()}
                 InputLabelProps={{shrink: true}}
                 onChange={(event) => handleBlobChange(event, setWasmBlob)} // handle change event on wasm file input
             />
@@ -164,6 +168,7 @@ export default function WasmProposal() {
             <TextField
                 fullWidth
                 label="Args"
+                onKeyDown={e => e.stopPropagation()}
                 type="file"
                 InputLabelProps={{shrink: true}}
                 onChange={(event) => handleBlobChange(event, setArgsBlob)} // handle change event on wasm file input

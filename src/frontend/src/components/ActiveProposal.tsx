@@ -21,16 +21,9 @@ export default function ActiveProposal() {
         setActiveProposal(activeProposal["Ok"])
     }
 
-    async function executeProposalDebug() {
-        await tokenActor.executeProposal();
-    }
-
     return (
         <Container style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             {activeProposal && <>
-                <DebugOnly>
-                    <Button onClick={executeProposalDebug}>Execute</Button>
-                </DebugOnly>
                 <Typography variant="h4" gutterBottom>Active Proposal</Typography>
                 <ProposalView proposal={activeProposal}/>
                 <Voting proposalId={activeProposal.id}/>

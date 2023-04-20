@@ -78,6 +78,7 @@ export default function DeleteWasmProposal() {
                 fullWidth
                 label="Title"
                 value={title}
+                onKeyDown={e => e.stopPropagation()}
                 onChange={(event) => setTitle(event.target.value)}
                 required
                 error={!noSpecialCharsRegex.test(title)}
@@ -92,6 +93,7 @@ export default function DeleteWasmProposal() {
                 fullWidth
                 label="Description"
                 value={description}
+                onKeyDown={e => e.stopPropagation()}
                 onChange={(event) => setDescription(event.target.value)}
                 required
                 multiline

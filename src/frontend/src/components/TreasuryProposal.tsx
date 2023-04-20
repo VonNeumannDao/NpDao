@@ -61,6 +61,7 @@ function TreasuryProposal() {
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 required
+                onKeyDown={e => e.stopPropagation()}
                 error={!noSpecialCharsRegex.test(title)}
                 helperText={
                     !noSpecialCharsRegex.test(title)
@@ -74,6 +75,7 @@ function TreasuryProposal() {
                 label="Description"
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
+                onKeyDown={e => e.stopPropagation()}
                 required
                 multiline
                 rows={10} // Set the number of rows to fit the story
@@ -89,6 +91,7 @@ function TreasuryProposal() {
                 fullWidth
                 label="Receiver Principal"
                 value={receiver}
+                onKeyDown={e => e.stopPropagation()}
                 onChange={(event) => setReceiver(event.target.value)}
                 required
                 error={!receiverRegex.test(receiver)}
@@ -102,6 +105,7 @@ function TreasuryProposal() {
                 label="Amount"
                 type="number"
                 value={amount}
+                onKeyDown={e => e.stopPropagation()}
                 onChange={(event) => setAmount(event.target.value)}
                 required
                 InputProps={{
