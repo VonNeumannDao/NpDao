@@ -12,12 +12,12 @@ import {Container} from "@mui/material";
 import BalanceList from "./components/BalanceList";
 
 const Main = () => {
-    const {isConnected} = useConnect();
+    const {isConnected, principal} = useConnect();
 
     return (<>
         <TopBar/>
         <BalanceList/>
-        {isConnected && <>
+        {isConnected && principal && <>
             <Container style={{ display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'left' }}>
 
             <Routes>
