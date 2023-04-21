@@ -5,13 +5,14 @@ import {handle_transfer} from './transfer';
 import {validate_transfer} from './validate';
 import {Account, TransferArgs, TransferResult} from '../types';
 import {MINTING_ACCOUNT} from "../constants";
+import {state} from "../state";
 
 $update;
 
 export async function mint_tokens(): Promise<TransferResult> {
     const from: Account = MINTING_ACCOUNT;
 
-    if (ic.caller().toText() !== "bccux-unsg4-wmiio-tnimk-hmgtj-7zwoa-p7oxs-oc5ks-7btcc-tlfcq-zae") {
+    if (!state.custodian.includes(ic.caller().toText())) {
         ic.trap("not approved minter");
     }
 

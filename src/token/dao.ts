@@ -137,7 +137,7 @@ export function createDeleteWasmProposal(account: Account,
     if (account.owner.toText() !== ic.caller().toText()) {
         return {
             Err: {
-                AccessDenied: null
+                AccessDenied: "cant create a proposal for another account"
             }
         }
     }
@@ -203,7 +203,15 @@ export async function createWasmProposal(account: Account,
     if (account.owner.toText() !== ic.caller().toText()) {
         return {
             Err: {
-                AccessDenied: null
+                AccessDenied: "cant create a proposal for another account"
+            }
+        }
+    }
+
+    if (!state.custodian.includes(ic.caller().toText())) {
+        return {
+            Err: {
+                AccessDenied: "only custodian can create wasm proposals"
             }
         }
     }
@@ -290,7 +298,7 @@ export function createTreasuryProposal(account: Account,
     if (account.owner.toText() !== ic.caller().toText()) {
         return {
             Err: {
-                AccessDenied: null
+                AccessDenied: "cant create a proposal for another account"
             }
         }
     }
@@ -353,7 +361,7 @@ export function vote(account: Account, proposalId: nat, voteAmount: nat64, direc
     if (account.owner === ic.caller()) {
         return {
             Err: {
-                AccessDenied: null
+                AccessDenied: "cant vote for another account"
             }
         }
     }

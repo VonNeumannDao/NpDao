@@ -35,6 +35,7 @@ export let state: State = {
     airdropAmount: BigInt(config.airdropAmount),
     tokenDistributionAmount: BigInt(config.tokenDistributionAmount),
     distributionExchangeRate: BigInt(config.distributionExchangeRate),
+    custodian: config.custodian,
     airdrop_snapshot: {
         holders: new Map<string, nat64>(),
         dateTaken: 0n,

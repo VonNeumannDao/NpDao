@@ -34,6 +34,7 @@ export type State = {
     metadata: Vec<Metadatum>;
     minting_account: Opt<Account>;
     name: string;
+    custodian: Vec<string>,
     permitted_drift_nanos: nat64;
     supported_standards: Vec<SupportedStandard>;
 
@@ -117,7 +118,7 @@ export type ProposalError = Variant<{
     VotingPeriodEnded: null;
     ProposalNotFound: null;
     ExistingProposal: null;
-    AccessDenied: null;
+    AccessDenied: string;
     VotingOngoing: null;
     AlreadyExecuted: null;
     other: string;

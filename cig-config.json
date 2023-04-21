@@ -8,5 +8,6 @@
   "initialSupply": "300000000000000",
   "airdropAmount": "100000000000000",
   "tokenDistributionAmount": "100000000000000",
-  "distributionExchangeRate": 1000
+  "distributionExchangeRate": 1000,
+  "custodian" : ["bccux-unsg4-wmiio-tnimk-hmgtj-7zwoa-p7oxs-oc5ks-7btcc-tlfcq-zae"]
 }
