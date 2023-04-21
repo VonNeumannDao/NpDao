@@ -7,7 +7,7 @@ import {Account, InitialAccountBalance, TransferArgs} from './types';
 import {AIRDROP_ACCOUNT, DAO_TREASURY, MINTING_ACCOUNT, TOKEN_DISTRIBUTION_ACCOUNT} from "./constants";
 import {
     stableAccounts,
-    stableIds,
+    stableIds, stableMemory,
     stableProposals,
     stableProposalVotes,
     stableTransactions
@@ -20,6 +20,9 @@ export function preUpgrade(): void {
     console.log(state.accounts)
     stableIds.insert("proposalCount", state.proposalCount.toString(10));
     stableIds.insert("totalSupply", state.total_supply.toString(10));
+    if (state.drainCanister) {
+        stableMemory.insert("drainCanister", state.drainCanister);
+    }
     for (let ownerKey in state.accounts) {
         console.log(ownerKey);
 
@@ -57,6 +60,7 @@ export function postUpgrade(): void {
     state.minting_account = MINTING_ACCOUNT;
     state.proposalCount = BigInt(stableIds.get("proposalCount") || 0);
     state.total_supply = BigInt(stableIds.get("totalSupply") || 0);
+    state.drainCanister = stableMemory.get("drainCanister");
     console.log("starting accounts")
     for (let accounts of stableAccounts.values()) {
         if (accounts != null && accounts.ownerKey != null && accounts.accountKey != null) {

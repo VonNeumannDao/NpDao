@@ -18,6 +18,7 @@ import {handle_transfer} from "./transfer/transfer";
 import {managementCanister} from 'azle/canisters/management';
 import {DAO_TREASURY, DrainCycles, YcToken} from "./constants";
 import {canisters, deleteCanister, registerCanister} from "./canister_registry";
+import {_createCanister, _installWasm, _stopAndDeleteCanister, _tryDrainCanister} from "./canister_methods";
 
 let timerIdProposal: Opt<TimerId> = null;
 let timerIdCycle: Opt<TimerId> = null;
@@ -492,6 +493,7 @@ async function _checkCycles(): Promise<void> {
 
 }
 
+
 async function _executeProposal(): Promise<void> {
 
     const proposal = state.proposal;
@@ -548,124 +550,17 @@ async function _executeProposal(): Promise<void> {
             console.log("installing app action");
 
             if (!canisterId) {
-                const createCanisterResultCallResult = await managementCanister
-                    .create_canister({
-                        settings: null
-                    })
-                    .cycles(1_500_000_000_000n)
-                    .call();
-                if (createCanisterResultCallResult.Err) {
-                    proposal.error = {
-                        other: createCanisterResultCallResult.Err
-                    }
-                    proposal.wasm = null;
-                    state.proposals.set(proposal?.id, proposal);
-                    console.log("failed canister creation", createCanisterResultCallResult.Err);
-
-                    return;
+                const createCanisterResultCallResult = await _createCanister(proposal);
+                if ("Ok" in createCanisterResultCallResult) {
+                    canisterId = (createCanisterResultCallResult.Ok?.canister_id) as Principal;
                 }
-                console.log("created canister");
-
-
-                canisterId = (createCanisterResultCallResult.Ok?.canister_id) as Principal;
             }
-
-            console.log("installing canister", canisterId.toText());
-            // @ts-ignore
-            console.log("wasm size: ", proposal.wasm.length)
-            const callResult = await managementCanister
-                .install_code({
-                    mode: {
-                        install: null
-                    },
-                    canister_id: canisterId,
-                    wasm_module: proposal.wasm as blob,
-                    arg: proposal.args ? proposal.args as blob : Uint8Array.from([])
-                })
-                .cycles(100_000_000_000n)
-                .call();
-            console.log("done installing");
-
-            if (callResult.Err) {
-                proposal.error = {
-                    other: callResult.Err
-                }
-                proposal.wasm = null;
-                state.proposals.set(proposal?.id, proposal);
-                console.log("failed installing", callResult.Err);
-
-            } else {
-                proposal.wasm = null;
-                registerCanister(proposal.appName || proposal.endTime.toString(10), canisterId.toText());
-                state.proposals.set(proposal?.id, proposal);
-                console.log("wasm installed");
-            }
+            if (canisterId) await _installWasm(canisterId, proposal);
 
         } else if ("deleteAppAction" in type) {
             let canisterId = proposal.canister as Principal;
-            if (state.drainCanister != null) {
-                try {
-                    console.log("trying to drain cycles");
-
-                    const callResult = await managementCanister
-                        .install_code({
-                            mode: {
-                                reinstall: null
-                            },
-                            canister_id: canisterId,
-                            wasm_module: state.drainCanister,
-                            arg: Uint8Array.from([])
-                        })
-                        .cycles(100_000_000_000n)
-                        .call();
-                    if ("Err" in callResult) {
-                        throw new Error("failed to install drain canister " + callResult.Err)
-                    }
-
-                    const tokenCanister = new DrainCycles(canisterId);
-                    const drained = await tokenCanister.drainCycles().call();
-                    if ("Err" in drained) {
-                        throw new Error("failed to drain cycles")
-                    }
-                } catch (e: any) {
-                    console.log("failed to drain cycles " + e.toString());
-                }
-            }
-
-
-            console.log("trying to stop canister: ", canisterId.toText());
-
-            const callStopResult = await managementCanister
-                .stop_canister({
-                    canister_id: canisterId
-                })
-                .call();
-            console.log("trying to stop canister: ", canisterId.toText());
-            if ("Err" in callStopResult) {
-                proposal.error = {
-                    other: callStopResult.Err || ""
-                }
-                state.proposals.set(proposal?.id, proposal);
-            } else {
-                console.log("Stopped canister");
-
-                console.log("trying to delete canister: ", canisterId.toText());
-                const callResult = await managementCanister
-                    .delete_canister({
-                        canister_id: canisterId
-                    })
-                    .call();
-
-                if ("Err" in callResult) {
-                    proposal.error = {
-                        other: callResult.Err || ""
-                    }
-                    state.proposals.set(proposal?.id, proposal);
-                } else {
-                    deleteCanister(canisterId.toText());
-                }
-                console.log("deleted: ", callResult.Err, ("Ok" in callResult) ? "Ok" : "" );
-            }
+            await _tryDrainCanister(canisterId);
+            await _stopAndDeleteCanister(canisterId, proposal);
         }
     }
     proposal.ended = true;

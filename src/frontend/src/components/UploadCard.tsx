@@ -28,8 +28,9 @@ function UploadCard() {
     };
     const handleSubmit = async () => {
         if (file) {
+            console.log("started");
             await tokenActor.installDrainCanister(Array.from(file));
-            console.log("uploaded")
+            console.log("uploaded");
         }
     };
 

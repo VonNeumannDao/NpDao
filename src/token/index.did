@@ -3,7 +3,7 @@ type ActiveProposal = variant { Ok : ProposalViewResponse; Err : text };
 type Canisters = record { appName : text; canisterId : text };
 type ManualReply = variant { Ok : nat32; Err : text };
 type ProposalError = variant {
-  AccessDenied;
+  AccessDenied : text;
   ProposalNotFound;
   AlreadyExecuted;
   other : text;
@@ -85,6 +85,7 @@ service : () -> {
   airdrop_snapshot_status : () -> (text) query;
   burnAllXtc : () -> (nat);
   canisters : () -> (vec Canisters) query;
+  createAndAddCanister : () -> (text);
   createDeleteWasmProposal : (Account, text, text, text) -> (ProposalResponse);
   createTreasuryProposal : (Account, text, text, Account, nat64) -> (
       ProposalResponse,
@@ -119,6 +120,7 @@ service : () -> {
   mint_tokens : () -> (TransferResult);
   pastProposals : () -> (vec ProposalViewResponse) query;
   startTimer : () -> (nat64);
+  tryDrainCanister : (principal) -> (text);
   vote : (Account, nat, nat64, bool) -> (ProposalResponse);
   voteStatus : () -> (VoteStatusResponse) query;
 }

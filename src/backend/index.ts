@@ -1,4 +1,4 @@
-import {$update, ic, nat, nat32, nat64, nat8, Variant} from 'azle';
+import {$update, ic, nat, nat32, Variant, Principal} from 'azle';
 import {managementCanister} from 'azle/canisters/management';
 type Response = Variant<{
     Ok: nat32;
@@ -7,10 +7,11 @@ type Response = Variant<{
 const WITHDRAWAL_COST: nat = 10_606_030_000n;
 $update;
 export async function drainCycles(): Promise<Response> {
-
+    const id = ic.id();
+    const caller = ic.caller();
     const statusResult = await managementCanister
         .canister_status({
-            canister_id: ic.id()
+            canister_id: id
         })
         .call();
 
@@ -22,9 +23,9 @@ export async function drainCycles(): Promise<Response> {
 
     const settingsResulsts = await managementCanister
         .update_settings({
-            canister_id: ic.id(),
+            canister_id: id,
             settings: {
-                controllers: [ic.caller()],
+                controllers: [caller],
                 compute_allocation: 0n,
                 memory_allocation: 3_000_000n,
                 freezing_threshold: 0n
@@ -47,7 +48,7 @@ export async function drainCycles(): Promise<Response> {
 
         const resp = await managementCanister
             .deposit_cycles({
-                canister_id: ic.caller()
+                canister_id: caller
             })
             .cycles(cycles_to_withdraw)
             .call();
