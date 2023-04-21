@@ -5,7 +5,7 @@ import {StyledLink} from "./StyledComponents";
 
 const EmptyProposalsCard: React.FC = () => {
     return (
-        <Card sx={{ marginTop: 5 }}>
+        <Card sx={{ marginTop: 2 }}>
             <CardHeader
                 titleTypographyProps={{ variant: 'h4' }}
                 color={'secondary'}

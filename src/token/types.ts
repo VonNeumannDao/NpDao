@@ -1,4 +1,4 @@
-import {blob, int, nat, nat64, nat8, Opt, Principal, Record, Tuple, Variant, Vec} from 'azle';
+import {blob, int, nat, nat32, nat64, nat8, Opt, Principal, Record, Tuple, Variant, Vec} from 'azle';
 
 export type Account = Record<{
     owner: Principal;
@@ -36,6 +36,8 @@ export type State = {
     name: string;
     permitted_drift_nanos: nat64;
     supported_standards: Vec<SupportedStandard>;
+
+    distributionExchangeRate: nat,
     symbol: string;
     total_supply: nat;
     transactions: Vec<Transaction>;

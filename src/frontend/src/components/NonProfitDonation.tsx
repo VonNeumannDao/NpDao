@@ -21,6 +21,7 @@ import {useAppContext} from "./AppContext";
 import DonateBalanceList, {Balance} from "./DonateBalanceList";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import {canisterId as tokenCanister} from "../declarations/icrc_1";
+import config from "../../../../cig-config.json";
 
 const NonProfitDonation: React.FC = () => {
     const [amount, setAmount] = useState<string>("");
@@ -29,6 +30,8 @@ const NonProfitDonation: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isBalancedLoading, setIsBalancesLoading] = useState<boolean>(false);
     const [balances, setBalances] = useState<Balance[]>([]);
+    const [exchangeRate, setExchangeRate] = useState<BigInt>(0n);
+    const [exchangeRateDisplay, setExchangeRateDisplay] = useState<string>("0");
 
     const {setBalanceVal} = useAppContext();
 
@@ -40,10 +43,18 @@ const NonProfitDonation: React.FC = () => {
 
     useEffect(() => {
         fetchBalances();
+        init();
     }, [principal]);
+
+    async function init() {
+        const exchangeRate = await tokenActor.distributionExchangeRate();
+        setExchangeRate(exchangeRate);
+        setExchangeRateDisplay((0).toFixed(8))
+    }
 
     const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setAmount(event.target.value);
+        setExchangeRateDisplay((Number(event.target.value) * Number(exchangeRate)).toFixed(8))
     };
 
     const handleDonateClick = () => {
@@ -90,19 +101,19 @@ const NonProfitDonation: React.FC = () => {
             const fetchedBalances: Balance[] = [
                 {
                     title: "Distribution",
-                    symbol: 'NP',
+                    symbol: config.symbol,
                     balance: bigIntToDecimalPrettyString(balance),
                     icon: <AccountBalanceIcon/>
                 },
                 {
-                    title: "Distribution",
+                    title: "Dao",
                     symbol: 'XTC',
                     balance: divideByTrillion(cycleBalances.find(x => x[0] === "DAO")[1] || 0n),
                     icon: <AccountBalanceIcon/>
                 },
                 {
                     title: "Account",
-                    symbol: 'NP',
+                    symbol: config.symbol,
                     balance: bigIntToDecimalPrettyString(myBalance),
                     icon: <AccountBalanceIcon/>
                 }
@@ -113,31 +124,32 @@ const NonProfitDonation: React.FC = () => {
     }
 
     return (
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
-            <Card variant="outlined" sx={{ width: 800 }}>
+            <Card variant="outlined" sx={{ marginTop: 2 }}>
                 <CardContent>
                     <Typography variant="h5" align="center" gutterBottom style={{ marginTop: '16px', marginBottom: '32px' }}>
-                        Donate Cycles for NP tokens
+                        Donate for {config.symbol} tokens
                     </Typography>
 
                     <Typography variant="body1" gutterBottom style={{ marginBottom: '8px' }}>
-                        By donating XTC to the Non Profit DAO, you agree to the following terms and conditions:
+                        By donating XTC to the {config.name} DAO, you agree to the following terms and conditions:
                     </Typography>
 
                     <Typography variant="body1" gutterBottom style={{ marginLeft: '16px', marginBottom: '8px' }}>
-                        1. NP token has no team, road map, and will not be doing marketing. Non Profit is a fully decentralized autonomous organization and will exist for as long as developers want to deploy applications on it.
+                        1. {config.symbol} token has no team, road map, and will not be doing marketing. {config.name} is a fully decentralized autonomous organization and will exist for as long as developers want to deploy applications on it.
                     </Typography>
 
                     <Typography variant="body1" gutterBottom style={{ marginLeft: '16px', marginBottom: '8px' }}>
-                        2. All XTC donated to Non Profit DAO will be burnt and turned into cycles for the DAO. Cycles can be used to pay for transaction fees and other costs associated with deploying applications on the Internet Computer.
+                        2. All XTC donated to {config.name} DAO will be burnt and turned into cycles for the DAO. Cycles can be used to pay for transaction fees and other costs associated with deploying applications on the Internet Computer.
                     </Typography>
 
                     <Typography variant="body1" style={{ marginTop: '32px' }}>
-                        By donating XTC to the Non Profit DAO, you acknowledge that you have read and understood these terms and conditions, and that you consent to donate the specified amount of XTC to the Non Profit DAO in accordance with these terms and conditions.
+                        By donating XTC to the {config.name} DAO, you acknowledge that you have read and understood these terms and conditions, and that you consent to donate the specified amount of XTC to the {config.name} DAO in accordance with these terms and conditions.
                     </Typography>
 
                     <DonateBalanceList loading={isBalancedLoading} balances={balances} />
-
+                    <Typography variant="h6" sx={{ mb: 1 }}>
+                        Exchange Rate: 1 XTC = {exchangeRate.toString(10)} {config.symbol}
+                    </Typography>
                     <TextField
                         fullWidth
                         label="Amount"
@@ -154,6 +166,9 @@ const NonProfitDonation: React.FC = () => {
                         }}
                         sx={{ mt: 2 }}
                     />
+                    <Typography variant="h6" sx={{ mt: 1 }}>
+                        {`${exchangeRateDisplay} ${config.symbol}`}
+                    </Typography>
                     <LoadingButton loading={isLoading} fullWidth variant="contained" color="primary" onClick={handleDonateClick} sx={{ mt: 2 }}>
                         Donate
                     </LoadingButton>
@@ -179,7 +194,6 @@ const NonProfitDonation: React.FC = () => {
                     </Dialog>
                 </CardContent>
             </Card>
-        </Box>
     );
 }
 

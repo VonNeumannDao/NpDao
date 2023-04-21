@@ -74,10 +74,8 @@ function Voting({proposalId}: VotingProps) {
     return (
         <Box
             sx={{
-                paddingLeft: "4px",
-                marginLeft: "4px",
-                paddingRight: "4px",
-                marginRight: "4px",
+                marginTop: "20px",
+                marginBottom: "2"
             }}
         >
             <Grid container spacing={3} alignItems="center">
@@ -88,8 +86,13 @@ function Voting({proposalId}: VotingProps) {
                         value={voteAmount}
                         onChange={handleVoteAmountChange}
                         type="number"
-                        inputProps={{max: Number(balancePretty), min: 0, step: 0.00000001}}
+                        inputProps={{
+                            max: Number(balancePretty),
+                            min: 0,
+                            step: 0.00000001
+                        }}
                         fullWidth
+                        helperText="Each vote you cast will burn one of your tokens."
                     />
                 </Grid>
                 <Grid item xs={6} md={6}>

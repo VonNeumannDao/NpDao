@@ -76,7 +76,7 @@ const BalanceList = () => {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                 <CircularProgress style={{ marginBottom: '16px' }} />
-                <p style={{ marginTop: 0 }}>Loading balances for cycles.</p>
+                <p style={{ marginTop: 0 }}>Loading balances.</p>
                 <p style={{ marginTop: 0 }}>This might take a minute...</p>
             </div>
         );

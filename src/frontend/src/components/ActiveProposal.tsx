@@ -2,10 +2,11 @@ import React, {useEffect, useState} from 'react';
 import ProposalView from './ProposalView';
 import {useCanister} from "@connect2ic/react";
 import {_SERVICE, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did";
-import {Button, Container, Divider, Typography} from "@mui/material";
+import {Button, CardHeader, Container, Divider, Typography, CardContent, Card, Avatar} from "@mui/material";
 import Voting from "./Voting";
 import DebugOnly from "./DebugOnly";
 import EmptyProposalsCard from "./EmptyProposalsCard";
+import {DescriptionRounded, EmojiPeopleRounded} from "@mui/icons-material";
 
 export default function ActiveProposal() {
     const [_tokenActor] = useCanister('token');
@@ -23,14 +24,26 @@ export default function ActiveProposal() {
     }
 
     return (
-        <Container style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <>
             {activeProposal && <>
-                <Typography variant="h4" gutterBottom>Active Proposal</Typography>
-                <ProposalView proposal={activeProposal}/>
-                <Voting proposalId={activeProposal.id}/>
-                <Divider/>
+                <Card sx={{ marginTop: 1 }}>
+                    <CardHeader
+                        titleTypographyProps={{ variant: 'h4' }}
+                        color={'secondary'}
+                        avatar={
+                            <Avatar>
+                                <EmojiPeopleRounded />
+                            </Avatar>
+                        }
+                        title="Active Proposal"
+                    />
+                    <CardContent>
+                        <ProposalView proposal={activeProposal}/>
+                        <Voting proposalId={activeProposal.id}/>
+                    </CardContent>
+                </Card>
             </>}
             {!activeProposal && <EmptyProposalsCard/>}
-        </Container>
+        </>
     );
 }

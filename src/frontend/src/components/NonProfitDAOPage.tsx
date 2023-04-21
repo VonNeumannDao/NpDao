@@ -1,31 +1,34 @@
-import {Container, Typography, Box, Paper} from "@mui/material";
+import {Container, Typography, Box, Paper, Card, CardHeader, CardContent, Avatar} from "@mui/material";
 import React from 'react';
+import {DescriptionRounded, InfoRounded} from "@mui/icons-material";
 
 function NonProfitDAOPage() {
     return (
-        <Paper>
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                }}
-            >
-                <Typography
-                    variant="h2"
-                    align="center"
-                    gutterBottom
-                    sx={{ my: 4 }}
-                >
-                    Welcome to the Non-Profit DAO!
-                </Typography>
+        <Card sx={{ marginTop: 5 }}>
+            <CardHeader
+                titleTypographyProps={{ variant: 'h4' }}
+                color={'secondary'}
+                avatar={
+                    <Avatar>
+                        <InfoRounded />
+                    </Avatar>
+                }
+                title="About"
+            />
+            <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
                 <img
-                    src="/image.png"
+                    src="/image.webp"
                     alt="Non-Profit DAO Logo"
-                    style={{ width: "500px", marginBottom: "32px" }}
+                    style={{ width: "500px", marginRight: "32px" }}
                 />
-                <Container maxWidth="sm">
+                <div>
+                    <Typography
+                        variant="h5"
+                        align="left"
+                        gutterBottom
+                    >
+                        Welcome to the Non-Profit DAO
+                    </Typography>
                     <Typography
                         variant="body1"
                         align="justify"
@@ -49,16 +52,20 @@ function NonProfitDAOPage() {
                         can make a meaningful impact on the world and create a better future
                         for everyone.
                     </Typography>
-                    <Typography variant="body1" align="justify" gutterBottom>
+                    <Typography
+                        variant="body1"
+                        align="justify"
+                        gutterBottom
+                    >
                         Our governance model is designed to be transparent and fair, giving
                         all members an equal say in how the organization is run, regardless
                         of their level of investment or expertise. By joining the Non-Profit
                         DAO community, you become an integral part of our efforts to create a
                         more just and equitable world.
                     </Typography>
-                </Container>
-            </Box>
-        </Paper>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
 

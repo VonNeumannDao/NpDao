@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {InputLabel, MenuItem, Select, styled, TextField, Typography} from "@mui/material";
+import {Card, CardHeader, InputLabel, MenuItem, Select, styled, TextField, Typography} from "@mui/material";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import LoadingButton from "@mui/lab/LoadingButton";
 import ErrorDialog from "./ErrorDialog";
 import {Principal} from "@dfinity/principal";
+import {useNavigate} from "react-router-dom";
 
 const Form = styled('form')({
     display: 'flex',
@@ -20,7 +21,7 @@ export default function DeleteWasmProposal() {
     const [description, setDescription] = useState('');
     const [canisters, setCanisters] = useState<Map<string, string>>(new Map());
     const [title, setTitle] = useState('');
-
+    const navigate = useNavigate();
     const [canisterId, setCanisterId] = useState('');
 
     const handleCanisterIdChange = (event) => {
@@ -61,71 +62,70 @@ export default function DeleteWasmProposal() {
         if ("Err" in response) {
             setError(true);
             setErrorMessage(JSON.stringify(response["Err"], (_, v) => typeof v === 'bigint' ? `${v}n` : v));
+        } else {
+            window.location.href = "/";
         }
 
         setLoading(false);
-        window.location.reload();
     };
 
 
     return (
-        <Form onSubmit={handleSubmit}>
-            <Typography style={{textAlign: 'center', margin: '16px'}} variant="h2">
-                Delete Canister Proposal
-            </Typography>
+        <Card sx={{ p: 5 }}>
+            <CardHeader title="Delete Canister Proposal" />
+            <Form onSubmit={handleSubmit}>
+                <TextField
+                    fullWidth
+                    label="Title"
+                    value={title}
+                    onKeyDown={e => e.stopPropagation()}
+                    onChange={(event) => setTitle(event.target.value)}
+                    required
+                    error={!noSpecialCharsRegex.test(title)}
+                    helperText={
+                        !noSpecialCharsRegex.test(title)
+                            ? 'Please enter a title without special characters.'
+                            : ''
+                    }
+                />
 
-            <TextField
-                fullWidth
-                label="Title"
-                value={title}
-                onKeyDown={e => e.stopPropagation()}
-                onChange={(event) => setTitle(event.target.value)}
-                required
-                error={!noSpecialCharsRegex.test(title)}
-                helperText={
-                    !noSpecialCharsRegex.test(title)
-                        ? 'Please enter a title without special characters.'
-                        : ''
-                }
-            />
+                <TextField
+                    fullWidth
+                    label="Description"
+                    value={description}
+                    onKeyDown={e => e.stopPropagation()}
+                    onChange={(event) => setDescription(event.target.value)}
+                    required
+                    multiline
+                    rows={10} // Set the number of rows to fit the story
+                    error={!urlSafeNoCodeRegex.test(description)}
+                    helperText={
+                        (!urlSafeNoCodeRegex.test(description))
+                            ? 'Please enter a human-readable, URL-safe description without code.'
+                            : ''
+                    }
+                />
 
-            <TextField
-                fullWidth
-                label="Description"
-                value={description}
-                onKeyDown={e => e.stopPropagation()}
-                onChange={(event) => setDescription(event.target.value)}
-                required
-                multiline
-                rows={10} // Set the number of rows to fit the story
-                error={!urlSafeNoCodeRegex.test(description)}
-                helperText={
-                    (!urlSafeNoCodeRegex.test(description))
-                        ? 'Please enter a human-readable, URL-safe description without code.'
-                        : ''
-                }
-            />
+                <InputLabel htmlFor="my-select" shrink={false} id="my-select-label">CanisterId to Update</InputLabel>
+                <Select
+                    labelId="my-select-label"
+                    id="my-select"
+                    value={canisterId}
+                    onChange={handleCanisterIdChange}
+                    required={true}
+                >
+                    <MenuItem value=""><em>None</em></MenuItem>
 
-            <InputLabel htmlFor="my-select" shrink={false} id="my-select-label">CanisterId to Update</InputLabel>
-            <Select
-                labelId="my-select-label"
-                id="my-select"
-                value={canisterId}
-                onChange={handleCanisterIdChange}
-                required={true}
-            >
-                <MenuItem value=""><em>None</em></MenuItem>
+                    {Array.from(canisters.keys()).map((x) =>
+                        <MenuItem key={x} value={x}>{canisters.get(x)}</MenuItem>
+                    )}
+                </Select>
 
-                {Array.from(canisters.keys()).map((x) =>
-                    <MenuItem key={x} value={x}>{canisters.get(x)}</MenuItem>
-                )}
-            </Select>
-
-            <LoadingButton loading={loading || isLoadingWasm} fullWidth type="submit" variant="contained"
-                           color="primary">
-                Submit
-            </LoadingButton>
-            <ErrorDialog open={error} onClose={() => setError(false)} message={errorMessage}/>
-        </Form>
+                <LoadingButton loading={loading || isLoadingWasm} fullWidth type="submit" variant="contained" color="primary">
+                    Submit
+                </LoadingButton>
+                <ErrorDialog open={error} onClose={() => setError(false)} message={errorMessage} />
+            </Form>
+        </Card>
     );
 }

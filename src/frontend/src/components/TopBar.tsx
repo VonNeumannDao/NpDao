@@ -95,7 +95,7 @@ export default function TopBar() {
                     }}>
                         <Typography variant="h6">
                             <StyledLink  to="/" color="inherit">
-                                {config.symbol} DAO
+                                {config.name} DAO
                             </StyledLink>
                             <Typography variant='subtitle1'
                                         sx={{marginRight: 1}}>Balance: {balancePretty}${config.symbol}</Typography>

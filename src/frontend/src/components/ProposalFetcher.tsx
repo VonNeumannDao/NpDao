@@ -26,10 +26,13 @@ function ProposalFetcher() {
     };
 
     return (<>
-            <Toolbar>
-                <Button onClick={handleBackClick}>Back</Button>
-            </Toolbar>
-            {proposal && <ProposalView proposal={proposal}/>}
+            {proposal && <>
+                <ProposalView proposal={proposal}/>
+                <Button fullWidth={false} onClick={handleBackClick} sx={{ fontSize: '1.2rem'}}>
+                    Back
+                </Button>
+            </> }
+
         </>
     );
 }

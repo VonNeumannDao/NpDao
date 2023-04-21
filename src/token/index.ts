@@ -32,4 +32,4 @@ export {
 } from './dao';
 export {airdrop_snapshot, airdrop_claim, airdrop_snapshot_status, airdrop_snapshot_holders_length} from './airdrop';
 export {canisters} from "./canister_registry";
-export {burnAllXtc, distributeToken, distributionBalance} from "./distribution";
+export {burnAllXtc, distributeToken, distributionBalance, distributionExchangeRate} from "./distribution";

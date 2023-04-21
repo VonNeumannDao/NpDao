@@ -101,6 +101,7 @@ service : () -> {
   cycleBalances : () -> (vec record { text; nat64 });
   distributeToken : (nat) -> (text);
   distributionBalance : () -> (nat) query;
+  distributionExchangeRate : () -> (nat) query;
   drainCycles : () -> (ManualReply);
   getDrainCanister : () -> (float64) query;
   get_transactions : (opt nat64, opt nat64) -> (vec Transaction) query;

@@ -5,7 +5,8 @@
   "symbol": "NP",
   "proposalDuration": 61,
   "proposalCost": "26500000000",
-  "initialSupply": "100000000000000",
+  "initialSupply": "300000000000000",
   "airdropAmount": "100000000000000",
-  "tokenDistributionAmount": "100000000000000"
+  "tokenDistributionAmount": "100000000000000",
+  "distributionExchangeRate": 1000
 }

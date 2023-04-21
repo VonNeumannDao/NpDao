@@ -3,6 +3,7 @@ import {Grid, Paper, Typography} from '@mui/material';
 import {ProposalType, ProposalViewResponse} from '../declarations/icrc_1/icrc_1.did';
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import {JSON_BIGINT} from "../util/josnutil";
+import { useTheme } from '@mui/material/styles';
 
 interface ProposalViewProps {
     proposal: ProposalViewResponse;
@@ -10,20 +11,22 @@ interface ProposalViewProps {
 
 function ProposalView({proposal}: ProposalViewProps) {
     const proposalTypeLabel = getProposalTypeLabel(proposal.proposalType);
+    const theme = useTheme();
 
     return (
         <Paper
             sx={{
                 padding: '16px',
-                margin: '16px',
-                '@media (min-width: 600px)': {
-                    margin: '32px',
-                },
+                marginTop: 2
             }}
         >
             <div
                 style={{
-                    backgroundColor: '#f44336',
+                    backgroundColor: !proposal.ended
+                        ? theme.palette.primary.main
+                        : proposal.executed
+                            ? theme.palette.success.main
+                            : theme.palette.error.main,
                     padding: '24px',
                 }}
             >

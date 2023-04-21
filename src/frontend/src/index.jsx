@@ -19,7 +19,7 @@ import {BrowserRouter} from "react-router-dom";
 const client = createClient({
     globalProviderConfig: {
         whitelist: ["ryjl3-tyaaa-aaaaa-aaaba-cai", "aanaa-xaaaa-aaaah-aaeiq-cai", backendCanisterId, tokenCanister],
-        dev: true
+        autoConnect: false
     },
     canisters: {
         ["ledger"]: {

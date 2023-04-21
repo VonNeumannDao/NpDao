@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {InputLabel, MenuItem, Select, styled, TextField, Typography} from "@mui/material";
+import {Card, CardHeader, InputLabel, MenuItem, Select, styled, TextField, Typography} from "@mui/material";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import LoadingButton from "@mui/lab/LoadingButton";
 import ErrorDialog from "./ErrorDialog";
 import {Principal} from "@dfinity/principal";
+import {useNavigate} from "react-router-dom";
 
 const Form = styled('form')({
     display: 'flex',
@@ -21,6 +22,7 @@ export default function WasmProposal() {
     const [canisters, setCanisters] = useState<Map<string, string>>(new Map());
     const [title, setTitle] = useState('');
     const [appName, setAppName] = useState('');
+    const navigate = useNavigate();
 
     const [wasmBlob, setWasmBlob] = useState<Uint8Array>(null); // add state variable for wasm blob
     const [argsBlob, setArgsBlob] = useState<Uint8Array>(null); // add state variable for wasm blob
@@ -67,10 +69,11 @@ export default function WasmProposal() {
         if ("Err" in response) {
             setError(true);
             setErrorMessage(JSON.stringify(response["Err"], (_, v) => typeof v === 'bigint' ? `${v}n` : v));
+        } else {
+            window.location.href = "/";
         }
 
         setLoading(false);
-        window.location.reload();
     };
 
     const handleBlobChange = (event, setWasm) => {
@@ -105,94 +108,94 @@ export default function WasmProposal() {
     }
 
     return (
-        <Form onSubmit={handleSubmit}>
-            <Typography style={{textAlign: 'center', margin: '16px'}} variant="h2">
-                Wasm Proposal
-            </Typography>
+        <Card sx={{ p: 5 }}>
+            <CardHeader title="Wasm Proposal" />
+            <form onSubmit={handleSubmit}>
+                <TextField
+                    fullWidth
+                    label="Title"
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    required
+                    onKeyDown={e => e.stopPropagation()}
+                    error={!noSpecialCharsRegex.test(title)}
+                    helperText={
+                        !noSpecialCharsRegex.test(title)
+                            ? 'Please enter a title without special characters.'
+                            : ''
+                    }
+                />
 
-            <TextField
-                fullWidth
-                label="Title"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                required
-                onKeyDown={e => e.stopPropagation()}
-                error={!noSpecialCharsRegex.test(title)}
-                helperText={
-                    !noSpecialCharsRegex.test(title)
-                        ? 'Please enter a title without special characters.'
-                        : ''
-                }
-            />
+                <TextField
+                    fullWidth
+                    label="Description"
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    required
+                    onKeyDown={e => e.stopPropagation()}
+                    multiline
+                    rows={10} // Set the number of rows to fit the story
+                    error={!urlSafeNoCodeRegex.test(description)}
+                    helperText={
+                        (!urlSafeNoCodeRegex.test(description))
+                            ? 'Please enter a human-readable, URL-safe description without code.'
+                            : ''
+                    }
+                />
 
-            <TextField
-                fullWidth
-                label="Description"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                required
-                onKeyDown={e => e.stopPropagation()}
-                multiline
-                rows={10} // Set the number of rows to fit the story
-                error={!urlSafeNoCodeRegex.test(description)}
-                helperText={
-                    (!urlSafeNoCodeRegex.test(description))
-                        ? 'Please enter a human-readable, URL-safe description without code.'
-                        : ''
-                }
-            />
-            <TextField
-                fullWidth
-                label="Application Name"
-                value={appName}
-                onChange={(event) => setAppName(event.target.value)}
-                required
-                onKeyDown={e => e.stopPropagation()}
-                error={!noSpecialCharsRegex.test(appName)}
-                helperText={
-                    !noSpecialCharsRegex.test(appName)
-                        ? 'Please enter an app name without special characters.'
-                        : ''
-                }
-            />
-            <TextField
-                fullWidth
-                label="Wasm"
-                type="file"
-                required
-                onKeyDown={e => e.stopPropagation()}
-                InputLabelProps={{shrink: true}}
-                onChange={(event) => handleBlobChange(event, setWasmBlob)} // handle change event on wasm file input
-            />
+                <TextField
+                    fullWidth
+                    label="Application Name"
+                    value={appName}
+                    onChange={(event) => setAppName(event.target.value)}
+                    required
+                    onKeyDown={e => e.stopPropagation()}
+                    error={!noSpecialCharsRegex.test(appName)}
+                    helperText={
+                        !noSpecialCharsRegex.test(appName)
+                            ? 'Please enter an app name without special characters.'
+                            : ''
+                    }
+                />
 
-            <TextField
-                fullWidth
-                label="Args"
-                onKeyDown={e => e.stopPropagation()}
-                type="file"
-                InputLabelProps={{shrink: true}}
-                onChange={(event) => handleBlobChange(event, setArgsBlob)} // handle change event on wasm file input
-            />
+                <TextField
+                    fullWidth
+                    label="Wasm"
+                    type="file"
+                    required
+                    onKeyDown={e => e.stopPropagation()}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(event) => handleBlobChange(event, setWasmBlob)} // handle change event on wasm file input
+                />
 
-            <InputLabel htmlFor="my-select" shrink={false} id="my-select-label">CanisterId to Update</InputLabel>
-            <Select
-                labelId="my-select-label"
-                id="my-select"
-                value={canisterId}
-                onChange={handleCanisterIdChange}
-            >
-                <MenuItem value=""><em>None</em></MenuItem>
+                <TextField
+                    fullWidth
+                    label="Args"
+                    onKeyDown={e => e.stopPropagation()}
+                    type="file"
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(event) => handleBlobChange(event, setArgsBlob)} // handle change event on wasm file input
+                />
 
-                {Array.from(canisters.keys()).map((x) =>
-                    <MenuItem key={x} value={x}>{canisters.get(x)}</MenuItem>
-                )}
-            </Select>
+                <InputLabel htmlFor="my-select" shrink={false} id="my-select-label">CanisterId to Update</InputLabel>
+                <Select
+                    labelId="my-select-label"
+                    id="my-select"
+                    value={canisterId}
+                    onChange={handleCanisterIdChange}
+                >
+                    <MenuItem value=""><em>None</em></MenuItem>
 
-            <LoadingButton loading={loading || isLoadingWasm} fullWidth type="submit" variant="contained"
-                           color="primary">
-                Submit
-            </LoadingButton>
-            <ErrorDialog open={error} onClose={() => setError(false)} message={errorMessage}/>
-        </Form>
+                    {Array.from(canisters.keys()).map((x) =>
+                        <MenuItem key={x} value={x}>{canisters.get(x)}</MenuItem>
+                    )}
+                </Select>
+
+                <LoadingButton loading={loading || isLoadingWasm} fullWidth type="submit" variant="contained" color="primary">
+                    Submit
+                </LoadingButton>
+                <ErrorDialog open={error} onClose={() => setError(false)} message={errorMessage} />
+            </form>
+        </Card>
     );
 }

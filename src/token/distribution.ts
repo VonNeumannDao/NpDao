@@ -2,6 +2,7 @@ import {$query, $update, ic, nat, Principal} from "azle";
 import {TOKEN_DISTRIBUTION_ACCOUNT, XTCToken} from "./constants";
 import {handle_transfer} from "./transfer/transfer";
 import {balance_of} from "./account";
+import {state} from "./state";
 
 const xtcToken = new XTCToken(
     Principal.fromText('aanaa-xaaaa-aaaah-aaeiq-cai')
@@ -12,7 +13,7 @@ export async function distributeToken(donatedAmount: nat): Promise<string> {
     const caller = ic.caller();
     const myId = ic.id();
     const balance = balance_of(TOKEN_DISTRIBUTION_ACCOUNT);
-    const amountBought = (donatedAmount * 7n) / 10000n ;
+    const amountBought = (donatedAmount * state.distributionExchangeRate) / 10000n ;
     if (balance < amountBought) {
         return "not enough balance";
     }
@@ -41,6 +42,11 @@ export async function distributeToken(donatedAmount: nat): Promise<string> {
 $query
 export function distributionBalance(): nat {
     return balance_of(TOKEN_DISTRIBUTION_ACCOUNT);
+}
+
+$query
+export function distributionExchangeRate(): nat {
+    return state.distributionExchangeRate;
 }
 
 $update;

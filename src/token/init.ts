@@ -25,12 +25,11 @@ export function preUpgrade(): void {
 
         for (let accountKey in state.accounts?.[ownerKey]) {
             console.log(accountKey, ownerKey);
-            // @ts-ignore
-            const balance: bigint = state.accounts?.[ownerKey]?.[accountKey];
+            const balance: bigint | undefined = state.accounts?.[ownerKey]?.[accountKey];
             stableAccounts.insert(ownerKey + accountKey, {
                 ownerKey: ownerKey,
                 accountKey: accountKey,
-                balance: balance
+                balance: balance || 0n
             });
         }
     }
@@ -60,10 +59,13 @@ export function postUpgrade(): void {
     state.total_supply = BigInt(stableIds.get("totalSupply") || 0);
     console.log("starting accounts")
     for (let accounts of stableAccounts.values()) {
-        // @ts-ignore
-        state.accounts[accounts.ownerKey] = {};
-        // @ts-ignore
-        state.accounts[accounts.ownerKey][accounts.accountKey] = accounts.balance;
+        if (accounts != null && accounts.ownerKey != null && accounts.accountKey != null) {
+            if (state.accounts[accounts.ownerKey] == null) {
+                state.accounts[accounts.ownerKey] = {};
+            }
+            // @ts-ignore
+            state.accounts[accounts.ownerKey][accounts.accountKey] = accounts.balance || 0n;
+        }
     }
     console.log("starting transactions")
     for (let transaction of stableTransactions.values()) {

@@ -8,14 +8,19 @@ import AdminOnly from "./components/AdminOnly";
 import UploadCard from "./components/UploadCard";
 import NonProfitDAOPage from "./components/NonProfitDAOPage";
 import NonProfitDonation from "./components/NonProfitDonation";
+import {Container} from "@mui/material";
+import BalanceList from "./components/BalanceList";
 
 const Main = () => {
     const {isConnected} = useConnect();
 
     return (<>
         <TopBar/>
+        <BalanceList/>
         {isConnected && <>
-                <Routes>
+            <Container style={{ display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'left' }}>
+
+            <Routes>
                     <Route path="/" element={<Home/>}/>
                     <Route path="/proposals/:id" element={<ProposalFetcher/>}/>
                     <Route path="/about" element={<NonProfitDAOPage/>}/>
@@ -26,7 +31,8 @@ const Main = () => {
                         </AdminOnly>
                     }/>
                     <Route path="*" element={<div>Not found</div>}/>
-                </Routes>
+            </Routes>
+            </Container>
         </>
         }
     </>);

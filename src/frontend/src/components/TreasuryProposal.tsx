@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {InputAdornment, styled, TextField, Typography} from "@mui/material";
+import {CardHeader, InputAdornment, styled, TextField, Card} from "@mui/material";
 import config from "../../../../cig-config.json";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
@@ -7,6 +7,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import {Principal} from "@dfinity/principal";
 import ErrorDialog from "./ErrorDialog";
 import {convertToBigInt} from "../util/bigintutils";
+import {Navigate, useNavigate} from "react-router-dom";
 
 const Form = styled('form')({
     display: 'flex',
@@ -19,6 +20,7 @@ function TreasuryProposal() {
 
     const [description, setDescription] = useState('');
     const [error, setError] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
     const [title, setTitle] = useState('');
@@ -44,80 +46,82 @@ function TreasuryProposal() {
         if ("Err" in response) {
             setError(true);
             setErrorMessage(JSON.stringify(response["Err"], (_, v) => typeof v === 'bigint' ? `${v}n` : v));
+        } else {
+            window.location.href = "/";
         }
 
         setLoading(false);
-        window.location.reload();
     };
 
     return (
-        <Form onSubmit={handleSubmit}>
-            <Typography style={{textAlign: 'center', margin: '16px'}} variant="h2">
-                Treasury Proposal
-            </Typography>
-            <TextField
-                fullWidth
-                label="Title"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                required
-                onKeyDown={e => e.stopPropagation()}
-                error={!noSpecialCharsRegex.test(title)}
-                helperText={
-                    !noSpecialCharsRegex.test(title)
-                        ? 'Please enter a title without special characters.'
-                        : ''
-                }
-            />
+        <Card sx={{padding: 2}}>
+            <CardHeader title="Treasury Proposal"  />
+            <form onSubmit={handleSubmit} style={{padding: 1}} >
+                <TextField
+                    fullWidth
+                    label="Title"
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    required
+                    onKeyDown={e => e.stopPropagation()}
+                    error={!noSpecialCharsRegex.test(title)}
+                    helperText={
+                        !noSpecialCharsRegex.test(title)
+                            ? 'Please enter a title without special characters.'
+                            : ''
+                    }
+                />
 
-            <TextField
-                fullWidth
-                label="Description"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                onKeyDown={e => e.stopPropagation()}
-                required
-                multiline
-                rows={10} // Set the number of rows to fit the story
-                error={!urlSafeNoCodeRegex.test(description)}
-                helperText={
-                    (!urlSafeNoCodeRegex.test(description))
-                        ? 'Please enter a human-readable, URL-safe description without code.'
-                        : ''
-                }
-            />
+                <TextField
+                    fullWidth
+                    label="Description"
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    onKeyDown={e => e.stopPropagation()}
+                    required
+                    multiline
+                    rows={10} // Set the number of rows to fit the story
+                    error={!urlSafeNoCodeRegex.test(description)}
+                    helperText={
+                        (!urlSafeNoCodeRegex.test(description))
+                            ? 'Please enter a human-readable, URL-safe description without code.'
+                            : ''
+                    }
+                />
 
-            <TextField
-                fullWidth
-                label="Receiver Principal"
-                value={receiver}
-                onKeyDown={e => e.stopPropagation()}
-                onChange={(event) => setReceiver(event.target.value)}
-                required
-                error={!receiverRegex.test(receiver)}
-                helperText={
-                    !receiverRegex.test(receiver) ? 'Please enter a valid receiver.' : ''
-                }
-            />
+                <TextField
+                    fullWidth
+                    label="Receiver Principal"
+                    value={receiver}
+                    onKeyDown={e => e.stopPropagation()}
+                    onChange={(event) => setReceiver(event.target.value)}
+                    required
+                    error={!receiverRegex.test(receiver)}
+                    helperText={
+                        !receiverRegex.test(receiver) ? 'Please enter a valid receiver.' : ''
+                    }
+                />
 
-            <TextField
-                fullWidth
-                label="Amount"
-                type="number"
-                value={amount}
-                onKeyDown={e => e.stopPropagation()}
-                onChange={(event) => setAmount(event.target.value)}
-                required
-                InputProps={{
-                    endAdornment: <InputAdornment position="end">${config.symbol}</InputAdornment>,
-                }}
-            />
+                <TextField
+                    fullWidth
+                    label="Amount"
+                    type="number"
+                    value={amount}
+                    onKeyDown={e => e.stopPropagation()}
+                    onChange={(event) => setAmount(event.target.value)}
+                    required
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">${config.symbol}</InputAdornment>,
+                    }}
+                />
 
-            <LoadingButton loading={loading} fullWidth type="submit" variant="contained" color="primary">
-                Submit
-            </LoadingButton>
-            <ErrorDialog open={error} onClose={() => setError(false)} message={errorMessage}/>
-        </Form>
+                <LoadingButton loading={loading} fullWidth type="submit" variant="contained" color="primary">
+                    Submit
+                </LoadingButton>
+                {submitted && <Navigate to="/" state={submitted} replace={true} />}
+                <ErrorDialog open={error} onClose={() => setError(false)} message={errorMessage}/>
+            </form>
+        </Card>
     );
 }
 

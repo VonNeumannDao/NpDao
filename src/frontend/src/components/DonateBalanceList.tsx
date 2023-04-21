@@ -1,15 +1,10 @@
 import React from 'react';
 import {
     Typography,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
     Card,
     CardContent,
     CircularProgress, Box, Grid
 } from '@mui/material';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import BalanceCard from "./BalanceCard";
 
 export type Balance = {
@@ -25,6 +20,15 @@ type Props = {
 };
 
 const DonateBalanceList: React.FC<Props> = ({ balances, loading }) => {
+    function Spinner() {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                <CircularProgress style={{ marginBottom: '16px' }} />
+                <p style={{ marginTop: 0 }}>Loading balances.</p>
+                <p style={{ marginTop: 0 }}>This might take a minute...</p>
+            </div>
+        );
+    }
     return (
         <Card>
             <CardContent>
@@ -33,7 +37,7 @@ const DonateBalanceList: React.FC<Props> = ({ balances, loading }) => {
                         Balances
                     </Typography>
                 </Box>
-                {loading && <CircularProgress/>}
+                {loading && <Spinner/>}
                 {!loading && <>
                     <Grid container spacing={3}>
                         {balances.map((card, index) => (
