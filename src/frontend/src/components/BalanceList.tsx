@@ -3,14 +3,7 @@ import {
     Box,
     CardContent,
     CircularProgress,
-    Divider,
-    Drawer,
-    Grid,
-    IconButton,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText, Typography
+    Grid, Typography
 } from '@mui/material';
 import {AccountBalanceWallet, BalanceRounded, Menu as MenuIcon, MoneyRounded} from '@mui/icons-material';
 import InternetComputerIcon from "./InternetComputerIcon";

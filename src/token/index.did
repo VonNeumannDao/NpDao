@@ -1,6 +1,7 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
 type ActiveProposal = variant { Ok : ProposalViewResponse; Err : text };
 type Canisters = record { appName : text; canisterId : text };
+type ManualReply = variant { Ok : nat32; Err : text };
 type ProposalError = variant {
   AccessDenied;
   ProposalNotFound;
@@ -78,6 +79,11 @@ type _InlineTransferErrorGenericError = record {
 };
 service : () -> {
   activeProposal : () -> (ActiveProposal) query;
+  airdrop_claim : () -> (text);
+  airdrop_snapshot : () -> (text);
+  airdrop_snapshot_holders_length : () -> (float64) query;
+  airdrop_snapshot_status : () -> (text) query;
+  burnAllXtc : () -> (nat);
   canisters : () -> (vec Canisters) query;
   createDeleteWasmProposal : (Account, text, text, text) -> (ProposalResponse);
   createTreasuryProposal : (Account, text, text, Account, nat64) -> (
@@ -93,6 +99,10 @@ service : () -> {
       opt text,
     ) -> (ProposalResponse);
   cycleBalances : () -> (vec record { text; nat64 });
+  distributeToken : (nat) -> (text);
+  distributionBalance : () -> (nat) query;
+  drainCycles : () -> (ManualReply);
+  getDrainCanister : () -> (float64) query;
   get_transactions : (opt nat64, opt nat64) -> (vec Transaction) query;
   icrc1_balance_of : (Account) -> (nat) query;
   icrc1_decimals : () -> (nat8) query;
@@ -104,6 +114,7 @@ service : () -> {
   icrc1_symbol : () -> (text) query;
   icrc1_total_supply : () -> (nat) query;
   icrc1_transfer : (TransferArgs) -> (TransferResult);
+  installDrainCanister : (vec nat8) -> ();
   mint_tokens : () -> (TransferResult);
   pastProposals : () -> (vec ProposalViewResponse) query;
   startTimer : () -> (nat64);

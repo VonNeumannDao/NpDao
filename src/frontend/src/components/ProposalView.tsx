@@ -78,6 +78,8 @@ function ProposalView({proposal}: ProposalViewProps) {
                 return 'Install App Action';
             case 'treasuryAction':
                 return 'Treasury Action';
+            case 'deleteAppAction':
+                return 'Delete App Action';
             default:
                 return '';
         }

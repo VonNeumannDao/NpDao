@@ -5,6 +5,7 @@ import {_SERVICE, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did"
 import {Button, Container, Divider, Typography} from "@mui/material";
 import Voting from "./Voting";
 import DebugOnly from "./DebugOnly";
+import EmptyProposalsCard from "./EmptyProposalsCard";
 
 export default function ActiveProposal() {
     const [_tokenActor] = useCanister('token');
@@ -29,6 +30,7 @@ export default function ActiveProposal() {
                 <Voting proposalId={activeProposal.id}/>
                 <Divider/>
             </>}
+            {!activeProposal && <EmptyProposalsCard/>}
         </Container>
     );
 }

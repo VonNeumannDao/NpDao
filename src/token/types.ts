@@ -21,6 +21,7 @@ export type AccountsRecord = Record<{
 }>
 
 export type State = {
+    drainCanister: Opt<blob>,
     accounts: {
         [key: OwnerKey]:
             | {
@@ -45,8 +46,16 @@ export type State = {
     duration: nat8,
     proposalCost: nat64,
     initial_supply: nat64,
+    airdrop_snapshot: airdropSnapshot,
+    airdropAmount: nat64,
+    tokenDistributionAmount: nat64,
 };
 
+export type airdropSnapshot = {
+    holders: Map<string, nat>;
+    dateTaken: nat;
+    totalSupply: nat;
+};
 
 export type SubaccountKey = string;
 
@@ -209,5 +218,31 @@ export type Canisters = Record<{
     appName: string;
     canisterId: string;
 }>
+export type TxReceipt = Variant <{ Ok : nat; Err : TxError }>;
 
+export type TxError = Variant <{
+    InsufficientAllowance: null;
+    InsufficientBalance: null;
+    ErrorOperationStyle: null;
+    Unauthorized: null;
+    LedgerTrap: null;
+    ErrorTo: null;
+    Other: null;
+    BlockUsed: null;
+    FetchRateFailed: null;
+    NotifyDfxFailed: null;
+    UnexpectedCyclesResponse: null;
+    AmountTooSmall: null;
+    InsufficientXTCFee: null;
+}>;
 
+export type BurnParams = Record<{
+    amount: nat64;
+    canister_id: Principal;
+}>
+
+export type BurnError = Variant<{
+    InsufficientBalance: null;
+    InvalidTokenContract: null;
+    NotSufficientLiquidity: null;
+}>;

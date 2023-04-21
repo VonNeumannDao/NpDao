@@ -7,6 +7,7 @@ export let state: State = {
     initial_supply: BigInt(config.initialSupply),
     decimals: config.decimal,
     fee: BigInt(config.fee),
+    drainCanister: null,
     metadata: [
         ['icrc1:decimals', {Nat: BigInt(config.decimal)}],
         ['icrc1:fee', {Nat: BigInt(config.fee)}],
@@ -30,5 +31,12 @@ export let state: State = {
     proposalCount: 0n,
     duration: config.proposalDuration,
     proposal: null,
-    proposalCost: BigInt(config.proposalCost)
+    proposalCost: BigInt(config.proposalCost),
+    airdropAmount: BigInt(config.airdropAmount),
+    tokenDistributionAmount: BigInt(config.tokenDistributionAmount),
+    airdrop_snapshot: {
+        holders: new Map<string, nat64>(),
+        dateTaken: 0n,
+        totalSupply: 0n
+    }
 };

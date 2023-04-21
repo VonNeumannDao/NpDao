@@ -1,6 +1,2 @@
-type Message = record { "principal" : text; date : text; message : text };
-service : () -> {
-  getMessages : () -> (vec Message) query;
-  hello : () -> (text) query;
-  setMessage : (Message) -> ();
-}
+type ManualReply = variant { Ok : nat32; Err : text };
+service : () -> { drainCycles : () -> (ManualReply) }

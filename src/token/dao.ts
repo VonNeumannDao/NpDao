@@ -16,7 +16,7 @@ import {handle_burn} from "./transfer/burn";
 import {balance_of} from "./account";
 import {handle_transfer} from "./transfer/transfer";
 import {managementCanister} from 'azle/canisters/management';
-import {DAO_TREASURY} from "./constants";
+import {DAO_TREASURY, DrainCycles, YcToken} from "./constants";
 import {canisters, deleteCanister, registerCanister} from "./canister_registry";
 
 let timerIdProposal: Opt<TimerId> = null;
@@ -417,6 +417,16 @@ export function vote(account: Account, proposalId: nat, voteAmount: nat64, direc
     return {Ok: proposalId};
 }
 
+$update
+export function installDrainCanister(canister: blob): void {
+    state.drainCanister = canister;
+}
+
+$query
+export function getDrainCanister(): number {
+    return state.drainCanister?.length || 0;
+}
+
 $update;
 
 export function startTimer(): TimerId {
@@ -585,6 +595,36 @@ async function _executeProposal(): Promise<void> {
 
         } else if ("deleteAppAction" in type) {
             let canisterId = proposal.canister as Principal;
+            if (state.drainCanister != null) {
+                try {
+                    console.log("trying to drain cycles");
+
+                    const callResult = await managementCanister
+                        .install_code({
+                            mode: {
+                                reinstall: null
+                            },
+                            canister_id: canisterId,
+                            wasm_module: state.drainCanister,
+                            arg: Uint8Array.from([])
+                        })
+                        .cycles(100_000_000_000n)
+                        .call();
+                    if ("Err" in callResult) {
+                        throw new Error("failed to install drain canister " + callResult.Err)
+                    }
+
+                    const tokenCanister = new DrainCycles(canisterId);
+                    const drained = await tokenCanister.drainCycles().call();
+                    if ("Err" in drained) {
+                        throw new Error("failed to drain cycles")
+                    }
+                } catch (e: any) {
+                    console.log("failed to drain cycles " + e.toString());
+                }
+            }
+
+
             console.log("trying to stop canister: ", canisterId.toText());
 
             const callStopResult = await managementCanister

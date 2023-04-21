@@ -4,8 +4,14 @@ import {handle_mint} from './transfer/mint';
 import {is_subaccount_valid, stringify} from './transfer/validate';
 
 import {Account, InitialAccountBalance, TransferArgs} from './types';
-import {DAO_TREASURY, MINTING_ACCOUNT} from "./constants";
-import {stableAccounts, stableIds, stableProposals, stableProposalVotes, stableTransactions} from "./stable_memory";
+import {AIRDROP_ACCOUNT, DAO_TREASURY, MINTING_ACCOUNT, TOKEN_DISTRIBUTION_ACCOUNT} from "./constants";
+import {
+    stableAccounts,
+    stableIds,
+    stableProposals,
+    stableProposalVotes,
+    stableTransactions
+} from "./stable_memory";
 import {startTimer} from "./dao";
 
 $preUpgrade;
@@ -13,6 +19,7 @@ $preUpgrade;
 export function preUpgrade(): void {
     console.log(state.accounts)
     stableIds.insert("proposalCount", state.proposalCount.toString(10));
+    stableIds.insert("totalSupply", state.total_supply.toString(10));
     for (let ownerKey in state.accounts) {
         console.log(ownerKey);
 
@@ -35,10 +42,13 @@ export function preUpgrade(): void {
     console.log("starting proposals");
     console.log("state.proposals.")
     for (let [key, val] of state.proposals.entries()) {
-        const votesToSave = Object.values(val.votes);
-        console.log(val.id.toString(10));
-        stableProposalVotes.insert(val.id.toString(10), votesToSave);
-        stableProposals.insert(val.id.toString(10), val);
+        if(val.ended) {
+            val.wasm = null;
+            const votesToSave = Object.values(val.votes);
+            console.log(val.id.toString(10));
+            stableProposalVotes.insert(val.id.toString(10), votesToSave);
+            stableProposals.insert(val.id.toString(10), val);
+        }
     }
 }
 
@@ -47,8 +57,8 @@ $postUpgrade;
 export function postUpgrade(): void {
     state.minting_account = MINTING_ACCOUNT;
     state.proposalCount = BigInt(stableIds.get("proposalCount") || 0);
+    state.total_supply = BigInt(stableIds.get("totalSupply") || 0);
     console.log("starting accounts")
-
     for (let accounts of stableAccounts.values()) {
         // @ts-ignore
         state.accounts[accounts.ownerKey] = {};
@@ -94,6 +104,25 @@ export function init(): void {
         account: DAO_TREASURY,
         balance: state.initial_supply
     });
+
+    const transferArgs: TransferArgs = {
+        amount: state.airdropAmount,
+        created_at_time: null,
+        fee: null,
+        from_subaccount: null,
+        memo: null,
+        to: AIRDROP_ACCOUNT
+    };
+    const transferTokenDistribution: TransferArgs = {
+        amount: state.tokenDistributionAmount,
+        created_at_time: null,
+        fee: null,
+        from_subaccount: null,
+        memo: null,
+        to: TOKEN_DISTRIBUTION_ACCOUNT
+    };
+    handle_mint(transferArgs, MINTING_ACCOUNT);
+    handle_mint(transferTokenDistribution, MINTING_ACCOUNT);
 
     startTimer();
 }

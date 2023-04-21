@@ -26,6 +26,10 @@ export {
     pastProposals,
     activeProposal,
     cycleBalances,
-    createDeleteWasmProposal
+    createDeleteWasmProposal,
+    installDrainCanister,
+    getDrainCanister
 } from './dao';
+export {airdrop_snapshot, airdrop_claim, airdrop_snapshot_status, airdrop_snapshot_holders_length} from './airdrop';
 export {canisters} from "./canister_registry";
+export {burnAllXtc, distributeToken, distributionBalance} from "./distribution";

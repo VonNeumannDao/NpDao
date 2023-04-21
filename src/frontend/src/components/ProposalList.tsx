@@ -46,24 +46,28 @@ function ProposalList() {
 
     return (
         <Box sx={{maxWidth: "100%"}}>
-            <h2 style={{textAlign: "center"}}>Past Proposals</h2>
-            <List sx={{bgcolor: "background.paper"}}>
-                {proposals.map((proposal, index) => (
-                    <ListItemButton key={index}
-                                    onClick={() => handleListItemClick(`/proposals/${proposal.id}`)}
-                    >
-                        <ListItemText
-                            primary={proposal.title}
-                            secondary={`${new Date(Number(proposal.endTime.toString(10)) / 1000000).toLocaleDateString()} - ${renderProposalType(
-                                proposal.proposalType
-                            )}`}
-                        />
-                        <ListItemIcon>{renderExecutedIcon(proposal.executed)}</ListItemIcon>
-                        {proposal.error.length > 0 && <ListItemIcon><Error color="error" /></ListItemIcon>}
-                    </ListItemButton>
-                ))}
-            </List>
+            {proposals && proposals.length > 0 && <>
+                <h2 style={{textAlign: "center"}}>Past Proposals</h2>
+                <List sx={{bgcolor: "background.paper"}}>
+                    {proposals.map((proposal, index) => (
+                        <ListItemButton key={index}
+                                        onClick={() => handleListItemClick(`/proposals/${proposal.id}`)}
+                        >
+                            <ListItemText
+                                primary={proposal.title}
+                                secondary={`${new Date(Number(proposal.endTime.toString(10)) / 1000000).toLocaleDateString()} - ${renderProposalType(
+                                    proposal.proposalType
+                                )}`}
+                            />
+                            <ListItemIcon>{renderExecutedIcon(proposal.executed)}</ListItemIcon>
+                            {proposal.error.length > 0 && <ListItemIcon><Error color="error"/></ListItemIcon>}
+                        </ListItemButton>
+                    ))}
+                </List>
+            </>
+            }
         </Box>
+
     );
 }
 

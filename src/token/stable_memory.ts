@@ -1,4 +1,4 @@
-import {StableBTreeMap, Vec} from "azle";
+import {blob, StableBTreeMap, Vec} from "azle";
 import {AccountsRecord, SerializableProposal, Transaction, Vote} from "./types";
 
 export let stableAccounts = new StableBTreeMap<string, AccountsRecord>(0, 100, 200);

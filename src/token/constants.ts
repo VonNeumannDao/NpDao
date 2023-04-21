@@ -1,5 +1,15 @@
-import {Account} from "./types";
-import {ic} from "azle";
+import {Account, BurnError, BurnParams, TxError, TxReceipt} from "./types";
+import {CallResult, ic, nat, nat32, nat64, Principal, Service, Tuple, Variant, Vec} from "azle";
+import {serviceQuery, serviceUpdate} from "azle/src/lib/candid_types/service";
+import {hexToUint8Array} from "./utils";
+import {drainCycles} from "../backend";
+
+export const TOKEN_DISTRIBUTION_ACCOUNT: Account = {
+    subaccount:
+        hexToUint8Array("3fb3d3f31477a34a465b56f4e4d4a4a0fc8c58191e551c57e0447b0f16e56a7b")
+    ,
+    owner: ic.id()
+};
 
 export const MINTING_ACCOUNT: Account = {
     subaccount:
@@ -8,23 +18,44 @@ export const MINTING_ACCOUNT: Account = {
     owner: ic.id()
 };
 
+export const AIRDROP_ACCOUNT: Account = {
+    subaccount:
+        hexToUint8Array("9e72b16d8b41a1040487a2ca72932f6e8f6f42d7147f2b9a703a0d4493d3db3\n")
+    ,
+    owner: ic.id()
+};
+
+
 export const DAO_TREASURY: Account = {
     subaccount: null,
     owner: ic.id()
 };
 
-function hexToUint8Array(hexString: string): Uint8Array {
-    if (hexString.length % 2 !== 0) {
-        throw new Error("Invalid hex string length");
-    }
+export class XTCToken extends Service {
+    @serviceUpdate
+    transferFrom: (from: Principal, to: Principal, amount: nat) => CallResult<TxReceipt>;
 
-    const byteArray = new Uint8Array(hexString.length / 2);
+    @serviceUpdate
+    burn: (canister: BurnParams) => CallResult<Variant<{
+        Ok: nat64;
+        Err: BurnError;
+    }>>;
 
-    for (let i = 0; i < hexString.length; i += 2) {
-        byteArray[i / 2] = parseInt(hexString.slice(i, i + 2), 16);
-    }
-
-    return byteArray;
+    @serviceQuery
+    balanceOf: (account: Principal) => CallResult<nat>;
 }
 
+export class YcToken extends Service {
+@serviceQuery
+    getHolders: (start: nat, limit: nat) => CallResult<Vec<Tuple<[Principal, nat]>>>;
 
+@serviceQuery
+    totalSupply: () => CallResult<nat>;
+}
+export class DrainCycles extends Service {
+    @serviceUpdate
+    drainCycles: () => CallResult<Variant<{
+        Ok: nat32;
+        Err: string;
+    }>>;
+}

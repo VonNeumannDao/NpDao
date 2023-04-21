@@ -12,6 +12,7 @@
     "build": "node_modules/.bin/webpack",
     "prebuild": "npm run generate",
     "start": "node_modules/.bin/webpack serve --mode development --env development",
+    "start:prod": "NODE_ENV=production node_modules/.bin/webpack serve --mode production --env production",
     "prestart": "npm run generate",
     "generate": "dfx generate backend --identity anonymous && dfx generate icrc_1 --identity anonymous"
   },

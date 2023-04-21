@@ -1,9 +1,11 @@
 {
   "decimal": 8,
   "fee": "0",
-  "name": "No Profit",
+  "name": "Non Profit",
   "symbol": "NP",
+  "proposalDuration": 61,
+  "proposalCost": "26500000000",
   "initialSupply": "100000000000000",
-  "proposalDuration": 259200,
-  "proposalCost": "26500000000"
+  "airdropAmount": "100000000000000",
+  "tokenDistributionAmount": "100000000000000"
 }
