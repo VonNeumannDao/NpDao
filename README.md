@@ -45,6 +45,11 @@ The Sardines are Good has the following parameters in cig-config.json:
 - `proposalDuration`: The duration (in seconds) that a proposal can remain open for voting. Default is 259,200 (3 days).
 - `proposalCost`: The cost (in NP) to create a new proposal. Default is 26500000000 with 8 decimals.
 
+## TODO
+- [ ] Add staking functionality
+- [ ] Drain cycles when removing a WASM
+- [ ] Add custodian to token that manages wasm installation
+
 ## Contributing
 
 If you'd like to contribute to Sardines are Good, feel free to open a pull request or issue on GitHub. Contributions are welcome and appreciated!
