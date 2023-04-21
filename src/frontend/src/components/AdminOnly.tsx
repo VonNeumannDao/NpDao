@@ -1,21 +1,24 @@
 import {useContext, useEffect, useState} from "react";
 import {useConnect} from "@connect2ic/react";
+import config from "../../../../cig-config.json";
 
 interface AdminOnlyProps {
     children: JSX.Element;
 }
 
 function AdminOnly({ children }: AdminOnlyProps) {
-    const {principal} = useConnect();
+    const {principal, isConnected} = useConnect();
 
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     useEffect(() => {
-        if (principal) {
-            const isAdmin = principal && principal === "bccux-unsg4-wmiio-tnimk-hmgtj-7zwoa-p7oxs-oc5ks-7btcc-tlfcq-zae";
+        if (principal && isConnected) {
+            const isAdmin = principal && config.custodian.includes(principal) ;
             setIsAdmin(isAdmin);
+        } else {
+            setIsAdmin(false);
         }
-    }, [principal]);
+    }, [principal, isConnected]);
 
     // Check if the user is an admin
 

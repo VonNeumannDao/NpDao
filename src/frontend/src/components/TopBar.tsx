@@ -82,6 +82,11 @@ export default function TopBar() {
         text-decoration: underline;
       }
 `;
+
+    function disabledIfProposal() {
+        return !isConnected || activeProposal || !principal;
+    }
+
     return (
         <AppBar style={{zIndex: 10}} position='static' elevation={0}>
             <Container maxWidth='xl'>
@@ -130,21 +135,25 @@ export default function TopBar() {
                                 })} />
                             }
 
-                            <Button sx={{marginLeft: 2}} variant='contained' color='secondary' onClick={handleProposalClick}>Create Proposal</Button>
+                            <Button sx={{marginLeft: 2}} disabled={disabledIfProposal()}  variant='contained' color='secondary' onClick={handleProposalClick}>Create Proposal</Button>
                             <Menu
                                 anchorEl={proposalAnchorEl}
                                 open={Boolean(proposalAnchorEl)}
                                 onClose={handleProposalClose}
                             >
-                                <ContentModal disabled={!isConnected || activeProposal} trigger={"Wasm Proposal"}>
-                                    <WasmProposal/>
-                                </ContentModal>
-                                <ContentModal disabled={!isConnected || activeProposal} trigger={"Treasury Proposal"}>
+                                <AdminOnly>
+                                    <ContentModal disabled={disabledIfProposal()} trigger={"Wasm Proposal"}>
+                                        <WasmProposal/>
+                                    </ContentModal>
+                                </AdminOnly>
+                                <ContentModal disabled={disabledIfProposal()} trigger={"Treasury Proposal"}>
                                     <TreasuryProposal/>
                                 </ContentModal>
-                                <ContentModal disabled={!isConnected || activeProposal} trigger={"Delete Wasm Proposal"}>
-                                    <DeleteWasmProposal/>
-                                </ContentModal>
+                                <AdminOnly>
+                                    <ContentModal disabled={disabledIfProposal()} trigger={"Delete Wasm Proposal"}>
+                                        <DeleteWasmProposal/>
+                                    </ContentModal>
+                                </AdminOnly>
                             </Menu>
                             <AdminOnly>
                                 <MintTokenButton/>
