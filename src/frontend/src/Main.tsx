@@ -9,29 +9,32 @@ import UploadCard from "./components/UploadCard";
 import NonProfitDAOPage from "./components/NonProfitDAOPage";
 import NonProfitDonation from "./components/NonProfitDonation";
 import {Container} from "@mui/material";
-import BalanceList from "./components/BalanceList";
+import UtilityBar from "./components/UtilityBar";
+import Staking from "./components/Staking";
 
 const Main = () => {
     const {isConnected, principal} = useConnect();
 
     return (<>
         <TopBar/>
-        <BalanceList/>
+        <UtilityBar/>
         {isConnected && principal && <>
-            <Container style={{ display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'left' }}>
+            <Container style={{display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'left'}}>
 
-            <Routes>
+                <Routes>
                     <Route path="/" element={<Home/>}/>
                     <Route path="/proposals/:id" element={<ProposalFetcher/>}/>
                     <Route path="/about" element={<NonProfitDAOPage/>}/>
                     <Route path="/distribution" element={<NonProfitDonation/>}/>
+                    <Route path="/staking" element={<Staking/>}/>
+
                     <Route path="/admin" element={
                         <AdminOnly>
                             <UploadCard/>
                         </AdminOnly>
                     }/>
                     <Route path="*" element={<div>Not found</div>}/>
-            </Routes>
+                </Routes>
             </Container>
         </>
         }

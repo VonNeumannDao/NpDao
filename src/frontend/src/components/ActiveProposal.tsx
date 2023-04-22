@@ -2,11 +2,12 @@ import React, {useEffect, useState} from 'react';
 import ProposalView from './ProposalView';
 import {useCanister} from "@connect2ic/react";
 import {_SERVICE, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did";
-import {Button, CardHeader, Container, Divider, Typography, CardContent, Card, Avatar} from "@mui/material";
+import {Button, CardHeader, Container, Divider, Typography, CardContent, Card, Avatar, IconButton} from "@mui/material";
 import Voting from "./Voting";
 import DebugOnly from "./DebugOnly";
 import EmptyProposalsCard from "./EmptyProposalsCard";
 import {DescriptionRounded, EmojiPeopleRounded} from "@mui/icons-material";
+import CloseIcon from "@mui/icons-material/Close";
 
 export default function ActiveProposal() {
     const [_tokenActor] = useCanister('token');

@@ -1,11 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {
-    Box,
-    CardContent,
-    CircularProgress,
-    Grid, Typography
-} from '@mui/material';
-import {AccountBalanceWallet, BalanceRounded, Menu as MenuIcon, MoneyRounded} from '@mui/icons-material';
+import {Box, CardContent, CircularProgress, Divider, Grid, Paper, Typography} from '@mui/material';
+import {AccountBalanceWallet, MoneyRounded} from '@mui/icons-material';
 import InternetComputerIcon from "./InternetComputerIcon";
 import {useCanister} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
@@ -20,9 +15,10 @@ import Card from "@mui/material/Card";
 import BalanceCard from "./BalanceCard";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import {isDebugOn} from "./DebugOnly";
+import CryptoWallet from "./CryptoWallet";
 
 
-const BalanceList = () => {
+const UtilityBar = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [_tokenActor] = useCanister('token');
     const [_ledgerActor] = useCanister('ledger');
@@ -72,37 +68,44 @@ const BalanceList = () => {
     const handleDrawerToggle = () => {
         setDrawerOpen(!drawerOpen);
     };
+
     function Spinner() {
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                <CircularProgress style={{ marginBottom: '16px' }} />
-                <p style={{ marginTop: 0 }}>Loading balances.</p>
-                <p style={{ marginTop: 0 }}>This might take a minute...</p>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%'
+            }}>
+                <CircularProgress style={{marginBottom: '16px'}}/>
+                <p style={{marginTop: 0}}>Loading balances.</p>
+                <p style={{marginTop: 0}}>This might take a minute...</p>
             </div>
         );
     }
 
     const cards = [
         {
-            icon: <AccountBalanceWallet />,
+            icon: <AccountBalanceWallet fontSize={"large"}/>,
             symbol: "$XTC",
             balance: divideByTrillion(cycleBalance),
-            title: "DAO Cycles"
+            title: "Cycles"
         },
         {
-            icon: <InternetComputerIcon />,
+            icon: <InternetComputerIcon fontSize={"large"}/>,
             symbol: "$ICP",
             balance: truncateDecimal(bigIntToDecimalPrettyString(icpBalance)),
-            title: "Internet Computer"
+            title: "ICP"
         },
         {
-            icon: <MoneyRounded />,
+            icon: <MoneyRounded fontSize={"large"} />,
             symbol: `$${config.symbol}`,
             balance: truncateDecimal(bigIntToDecimalPrettyString(tokenBalance)),
             title: config.name
         },
         ...canisterTokenBalance.map((value) => ({
-            icon: <AccountBalanceIcon />,
+            icon: <AccountBalanceIcon fontSize={"large"}/>,
             symbol: `$XTC`,
             balance: divideByTrillion(value[1]),
             title: value[0]
@@ -113,24 +116,36 @@ const BalanceList = () => {
     const balances = (
         <Card>
             <CardContent>
-                <Box textAlign="center">
-                    <Typography variant="h5" component="h2">
-                        Balances
-                    </Typography>
+                <Box display="flex" flexWrap="wrap">
+                    <Box flexGrow={2}>
+                        <Paper sx={{display: "flex", flexWrap: "wrap", padding: "16px", marginBottom: '16px', minHeight: "202px", minWidth: "700px"}}>
+                            <Box textAlign="center" sx={{width: "100%"}}>
+                                <Typography variant="h5" component="h2" textAlign={"center"}>
+                                    DAO Balances
+                                </Typography>
+                                {loading && <Spinner/>}
+                            </Box>
+
+                            {!loading && <>
+                                <Grid container spacing={1} justifyContent="center">
+                                    {cards.map((card, index) => (
+                                        <Grid item key={index} md={3}>
+                                            <BalanceCard {...card} />
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            </>}
+                        </Paper>
+                    </Box>
+                    <Divider orientation="vertical" flexItem sx={{ margin: '0 16px', height: "100%", backgroundColor: 'white' }} />
+                    <Box sx={{maxWidth: "800px", margin: "auto"}} flexGrow={1}>
+                        <CryptoWallet/>
+                    </Box>
                 </Box>
-                {loading && <Spinner/>}
-                {!loading && <>
-                    <Grid container spacing={3}>
-                        {cards.map((card, index) => (
-                            <Grid item key={index} xs={12} sm={6} md={4}>
-                                <BalanceCard {...card} />
-                            </Grid>
-                        ))}
-                    </Grid>
-                </>}
             </CardContent>
         </Card>
     );
+
     function truncateDecimal(str: string): string {
         const parts = str.split('.');
         if (parts.length === 2) {
@@ -153,4 +168,4 @@ const BalanceList = () => {
     );
 };
 
-export default BalanceList;
+export default UtilityBar;

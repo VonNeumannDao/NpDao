@@ -21,7 +21,7 @@ import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import {useAppContext} from "./AppContext";
 import WasmProposal from "./WasmProposal";
 import CanisterDropdown from "./CanisterDropdown";
-import BalanceList from "./BalanceList";
+import UtilityBar from "./UtilityBar";
 import DeleteWasmProposal from "./DeleteWasmProposal";
 import DebugOnly from "./DebugOnly";
 import AdminOnly from "./AdminOnly";

@@ -3,15 +3,16 @@ import ProposalView from "./ProposalView";
 import {useCanister} from "@connect2ic/react";
 import {_SERVICE, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did";
 import {useNavigate, useParams} from "react-router-dom";
-import {Button, Toolbar} from "@mui/material";
+import {Avatar, Button, Card, CardContent, CardHeader, IconButton, Toolbar, Typography} from "@mui/material";
+import {EmojiPeopleRounded, Lock} from "@mui/icons-material";
+import CloseIcon from "@mui/icons-material/Close";
 
 function ProposalFetcher() {
     const {id} = useParams();
-    const navigate = useNavigate();
     const [_tokenActor] = useCanister('token');
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const [proposal, setProposal] = useState<ProposalViewResponse>();
-
+    const navigate = useNavigate();
     useEffect(() => {
         init().then();
     }, []);
@@ -21,16 +22,30 @@ function ProposalFetcher() {
         setProposal(proposals.find(x => x.id === BigInt(id)));
     }
 
-    const handleBackClick = () => {
-        navigate(-1);
-    };
+
 
     return (<>
             {proposal && <>
-                <ProposalView proposal={proposal}/>
-                <Button fullWidth={false} onClick={handleBackClick} sx={{ fontSize: '1.2rem'}}>
-                    Back
-                </Button>
+                <Card sx={{ marginTop: '16px' }}>
+                    <CardHeader
+                        titleTypographyProps={{ variant: 'h4' }}
+                        color={'secondary'}
+                        avatar={
+                            <Avatar>
+                                <EmojiPeopleRounded />
+                            </Avatar>
+                        }
+                        title={"Proposal Details"}
+                        action={
+                            <IconButton onClick={() => navigate(-1)}>
+                                <CloseIcon />
+                            </IconButton>
+                        }
+                    />
+                    <CardContent>
+                        <ProposalView proposal={proposal} />
+                    </CardContent>
+                </Card>
             </> }
 
         </>

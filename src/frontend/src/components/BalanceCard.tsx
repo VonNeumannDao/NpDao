@@ -11,7 +11,7 @@ type Props = {
 
 const BalanceCard = ({ icon, symbol, balance, title }: Props) => {
     return (
-        <Card style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <Card style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: "162px", marginTop: "8px" }}>
             <CardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                 <span style={{ marginTop: '5px', marginBottom: '8px' }}>{icon}</span>
                 <Typography variant="h5" component="h2" style={{ marginBottom: '8px', textAlign: 'center' }}>
