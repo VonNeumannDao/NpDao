@@ -3,6 +3,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const RemarkHTML = import("remark-html");
 
 function initCanisterEnv() {
     let localCanisters, prodCanisters;
@@ -77,7 +78,23 @@ module.exports = {
     module: {
         rules: [
             {test: /\.(ts|tsx|jsx)$/, loader: "ts-loader"},
-            {test: /\.css$/, use: ['style-loader', 'css-loader']}
+            {test: /\.css$/, use: ['style-loader', 'css-loader']},
+            {
+                test: /\.md$/,
+                use: [
+                    {
+                        loader: "html-loader",
+                    },
+                    {
+                        loader: "remark-loader",
+                        options: {
+                            remarkOptions: {
+                                plugins: [RemarkHTML],
+                            },
+                        },
+                    }
+                ]
+            }
         ]
     },
     plugins: [
