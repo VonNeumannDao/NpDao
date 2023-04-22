@@ -114,8 +114,7 @@ const UtilityBar = () => {
 
 
     const balances = (
-        <Card>
-            <CardContent>
+
                 <Box display="flex" flexWrap="wrap">
                     <Box flexGrow={2}>
                         <Paper sx={{display: "flex", flexWrap: "wrap", padding: "16px", marginBottom: '16px', minHeight: "202px", minWidth: "700px"}}>
@@ -137,13 +136,10 @@ const UtilityBar = () => {
                             </>}
                         </Paper>
                     </Box>
-                    <Divider orientation="vertical" flexItem sx={{ margin: '0 16px', height: "100%", backgroundColor: 'white' }} />
                     <Box sx={{maxWidth: "800px", margin: "auto"}} flexGrow={1}>
                         <CryptoWallet/>
                     </Box>
                 </Box>
-            </CardContent>
-        </Card>
     );
 
     function truncateDecimal(str: string): string {

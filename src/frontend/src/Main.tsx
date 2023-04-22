@@ -11,9 +11,17 @@ import NonProfitDonation from "./components/NonProfitDonation";
 import {Container} from "@mui/material";
 import UtilityBar from "./components/UtilityBar";
 import Staking from "./components/Staking";
+import {useEffect} from "react";
 
 const Main = () => {
-    const {isConnected, principal} = useConnect();
+    const {isConnected, principal, disconnect} = useConnect();
+
+    useEffect(() => {
+        if (isConnected && !principal) {
+            disconnect();
+        }
+    }, [isConnected, principal]);
+
 
     return (<>
         <TopBar/>

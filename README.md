@@ -49,6 +49,7 @@ The Sardines are Good has the following parameters in cig-config.json:
 - [ ] Add staking functionality
 - [ ] Add an wallet to the UI
 - [ ] Add voting rewards 
+- [ ] Reseearch transaction archiving
 
 ## Contributing
 
