@@ -1,5 +1,5 @@
 import bigDecimal from "js-big-decimal";
-import { SHA256, enc } from 'crypto-js';
+import {enc, SHA256} from 'crypto-js';
 
 export const DECIMALS = 100000000;
 export function bigIntToDecimal(big: BigInt | number) {

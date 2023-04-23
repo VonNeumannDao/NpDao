@@ -1,15 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {
+    Box,
+    Button,
     Card,
     CardContent,
-    Typography,
-    TextField,
-    Button,
-    Box,
+    Checkbox,
     Dialog,
-    DialogTitle,
+    DialogActions,
     DialogContent,
-    DialogActions, FormControlLabel, Checkbox
+    DialogTitle,
+    FormControlLabel,
+    TextField,
+    Typography
 } from '@mui/material';
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";

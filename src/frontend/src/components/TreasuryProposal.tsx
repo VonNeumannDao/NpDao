@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {CardHeader, InputAdornment, styled, TextField, Card, Box} from "@mui/material";
+import {Box, Card, CardHeader, InputAdornment, styled, TextField} from "@mui/material";
 import config from "../../../../cig-config.json";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
@@ -7,7 +7,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import {Principal} from "@dfinity/principal";
 import ErrorDialog from "./ErrorDialog";
 import {convertToBigInt} from "../util/bigintutils";
-import {Navigate, useNavigate} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 
 const Form = styled('form')({
     display: 'flex',

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography } from '@mui/material';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import {Card, CardContent, Typography} from '@mui/material';
 
 type Props = {
     icon: React.ReactNode;

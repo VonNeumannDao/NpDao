@@ -1,10 +1,9 @@
 import React from 'react';
-import {Grid, IconButton, Paper, Typography} from '@mui/material';
+import {Grid, Paper, Typography} from '@mui/material';
 import {ProposalType, ProposalViewResponse} from '../declarations/icrc_1/icrc_1.did';
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import {JSON_BIGINT} from "../util/josnutil";
-import { useTheme } from '@mui/material/styles';
-import CloseIcon from "@mui/icons-material/Close";
+import {useTheme} from '@mui/material/styles';
 import VoterTable from "./VoterTable";
 
 interface ProposalViewProps {

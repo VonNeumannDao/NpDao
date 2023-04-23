@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, MenuItem, Modal, styled} from "@mui/material";
+import {MenuItem, Modal, styled} from "@mui/material";
 
 
 function ContentModal({trigger, children, disabled}) {

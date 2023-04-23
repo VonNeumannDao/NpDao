@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {useConnect} from "@connect2ic/react";
 import config from "../../../../cig-config.json";
 

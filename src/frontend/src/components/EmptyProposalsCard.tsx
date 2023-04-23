@@ -1,6 +1,6 @@
 import React from 'react';
-import {Card, CardContent, Typography, CardHeader, Avatar, Divider, Box} from "@mui/material";
-import { SentimentVeryDissatisfiedOutlined} from "@mui/icons-material";
+import {Avatar, Box, Card, CardContent, CardHeader, Divider, Typography} from "@mui/material";
+import {SentimentVeryDissatisfiedOutlined} from "@mui/icons-material";
 import {StyledLink} from "./StyledComponents";
 
 const EmptyProposalsCard: React.FC = () => {

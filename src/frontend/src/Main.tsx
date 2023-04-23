@@ -1,4 +1,5 @@
 import * as React from "react";
+import {useEffect} from "react";
 import TopBar from "./components/TopBar";
 import {useConnect} from "@connect2ic/react";
 import {Route, Routes} from 'react-router-dom';
@@ -11,7 +12,6 @@ import NonProfitDonation from "./components/NonProfitDonation";
 import {Container} from "@mui/material";
 import UtilityBar from "./components/UtilityBar";
 import Staking from "./components/Staking";
-import {useEffect} from "react";
 import ConnectWalletMessage from "./components/ConnectWalletMessage";
 
 const Main = () => {

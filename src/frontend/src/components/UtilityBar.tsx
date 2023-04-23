@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Box, CardContent, CircularProgress, Divider, Grid, Paper, Typography} from '@mui/material';
+import {Box, CircularProgress, Grid, Paper, Typography} from '@mui/material';
 import {AccountBalanceWallet, MoneyRounded} from '@mui/icons-material';
 import InternetComputerIcon from "./InternetComputerIcon";
 import {useCanister} from "@connect2ic/react";
@@ -11,7 +11,6 @@ import {Principal} from "@dfinity/principal";
 import {AccountIdentifier, SubAccount} from "@dfinity/nns";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import config from "../../../../cig-config.json";
-import Card from "@mui/material/Card";
 import BalanceCard from "./BalanceCard";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import {isDebugOn} from "./DebugOnly";

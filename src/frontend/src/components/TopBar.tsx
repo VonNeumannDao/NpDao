@@ -1,15 +1,4 @@
-import {
-    AppBar,
-    Box,
-    Button,
-    CircularProgress,
-    Container,
-    Divider,
-    Menu,
-    MenuItem, styled,
-    Toolbar,
-    Typography
-} from '@mui/material';
+import {AppBar, Box, Button, Container, Divider, Menu, styled, Toolbar} from '@mui/material';
 import React, {useEffect, useState} from 'react';
 import {ConnectButton, ConnectDialog, useCanister, useConnect} from '@connect2ic/react';
 import MintTokenButton from "./MintTokenButton";
@@ -20,9 +9,7 @@ import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import {useAppContext} from "./AppContext";
 import WasmProposal from "./WasmProposal";
 import CanisterDropdown from "./CanisterDropdown";
-import UtilityBar from "./UtilityBar";
 import DeleteWasmProposal from "./DeleteWasmProposal";
-import DebugOnly from "./DebugOnly";
 import AdminOnly from "./AdminOnly";
 import {Link} from "react-router-dom";
 

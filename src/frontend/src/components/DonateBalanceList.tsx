@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-    Typography,
-    Card,
-    CardContent,
-    CircularProgress, Box, Grid
-} from '@mui/material';
+import {Box, Card, CardContent, CircularProgress, Grid, Typography} from '@mui/material';
 import BalanceCard from "./BalanceCard";
 
 export type Balance = {

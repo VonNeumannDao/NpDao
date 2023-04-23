@@ -5,8 +5,8 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import Main from "./Main";
-import { Connect2ICProvider } from "@connect2ic/react"
-import { defaultProviders } from "@connect2ic/core/providers"
+import {Connect2ICProvider} from "@connect2ic/react"
+import {defaultProviders} from "@connect2ic/core/providers"
 import {createClient} from "@connect2ic/core"
 import "@connect2ic/core/style.css"
 import {idlFactory as ledgerFactory} from "./ldl/ledgerIdlFactory.did";

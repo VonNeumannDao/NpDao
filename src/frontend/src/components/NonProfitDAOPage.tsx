@@ -1,9 +1,10 @@
-import {Container, Typography, Box, Paper, Card, CardHeader, CardContent, Avatar} from "@mui/material";
+import {Avatar, Card, CardContent, CardHeader} from "@mui/material";
 import React from 'react';
-import {DescriptionRounded, InfoRounded} from "@mui/icons-material";
+import {InfoRounded} from "@mui/icons-material";
 import config from "../../../../cig-config.json";
 import ReactMarkdown from "react-markdown";
 import aboutPage from "../../../../pages/about-page.md";
+
 function NonProfitDAOPage() {
     return (
         <Card sx={{ marginTop: 5 }}>

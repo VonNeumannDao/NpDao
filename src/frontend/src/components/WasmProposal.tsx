@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Card, CardHeader, InputLabel, MenuItem, Select, styled, TextField, Typography} from "@mui/material";
+import {Box, Card, CardHeader, InputLabel, MenuItem, Select, styled, TextField} from "@mui/material";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import LoadingButton from "@mui/lab/LoadingButton";

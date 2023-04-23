@@ -1,6 +1,7 @@
 import * as React from "react";
-import {Box, Icon, keyframes, Typography} from "@mui/material";
-import {ArrowUpward, ArrowUpwardRounded} from "@mui/icons-material";
+import {Box, keyframes, Typography} from "@mui/material";
+import {ArrowUpwardRounded} from "@mui/icons-material";
+
 const floatAnimation = keyframes`
   0% {
     transform: translateY(0);

@@ -1,23 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Card, CardContent, Grid, TextField, Button, Typography, InputAdornment} from '@mui/material';
-import { Send as SendIcon, AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
+import {Box, Button, Card, CardContent, Grid, InputAdornment, TextField, Typography} from '@mui/material';
+import {Send as SendIcon} from '@mui/icons-material';
 import config from "../../../../cig-config.json";
-import {Link} from "react-router-dom";
 import {StyledLink} from "./StyledComponents";
 import {useAppContext} from "./AppContext";
 import {useCanister, useConnect} from "@connect2ic/react";
-import {AccountIdentifier, SubAccount} from "@dfinity/nns";
 import {Principal} from "@dfinity/principal";
-import { SHA256, enc } from 'crypto-js';
-import {
-    bigIntToDecimal,
-    convertToBigInt,
-    stringToUint8,
-    stringToUint8Array,
-    uint8ArrayToString
-} from "../util/bigintutils";
+import {bigIntToDecimal, convertToBigInt} from "../util/bigintutils";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
-import {canisterId as tokenCanister} from "../declarations/icrc_1";
 
 type CryptoWalletProps = {};
 
