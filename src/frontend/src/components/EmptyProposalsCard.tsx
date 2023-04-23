@@ -1,7 +1,7 @@
 import React from 'react';
-import {Avatar, Box, Card, CardContent, CardHeader, Divider, Typography} from "@mui/material";
+import {Avatar, Box, Card, CardContent, CardHeader, Divider, Typography, Link} from "@mui/material";
 import {SentimentVeryDissatisfiedOutlined} from "@mui/icons-material";
-import {StyledLink} from "./StyledComponents";
+import { Link as RouterLink } from 'react-router-dom';
 
 const EmptyProposalsCard: React.FC = () => {
     return (
@@ -23,10 +23,10 @@ const EmptyProposalsCard: React.FC = () => {
                 <Typography variant="body1">
                     If you would like to support our cause, please consider visiting the Distribution section to make a donation.
                 </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                    <StyledLink to="/about" color="primary" sx={{ fontSize: '0.8rem' }}>Learn more about us</StyledLink>
-                    <Divider orientation="vertical" flexItem sx={{ margin: '0 16px', height: 40, backgroundColor: 'white' }} />
-                    <StyledLink to="/distribution" color="primary" sx={{ fontSize: '0.8rem' }}>Make a donation</StyledLink>
+                <Box sx={{ marginTop:"10px", display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                    <Link component={RouterLink} to="/about" sx={{ fontSize: '1.0rem' }}>Learn more about us</Link>
+                    <Divider orientation="vertical" flexItem sx={{ margin: '0 16px', height: 20, backgroundColor: 'white' }} />
+                    <Link component={RouterLink} to="/distribution" sx={{ fontSize: '1.0rem' }}>Make a donation</Link>
                 </Box>
             </CardContent>
         </Card>

@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Button, Card, CardContent, Grid, InputAdornment, TextField, Typography} from '@mui/material';
+import {Link, Box, Button, Card, CardContent, Grid, InputAdornment, TextField, Typography} from '@mui/material';
 import {Send as SendIcon} from '@mui/icons-material';
 import config from "../../../../cig-config.json";
-import {StyledLink} from "./StyledComponents";
 import {useAppContext} from "./AppContext";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {Principal} from "@dfinity/principal";
 import {bigIntToDecimal, convertToBigInt} from "../util/bigintutils";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import { Link as RouterLink } from 'react-router-dom';
 
 type CryptoWalletProps = {};
 
@@ -138,9 +138,9 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
                                     </Button>
                                 </Box>
                             </Card>
-                                <StyledLink to="/staking">
+                                <Link component={RouterLink} to="/staking">
                                     View all staking
-                                </StyledLink>
+                                </Link>
                         </Grid>
                 </CardContent>
             </Card>
