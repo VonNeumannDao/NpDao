@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button, Card, CardActions, CardContent, CardHeader, TextField} from "@mui/material";
+import {Box, Button, Card, CardActions, CardContent, CardHeader, TextField} from "@mui/material";
 import {useCanister} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 
@@ -35,26 +35,28 @@ function UploadCard() {
     };
 
     return (
-        <Card>
-            <CardHeader title="Upload a canister drain wasm" />
-            <CardContent>
-                <TextField
-                    type="file"
-                    variant="outlined"
-                    onChange={(e) => handleBlobChange(e, setFile)}
-                />
-            </CardContent>
-            <CardActions>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    disabled={!file || isLoadingWasm}
-                    onClick={handleSubmit}
-                >
-                    Upload
-                </Button>
-            </CardActions>
-        </Card>
+        <Box sx={{marginTop: "20px"}}>
+            <Card>
+                <CardHeader title="Upload a canister drain wasm"/>
+                <CardContent>
+                    <TextField
+                        type="file"
+                        variant="outlined"
+                        onChange={(e) => handleBlobChange(e, setFile)}
+                    />
+                </CardContent>
+                <CardActions>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={!file || isLoadingWasm}
+                        onClick={handleSubmit}
+                    >
+                        Upload
+                    </Button>
+                </CardActions>
+            </Card>
+        </Box>
     );
 }
 

@@ -200,13 +200,13 @@ const NonProfitDonation: React.FC = () => {
     }
 
     return (
-        <>
+        <Box sx={{marginTop:"20px"}}>
             <DonateBalanceList loading={isBalancedLoading} balances={balances}/>
             <DonateXTC exchangeRate={exchangeRate} value={amount} onChange={handleAmountChange}
                        exchangeRateDisplay={exchangeRateDisplay} loading={isLoading} onClick={handleDonateClick}
                        open={open} onClose={handleDialogClose} checked={agreementChecked}
                        onChange1={handleAgreementChange} onClick1={handleConfirmDonate}/>
-        </>
+        </Box>
 
     );
 }
