@@ -16,11 +16,14 @@ import {AppProvider} from "./components/AppContext";
 import {idlFactory as dip20Factory} from "./ldl/dip20.did";
 import {BrowserRouter} from "react-router-dom";
 import config from "../../../cig-config.json";
+import {ThemeProvider} from "@mui/material";
+import myTheme from "./ThemeImporter";
 
 const client = createClient({
     globalProviderConfig: {
         whitelist: ["ryjl3-tyaaa-aaaaa-aaaba-cai", "aanaa-xaaaa-aaaah-aaeiq-cai", backendCanisterId, tokenCanister],
-        appName: config.name
+        appName: config.name,
+        autoConnect: true,
     },
     canisters: {
         ["ledger"]: {
@@ -44,7 +47,9 @@ root.render(
     <BrowserRouter basename="/">
     <Connect2ICProvider client={client}>
         <AppProvider>
-            <Main/>
+            <ThemeProvider theme={myTheme}>
+                <Main/>
+            </ThemeProvider>
         </AppProvider>
     </Connect2ICProvider>
     </BrowserRouter>);

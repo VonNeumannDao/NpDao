@@ -1,6 +1,7 @@
 import React from 'react';
 import {Button, Menu, MenuItem} from '@mui/material';
 import {isDebugOn} from "./DebugOnly";
+import {ArrowDropDown} from "@mui/icons-material";
 
 interface Props {
     menuItems: { label: string, to: string }[];
@@ -26,7 +27,7 @@ const CanisterDropdown: React.FC<Props> = ({ menuItems }) => {
     return (
             <>
                 <Button variant='contained' color='info' onClick={handleClick}>
-                    Canisters
+                    Canisters <ArrowDropDown/>
                 </Button>
                 <Menu
                     anchorEl={anchorEl}

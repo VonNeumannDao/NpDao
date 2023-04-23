@@ -12,6 +12,7 @@ import CanisterDropdown from "./CanisterDropdown";
 import DeleteWasmProposal from "./DeleteWasmProposal";
 import AdminOnly from "./AdminOnly";
 import {Link} from "react-router-dom";
+import {ArrowDropDown} from "@mui/icons-material";
 
 export default function TopBar() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -98,6 +99,8 @@ export default function TopBar() {
                                     </StyledLink>
                                 </>
                             </AdminOnly>
+                        </Box>
+                        <Box>
 
                             {canisters.size > 0 &&
                                 <CanisterDropdown menuItems={Array.from(canisters.entries()).map((x) => {
@@ -106,10 +109,7 @@ export default function TopBar() {
                                     }
                                 })} />
                             }
-                        </Box>
-                        <Box>
-
-                            <Button sx={{marginLeft: 2}} disabled={disabledIfProposal()}  variant='contained' color='secondary' onClick={handleProposalClick}>Create Proposal</Button>
+                            <Button sx={{marginLeft: 2}} disabled={disabledIfProposal()}  variant='contained' color='secondary' onClick={handleProposalClick}>Create Proposal <ArrowDropDown/></Button>
                             <Menu
                                 anchorEl={proposalAnchorEl}
                                 open={Boolean(proposalAnchorEl)}
@@ -133,7 +133,7 @@ export default function TopBar() {
                                 <MintTokenButton/>
                             </AdminOnly>
                             <ConnectButton />
-                            <ConnectDialog dark={false} />
+                            <ConnectDialog />
 
                         </Box>
                     </Box>
