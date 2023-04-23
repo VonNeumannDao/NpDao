@@ -7,10 +7,12 @@ type ProposalError = variant {
   ProposalNotFound;
   AlreadyExecuted;
   other : text;
+  DuplicateVote;
   VotingOngoing;
   ExistingProposal;
   InsufficientCycles : _InlineProposalErrorInsufficientFunds;
   VotingPeriodEnded;
+  NoVotingPower;
   InsufficientFunds : _InlineProposalErrorInsufficientFunds;
 };
 type ProposalResponse = variant { Ok : nat64; Err : ProposalError };
@@ -24,6 +26,7 @@ type ProposalViewResponse = record {
   title : text;
   endTime : nat64;
   description : text;
+  voters : vec Voter;
   ended : bool;
   error : opt ProposalError;
   proposalType : ProposalType;
@@ -78,6 +81,7 @@ type VoteStatus = record {
   myVoteNo : nat64;
 };
 type VoteStatusResponse = variant { Ok : VoteStatus; Err : text };
+type Voter = record { direction : bool; voter : text; power : nat64 };
 type _InlineProposalErrorInsufficientFunds = record { balance : nat };
 type _InlineTransferErrorBadBurn = record { min_burn_amount : nat };
 type _InlineTransferErrorBadFee = record { expected_fee : nat };
@@ -117,6 +121,7 @@ service : () -> {
   drainCycles : () -> (ManualReply);
   getDrainCanister : () -> (float64) query;
   getStakingAccount : (text) -> (vec StakingAccount) query;
+  getTotalStaked : (text) -> (nat) query;
   get_transactions : (opt nat64, opt nat64) -> (vec Transaction) query;
   icrc1_balance_of : (Account) -> (nat) query;
   icrc1_decimals : () -> (nat8) query;
@@ -135,6 +140,6 @@ service : () -> {
   startStaking : (vec nat8, nat, text) -> (StakingResponse);
   startTimer : () -> (nat64);
   tryDrainCanister : (principal) -> (text);
-  vote : (Account, nat, nat64, bool) -> (ProposalResponse);
+  vote : (Account, nat, bool) -> (ProposalResponse);
   voteStatus : () -> (VoteStatusResponse) query;
 }

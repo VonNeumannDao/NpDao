@@ -2,13 +2,19 @@ import React, {createContext, useContext, useEffect, useState} from 'react';
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import {Principal} from "@dfinity/principal";
 import {useCanister, useConnect} from "@connect2ic/react";
-import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did";
 
 interface AppContextType {
     balance: bigint;
     balancePretty: string;
+
+    activeProposal?: ProposalViewResponse;
+
+    setActiveProposal?: (activeProposal: ProposalViewResponse) => void;
     setBalanceVal?: (balance: bigint) => void;
     reloadBalance?: () => Promise<void>;
+
+    reloadActiveProposal?: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType>({
@@ -18,6 +24,7 @@ const AppContext = createContext<AppContextType>({
 
 const AppProvider: React.FC = (param: { children }) => {
     const [balance, setBalance] = useState<bigint>(0n);
+    const [activeProposal, setActiveProposal] = useState<ProposalViewResponse>();
     const [balancePretty, setBalancePretty] = useState<string>("0");
     const [_tokenActor] = useCanister('token');
     const tokenActor = _tokenActor as unknown as _SERVICE;
@@ -29,11 +36,19 @@ const AppProvider: React.FC = (param: { children }) => {
     }, [principal]);
 
     async function init() {
-        const balance = await tokenActor.icrc1_balance_of({
-            owner: Principal.fromText(principal),
-            subaccount: []
-        });
-        setBalanceVal(balance);
+        try {
+            const [balance, activeProposal] = await Promise.all([
+                tokenActor.icrc1_balance_of({
+                    owner: Principal.fromText(principal),
+                    subaccount: []
+                }),
+                tokenActor.activeProposal()
+            ]);
+            setBalanceVal(balance);
+            setActiveProposal(activeProposal["Ok"]);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const setBalanceVal = (balance: bigint) => {
@@ -48,11 +63,19 @@ const AppProvider: React.FC = (param: { children }) => {
         setBalanceVal(balance);
     };
 
+    const reloadActiveProposal = async () => {
+        const activeProposal = await tokenActor.activeProposal();
+        setActiveProposal(activeProposal["Ok"]);
+    }
+
     const state: AppContextType = {
         balance,
         balancePretty,
         setBalanceVal,
-        reloadBalance
+        reloadBalance,
+        activeProposal,
+        setActiveProposal,
+        reloadActiveProposal
     };
 
     return (

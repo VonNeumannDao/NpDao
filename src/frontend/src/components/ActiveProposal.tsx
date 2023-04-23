@@ -8,21 +8,12 @@ import DebugOnly from "./DebugOnly";
 import EmptyProposalsCard from "./EmptyProposalsCard";
 import {DescriptionRounded, EmojiPeopleRounded} from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
+import {useAppContext} from "./AppContext";
 
 export default function ActiveProposal() {
     const [_tokenActor] = useCanister('token');
     const tokenActor = _tokenActor as unknown as _SERVICE;
-    const [activeProposal, setActiveProposal] = useState<ProposalViewResponse>();
-
-
-    useEffect(() => {
-        init().then();
-    }, []);
-
-    async function init() {
-        const activeProposal = await tokenActor.activeProposal();
-        setActiveProposal(activeProposal["Ok"])
-    }
+    const {activeProposal} = useAppContext();
 
     return (
         <>

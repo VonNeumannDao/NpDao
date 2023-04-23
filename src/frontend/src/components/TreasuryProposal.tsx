@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {CardHeader, InputAdornment, styled, TextField, Card} from "@mui/material";
+import {CardHeader, InputAdornment, styled, TextField, Card, Box} from "@mui/material";
 import config from "../../../../cig-config.json";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
@@ -57,6 +57,7 @@ function TreasuryProposal() {
         <Card sx={{padding: 2}}>
             <CardHeader title="Treasury Proposal"  />
             <form onSubmit={handleSubmit} style={{padding: 1}} >
+                <Box display={"flex"} flexDirection={"column"} sx={{ gap: 3 , minWidth: "400px"}}>
                 <TextField
                     fullWidth
                     label="Title"
@@ -120,6 +121,7 @@ function TreasuryProposal() {
                 </LoadingButton>
                 {submitted && <Navigate to="/" state={submitted} replace={true} />}
                 <ErrorDialog open={error} onClose={() => setError(false)} message={errorMessage}/>
+                </Box>
             </form>
         </Card>
     );

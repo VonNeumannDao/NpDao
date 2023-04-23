@@ -5,19 +5,32 @@ import config from "../../../../cig-config.json";
 import {Link} from "react-router-dom";
 import {StyledLink} from "./StyledComponents";
 import {useAppContext} from "./AppContext";
-import {useConnect} from "@connect2ic/react";
+import {useCanister, useConnect} from "@connect2ic/react";
 import {AccountIdentifier, SubAccount} from "@dfinity/nns";
 import {Principal} from "@dfinity/principal";
 import { SHA256, enc } from 'crypto-js';
-import {stringToUint8Array, uint8ArrayToString} from "../util/bigintutils";
+import {
+    bigIntToDecimal,
+    convertToBigInt,
+    stringToUint8,
+    stringToUint8Array,
+    uint8ArrayToString
+} from "../util/bigintutils";
+import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {canisterId as tokenCanister} from "../declarations/icrc_1";
 
 type CryptoWalletProps = {};
 
 const CryptoWallet: React.FC<CryptoWalletProps> = () => {
     const [coinBalance, setCoinBalance] = useState<string>();
     const [coinStaked, setCoinStaked] = useState<string>();
-    const [coinTransferAmount, setCoinTransferAmount] = useState<string>();
-    const {setBalanceVal, balancePretty} = useAppContext();
+    const [toError, setToError] = useState("");
+    const [toValue, setToValue] = useState("");
+    const [coinTransferAmount, setCoinTransferAmount] = useState("");
+    const [coinTransferAmountError, setCoinTransferAmountError] = useState("");
+    const [_tokenActor] = useCanister("token");
+    const tokenActor = _tokenActor as unknown as _SERVICE;
+    const {setBalanceVal, balancePretty, balance} = useAppContext();
     const {principal, isConnected} = useConnect();
     useEffect(() => {
         if (isConnected) {
@@ -28,14 +41,51 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
 
     }
 
+    const principalRegex = /^(?:[a-z0-9]+-){11}[a-z0-9]+$/i;
+
+    const handleToValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+
+        // Regular expression pattern to match
+        // Check if the input matches the pattern
+        const isValid = principalRegex.test(value);
+
+        // Set the value and error state based on the result of the validation
+        setToValue(value);
+        setToError(isValid ? "" : "Invalid principal");
+    };
+
+    const handleCoinTransferAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = Number(event.target.value);
+
+        if (value <= 0) {
+            setCoinTransferAmountError("Amount must be positive");
+        } else if (value > Number(bigIntToDecimal(balance).getValue())) {
+            setCoinTransferAmountError("Amount exceeds balance");
+        } else {
+            setCoinTransferAmountError("");
+        }
+
+        setCoinTransferAmount(value.toString());
+    };
+
     const handleMaxButton = () => {
+        setCoinTransferAmount(balancePretty.toString().replace(",", ""));
     };
 
-    const handleCoinTransferButton = () => {
+    const handleCoinTransferButton = async () => {
+        const failed = await tokenActor.icrc1_transfer({
+            to: {
+                owner: Principal.fromText(toValue),
+                subaccount: []
+            },
+            fee: [],
+            memo: [],
+            from_subaccount: [],
+            created_at_time: [],
+            amount: convertToBigInt(coinTransferAmount),
+        });
 
-    };
-
-    const handleCoinStakeButton = () => {
     };
 
     return (
@@ -56,21 +106,30 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
                                     <TextField
                                         label="To"
                                         fullWidth
-                                        placeholder={"2vxsx-fae"}
-                                        helperText={`Principal to transfer to`}
-                                        sx={{ marginBottom: '8px', marginRight: '8px' }}
+                                        placeholder="2vxsx-fae"
+                                        helperText="Principal to transfer to"
+                                        value={toValue}
+                                        onChange={handleToValueChange}
+                                        error={!!toError}
+                                        sx={{ marginBottom: "8px", marginRight: "8px" }}
                                     />
 
                                     <TextField
                                         label="Transfer Amount"
                                         value={coinTransferAmount}
-                                        onChange={(e) => setCoinTransferAmount(e.target.value)}
+                                        onChange={handleCoinTransferAmountChange}
                                         fullWidth
+                                        type="number"
                                         InputProps={{
+                                            inputProps: {
+                                                step: 0.00000001,
+                                                min: 0,
+                                            },
                                             endAdornment: <InputAdornment position="end">{config.symbol}</InputAdornment>,
                                         }}
-                                        helperText={`Balance: ${balancePretty} ${config.symbol}`}
-                                        sx={{ marginBottom: '8px', marginRight: '8px' }}
+                                        error={!!coinTransferAmountError}
+                                        helperText={coinTransferAmountError || `Balance: ${balancePretty} ${config.symbol}`}
+                                        sx={{ marginBottom: "8px", marginRight: "8px" }}
                                     />
                                     <Button
                                         variant="contained"

@@ -1,10 +1,9 @@
-import {Box, Grid, LinearProgress, TextField} from "@mui/material";
+import {Box, Grid, LinearProgress, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE, VoteStatus} from "../declarations/icrc_1/icrc_1.did";
 import {useAppContext} from "./AppContext";
 import {Principal} from "@dfinity/principal";
-import {bigIntToDecimalPrettyString, convertToBigInt} from "../util/bigintutils";
 import LoadingButton from "@mui/lab/LoadingButton";
 
 interface VotingProps {
@@ -12,31 +11,31 @@ interface VotingProps {
 }
 
 function Voting({proposalId}: VotingProps) {
-    const [yesVotes, setYesVotes] = useState(0n);
-    const [noVotes, setNoVotes] = useState(0n);
-
     const [yesVotesPercent, setYesVotesPercent] = useState(0);
     const [noVotesPercent, setNoVotesPercent] = useState(0);
+    const [votingPower, setVotingPower] = useState(0n);
     const [loadingButton, setLoadingButton] = useState(false);
     const [_tokenActor] = useCanister("token");
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const [voteStatus, setVoteStatus] = useState<VoteStatus>();
-    const [voteAmount, setVoteAmount] = useState<string>("");
     const {setBalanceVal, balancePretty, balance} = useAppContext();
     const {principal} = useConnect();
+    const {reloadActiveProposal} = useAppContext();
+
 
     useEffect(() => {
         init().then();
-    }, [balancePretty]);
+    }, [balancePretty, principal]);
 
     async function init() {
         const voteStatus = await tokenActor.voteStatus();
+        const totalStaked = await tokenActor.getTotalStaked(principal);
+        setVotingPower(totalStaked);
         setVoteStatus(voteStatus["Ok"]);
         const vs = voteStatus["Ok"] as VoteStatus;
-        setYesVotes(vs.voteYes);
-        setNoVotes(vs.voteNo);
         setYesVotesPercent(percentCalc(vs.voteYes, vs.voteYes + vs.voteNo));
         setNoVotesPercent(percentCalc(vs.voteNo, vs.voteYes + vs.voteNo));
+        await reloadActiveProposal();
     }
 
     function percentCalc(voteCount: bigint, totalVotes: bigint): number {
@@ -48,25 +47,15 @@ function Voting({proposalId}: VotingProps) {
         return Math.floor(Number(percentage));
     }
 
-    const handleVoteAmountChange = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        const value = event.target.value.trim();
-        setVoteAmount(value);
-    };
-
     async function onVote(voteDirection: boolean) {
         setLoadingButton(true);
-        await tokenActor.vote({
+        const result = await tokenActor.vote({
             owner: Principal.fromText(principal),
             subaccount: []
-        }, proposalId, convertToBigInt(voteAmount), voteDirection);
+        }, proposalId, voteDirection);
 
-        const balance = await tokenActor.icrc1_balance_of({
-            owner: Principal.fromText(principal),
-            subaccount: []
-        });
-        setBalanceVal(balance);
+        console.log(result);
+
         init().then();
         setLoadingButton(false);
     }
@@ -79,45 +68,40 @@ function Voting({proposalId}: VotingProps) {
             }}
         >
             <Grid container spacing={3} alignItems="center">
-                <Grid item xs={12}>
-                    <TextField
-                        label="Number of votes"
-                        variant="outlined"
-                        value={voteAmount}
-                        onChange={handleVoteAmountChange}
-                        type="number"
-                        inputProps={{
-                            max: Number(balancePretty),
-                            min: 0,
-                            step: 0.00000001
-                        }}
-                        fullWidth
-                        helperText="Each vote you cast will burn one of your tokens."
-                    />
-                </Grid>
-                <Grid item xs={6} md={6}>
-                    <LoadingButton loading={loadingButton} fullWidth variant="contained" onClick={() => onVote(true)}>
-                        Yes ({bigIntToDecimalPrettyString(yesVotes)})
-                    </LoadingButton>
-                </Grid>
-                <Grid item xs={6} md={6}>
-                    <LoadingButton loading={loadingButton} fullWidth variant="contained" color="error"
-                                   onClick={() => onVote(false)}>
-                        No ({bigIntToDecimalPrettyString(noVotes)})
-                    </LoadingButton>
-                </Grid>
-                <Grid item xs={12}>
-                    <LinearProgress
-                        variant="determinate"
-                        value={yesVotesPercent}
-                        color="success"
-                        sx={{
-                            background: `linear-gradient(to right, #28a745 ${yesVotesPercent}%, #dc3545 ${noVotesPercent}%)`,
-                            height: 15, // set the height to make it thicker
-                            borderRadius: 10, // set the border radius to make the ends rounded
-                        }}
-                    />
-                </Grid>
+                {votingPower > 0 ? (
+                    <>
+                        <Grid item xs={6} md={6}>
+                            <LoadingButton loading={loadingButton} fullWidth variant="contained"
+                                           onClick={() => onVote(true)}>
+                                Yey
+                            </LoadingButton>
+                        </Grid>
+                        <Grid item xs={6} md={6}>
+                            <LoadingButton loading={loadingButton} fullWidth variant="contained" color="error"
+                                           onClick={() => onVote(false)}>
+                                Nay
+                            </LoadingButton>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <LinearProgress
+                                variant="determinate"
+                                value={yesVotesPercent}
+                                color="success"
+                                sx={{
+                                    background: `linear-gradient(to right, #28a745 ${yesVotesPercent}%, #dc3545 ${noVotesPercent}%)`,
+                                    height: 15, // set the height to make it thicker
+                                    borderRadius: 10, // set the border radius to make the ends rounded
+                                }}
+                            />
+                        </Grid>
+                    </>
+                ) : (
+                    <Grid item xs={12}>
+                        <Typography variant="h6" component="div" sx={{flexGrow: 1, textAlign: "center"}}>
+                            You need to stake some tokens to vote.
+                        </Typography>
+                    </Grid>)
+                }
             </Grid>
         </Box>
     );

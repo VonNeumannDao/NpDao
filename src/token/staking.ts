@@ -6,6 +6,18 @@ import {handle_transfer} from "./transfer/transfer";
 import {is_subaccount_valid} from "./transfer/validate";
 import {get_transactions} from "./api";
 
+
+$query
+export function getTotalStaked(principal: string): nat {
+    const stakingAccounts = getStakingAccount(principal);
+
+    let voteAmount = 0n;
+    for (let stakingAccount of stakingAccounts) {
+        voteAmount += stakingAccount.amount + (stakingAccount.reward || 0n);
+    }
+    return voteAmount;
+}
+
 $query
 export function getStakingAccount(principal: string): Vec<StakingAccount> {
     if (!state.stakingAccountsState) {

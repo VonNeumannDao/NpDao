@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Card, CardHeader, InputLabel, MenuItem, Select, styled, TextField, Typography} from "@mui/material";
+import {Box, Card, CardHeader, InputLabel, MenuItem, Select, styled, TextField, Typography} from "@mui/material";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -102,6 +102,8 @@ export default function WasmProposal() {
         <Card sx={{ p: 5 }}>
             <CardHeader title="Wasm Proposal" />
             <form onSubmit={handleSubmit}>
+                <Box display={"flex"} flexDirection={"column"} sx={{ gap: 3 , minWidth: "400px"}}>
+
                 <TextField
                     fullWidth
                     label="Title"
@@ -186,6 +188,7 @@ export default function WasmProposal() {
                     Submit
                 </LoadingButton>
                 <ErrorDialog open={error} onClose={() => setError(false)} message={errorMessage} />
+                </Box>
             </form>
         </Card>
     );

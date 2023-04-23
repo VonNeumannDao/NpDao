@@ -5,6 +5,7 @@ import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import {JSON_BIGINT} from "../util/josnutil";
 import { useTheme } from '@mui/material/styles';
 import CloseIcon from "@mui/icons-material/Close";
+import VoterTable from "./VoterTable";
 
 interface ProposalViewProps {
     proposal: ProposalViewResponse;
@@ -72,6 +73,9 @@ function ProposalView({proposal}: ProposalViewProps) {
                     <Typography sx={{fontWeight: 'bold'}}>Description:</Typography>
                     <Typography>{proposal.description}</Typography>
                 </Grid>
+            </Grid>
+            <Grid container spacing={2} sx={{marginTop: '16px'}}>
+                <VoterTable voters={proposal.voters.reverse()}/>
             </Grid>
         </Paper>
     );

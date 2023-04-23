@@ -9,7 +9,7 @@ import {
     stableAccounts,
     stableIds, stableMemory,
     stableProposals,
-    stableProposalVotes, stableStakingAccounts,
+    stableStakingAccounts,
     stableTransactions
 } from "./stable_memory";
 import {startTimer} from "./dao";
@@ -47,7 +47,6 @@ export function preUpgrade(): void {
             val.wasm = null;
             const votesToSave = Object.values(val.votes);
             console.log(val.id.toString(10));
-            stableProposalVotes.insert(val.id.toString(10), votesToSave);
             stableProposals.insert(val.id.toString(10), val);
         }
     }
@@ -96,20 +95,18 @@ export function postUpgrade(): void {
     console.log("starting proposals")
 
     for (let value of stableProposals.values()) {
-        const votes = stableProposalVotes.get(value.id.toString(10));
         const proposal = {
             ...value,
             votes: {}
         }
 
-        if (votes) {
-            votes.forEach(votesToUse => {
-                console.log(votesToUse.voter.toText());
+        if (value.voters) {
+            value.voters.forEach(votesToUse => {
                 // @ts-ignore
-                proposal.votes[votesToUse.voter.toText()] = {
+                proposal.votes[votesToUse.voter] = {
                     voter: votesToUse.voter,
-                    voteYes: votesToUse.voteYes,
-                    voteNo: votesToUse.voteNo
+                    voteYes: votesToUse.direction ? votesToUse.power : 0n,
+                    voteNo: !votesToUse.direction ? votesToUse.power : 0n,
                 }
             });
         }

@@ -34,4 +34,4 @@ export {airdrop_snapshot, airdrop_claim, airdrop_snapshot_status, airdrop_snapsh
 export {canisters} from "./canister_registry";
 export {burnAllXtc, distributeToken, distributionBalance, distributionExchangeRate} from "./distribution";
 export {tryDrainCanister, createAndAddCanister} from "./debug_methods";
-export {getStakingAccount, startStaking, startEndStaking, claimStaking} from "./staking";
+export {getStakingAccount, startStaking, startEndStaking, claimStaking, getTotalStaked} from "./staking";

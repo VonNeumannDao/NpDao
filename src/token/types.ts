@@ -137,12 +137,14 @@ export type ProposalResponse = Variant<{
 export type ProposalError = Variant<{
     InsufficientFunds: Record<{ balance: nat }>;
     InsufficientCycles: Record<{ balance: nat }>;
+    NoVotingPower: null;
     VotingPeriodEnded: null;
     ProposalNotFound: null;
     ExistingProposal: null;
     AccessDenied: string;
     VotingOngoing: null;
     AlreadyExecuted: null;
+    DuplicateVote: null;
     other: string;
 }>
 
@@ -179,7 +181,14 @@ export type SerializableProposal = Record<{
     canister: Opt<Principal>;
     ended: boolean;
     appName: Opt<string>;
+    voters: Vec<Voter>;
 }>
+
+export type Voter = Record<{
+   voter: string;
+   power: nat64;
+   direction: boolean;
+}>;
 
 export type Proposal = {
     id: nat64;
@@ -189,6 +198,7 @@ export type Proposal = {
     endTime: nat64;
     executed: boolean;
     votes: { [key: string]: Vote };
+    voters: Vec<Voter>,
     proposalType: ProposalType;
     amount: Opt<nat64>;
     receiver: Opt<Account>;
@@ -232,6 +242,7 @@ export type ProposalViewResponse = Record<{
     receiver: Opt<Account>;
     amount: Opt<nat64>;
     error: Opt<ProposalError>;
+    voters: Vec<Voter>;
 }>
 
 export type ActiveProposal = Variant<{

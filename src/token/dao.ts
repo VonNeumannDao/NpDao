@@ -6,7 +6,7 @@ import {
     ProposalResponse,
     ProposalViewResponse,
     TransferArgs,
-    Vote,
+    Vote, Voter,
     VoteStatus,
     VoteStatusResponse
 } from "./types"
@@ -19,6 +19,7 @@ import {managementCanister} from 'azle/canisters/management';
 import {DAO_TREASURY, DrainCycles, YcToken} from "./constants";
 import {canisters, deleteCanister, registerCanister} from "./canister_registry";
 import {_createCanister, _installWasm, _stopAndDeleteCanister, _tryDrainCanister} from "./canister_methods";
+import {getStakingAccount, getTotalStaked} from "./staking";
 
 let timerIdProposal: Opt<TimerId> = null;
 let timerIdCycle: Opt<TimerId> = null;
@@ -54,7 +55,6 @@ $query
 export function pastProposals(): Vec<ProposalViewResponse> {
     const proposals = state.proposals.values();
     const view: Vec<ProposalViewResponse> = [];
-
     for (let proposal of proposals) {
         view.push({
             id: proposal.id,
@@ -67,7 +67,8 @@ export function pastProposals(): Vec<ProposalViewResponse> {
             ended: proposal.ended,
             amount: proposal.amount,
             receiver: proposal.receiver,
-            error: proposal.error
+            error: proposal.error,
+            voters: proposal.voters
         });
     }
 
@@ -84,6 +85,7 @@ export function activeProposal(): ActiveProposal {
     }
     const proposal = state.proposal;
     const view: ProposalViewResponse = {
+        voters: proposal.voters,
         id: proposal.id,
         proposer: proposal.proposer,
         title: proposal.title,
@@ -168,6 +170,7 @@ export function createDeleteWasmProposal(account: Account,
     handle_burn(transferArgs, account);
     const endTime = ic.time() + BigInt(state.proposalDuration * 1e9);
     const proposal: Proposal = {
+        voters: [],
         id: state.proposalCount,
         title,
         proposer: account,
@@ -265,6 +268,7 @@ export async function createWasmProposal(account: Account,
     handle_burn(transferArgs, account);
     const endTime = ic.time() + BigInt(state.proposalDuration * 1e9);
     const proposal: Proposal = {
+        voters: [],
         id: state.proposalCount,
         title,
         proposer: account,
@@ -331,6 +335,7 @@ export function createTreasuryProposal(account: Account,
 
     const endTime = ic.time() + BigInt(state.proposalDuration * 1e9);
     const proposal: Proposal = {
+        voters: [],
         id: state.proposalCount,
         title,
         proposer: account,
@@ -358,8 +363,9 @@ export function createTreasuryProposal(account: Account,
 
 $update;
 
-export function vote(account: Account, proposalId: nat, voteAmount: nat64, direction: boolean): ProposalResponse {
-    if (account.owner === ic.caller()) {
+export function vote(account: Account, proposalId: nat, direction: boolean): ProposalResponse {
+    const caller = ic.caller();
+    if (account.owner.toText() !== caller.toText()) {
         return {
             Err: {
                 AccessDenied: "cant vote for another account"
@@ -383,45 +389,42 @@ export function vote(account: Account, proposalId: nat, voteAmount: nat64, direc
         }
     }
 
-    const balance = balance_of(account)
-    // @ts-ignore
-    if (balance <= voteAmount) {
+    const myVotes = proposal.votes[caller.toText()];
+    if (myVotes) {
         return {
-            Err: {
-                InsufficientFunds: {balance}
-            }
+            Err: {DuplicateVote: null}
         }
     }
+
     const voter = account.owner;
-    const mintingAccount: Account = {
-        subaccount: null,
-        owner: ic.id()
-    };
-    const voteProposal = proposal.votes[voter.toText()];
-    const vote: Vote = voteProposal ? voteProposal : {
+    const vote: Vote = {
         voter,
         voteYes: 0n,
         voteNo: 0n
     };
 
-    if (direction) {
-        vote.voteYes += voteAmount;
-    } else {
-        vote.voteNo += voteAmount;
+    const voteAmount = getTotalStaked(caller.toText());
+    if (voteAmount === 0n) {
+        return {
+            Err: {
+                NoVotingPower: null
+            }
+        }
+    }
+
+    proposal.voters.push({
+        voter: caller.toText(),
+        power: voteAmount,
+        direction,
+    })
+
+    if (direction && voteAmount > 0n) {
+        vote.voteYes = voteAmount;
+    } else if (voteAmount > 0n) {
+        vote.voteNo = voteAmount;
     }
 
     proposal.votes[voter.toText()] = vote;
-
-    const transferArgs: TransferArgs = {
-        amount: voteAmount,
-        created_at_time: null,
-        fee: null,
-        from_subaccount: null,
-        memo: null,
-        to: mintingAccount
-    };
-
-    handle_burn(transferArgs, account);
 
     return {Ok: proposalId};
 }

@@ -46,8 +46,6 @@ The Sardines are Good has the following parameters in cig-config.json:
 - `proposalCost`: The cost (in NP) to create a new proposal. Default is 26500000000 with 8 decimals.
 
 ## TODO
-- [ ] Add staking functionality
-- [ ] Add an wallet to the UI
 - [ ] Add voting rewards 
 - [ ] Add transaction archiving
 
