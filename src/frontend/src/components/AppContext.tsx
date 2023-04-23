@@ -7,14 +7,13 @@ import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 interface AppContextType {
     balance: bigint;
     balancePretty: string;
-    setBalanceVal: (balance: bigint) => void
+    setBalanceVal?: (balance: bigint) => void;
+    reloadBalance?: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType>({
     balance: 0n,
-    balancePretty: "0",
-    setBalanceVal: (balance: bigint) => {
-    }
+    balancePretty: "0"
 });
 
 const AppProvider: React.FC = (param: { children }) => {
@@ -41,11 +40,19 @@ const AppProvider: React.FC = (param: { children }) => {
         setBalance(balance);
         setBalancePretty(bigIntToDecimalPrettyString(balance))
     }
+    const reloadBalance = async () => {
+        const balance = await tokenActor.icrc1_balance_of({
+            owner: Principal.fromText(principal),
+            subaccount: []
+        });
+        setBalanceVal(balance);
+    };
 
     const state: AppContextType = {
         balance,
         balancePretty,
-        setBalanceVal
+        setBalanceVal,
+        reloadBalance
     };
 
     return (

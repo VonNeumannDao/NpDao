@@ -9,7 +9,7 @@ import {
     stableAccounts,
     stableIds, stableMemory,
     stableProposals,
-    stableProposalVotes,
+    stableProposalVotes, stableStakingAccounts,
     stableTransactions
 } from "./stable_memory";
 import {startTimer} from "./dao";
@@ -42,7 +42,6 @@ export function preUpgrade(): void {
         stableTransactions.insert(transaction.timestamp.toString(10), transaction);
     }
     console.log("starting proposals");
-    console.log("state.proposals.")
     for (let [key, val] of state.proposals.entries()) {
         if(val.ended) {
             val.wasm = null;
@@ -52,6 +51,25 @@ export function preUpgrade(): void {
             stableProposals.insert(val.id.toString(10), val);
         }
     }
+    console.log("end proposals")
+
+    console.log("starting staking accounts", state.stakingAccountsState);
+    let index = 0;
+    if (state.stakingAccountsState) {
+        console.log("staking not null")
+        Object.keys(state.stakingAccountsState).forEach((key) => {
+            if (key) {
+                // @ts-ignore
+                state.stakingAccountsState[key].forEach((value) => {
+                    stableStakingAccounts.insert(index, value);
+                    index++;
+                });
+            }
+        });
+    }
+
+
+    console.log("end staking accounts")
 }
 
 $postUpgrade;
@@ -97,6 +115,23 @@ export function postUpgrade(): void {
         }
         state.proposals.set(value.id, proposal);
     }
+
+    if(!state.stakingAccountsState) {
+        state.stakingAccountsState = {};
+    }
+
+    stableStakingAccounts.values().forEach((stakingAccount) => {
+        if (stakingAccount.principal) {
+            // @ts-ignore
+            let stakingAccountsStateList = state.stakingAccountsState[stakingAccount.principal];
+            if (!stakingAccountsStateList) {
+                stakingAccountsStateList = [];
+            }
+            stakingAccountsStateList.push(stakingAccount);
+            // @ts-ignore
+            state.stakingAccountsState[stakingAccount.principal] = stakingAccountsStateList;
+        }
+    });
 
     startTimer();
 }

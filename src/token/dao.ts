@@ -166,7 +166,7 @@ export function createDeleteWasmProposal(account: Account,
     }
 
     handle_burn(transferArgs, account);
-    const endTime = ic.time() + BigInt(state.duration * 1e9);
+    const endTime = ic.time() + BigInt(state.proposalDuration * 1e9);
     const proposal: Proposal = {
         id: state.proposalCount,
         title,
@@ -263,7 +263,7 @@ export async function createWasmProposal(account: Account,
     }
 
     handle_burn(transferArgs, account);
-    const endTime = ic.time() + BigInt(state.duration * 1e9);
+    const endTime = ic.time() + BigInt(state.proposalDuration * 1e9);
     const proposal: Proposal = {
         id: state.proposalCount,
         title,
@@ -329,7 +329,7 @@ export function createTreasuryProposal(account: Account,
 
     handle_burn(transferArgs, account);
 
-    const endTime = ic.time() + BigInt(state.duration * 1e9);
+    const endTime = ic.time() + BigInt(state.proposalDuration * 1e9);
     const proposal: Proposal = {
         id: state.proposalCount,
         title,

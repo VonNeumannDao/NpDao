@@ -19,6 +19,23 @@ export type AccountsRecord = Record<{
     accountKey: string;
     balance: nat
 }>
+export type StakingClaimResponse = Variant<{
+    Ok: nat,
+    Err: string
+}>
+export type StakingResponse = Variant<{
+    Ok: StakingAccount,
+    Err: string
+}>
+
+export type StakingAccount = Record<{
+    principal: string;
+    accountId: string;
+    startStakeDate: nat;
+    endStakeDate: Opt<nat>;
+    amount: nat;
+    reward: Opt<nat>;
+}>
 
 export type State = {
     drainCanister: Opt<blob>,
@@ -29,6 +46,10 @@ export type State = {
         }
             | undefined;
     };
+
+    stakingAccountsState: Opt<{
+        [key: string]: Vec<StakingAccount>
+    }>
     decimals: nat8;
     fee: nat;
     metadata: Vec<Metadatum>;
@@ -46,7 +67,8 @@ export type State = {
     proposals: Map<nat64, Proposal>,
     proposal: Opt<Proposal>,
     proposalCount: nat64,
-    duration: nat8,
+    proposalDuration: nat32,
+    stakeDuration: nat32,
     proposalCost: nat64,
     initial_supply: nat64,
     airdrop_snapshot: airdropSnapshot,
@@ -221,9 +243,9 @@ export type Canisters = Record<{
     appName: string;
     canisterId: string;
 }>
-export type TxReceipt = Variant <{ Ok : nat; Err : TxError }>;
+export type TxReceipt = Variant<{ Ok: nat; Err: TxError }>;
 
-export type TxError = Variant <{
+export type TxError = Variant<{
     InsufficientAllowance: null;
     InsufficientBalance: null;
     ErrorOperationStyle: null;

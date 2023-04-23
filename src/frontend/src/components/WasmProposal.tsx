@@ -6,6 +6,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import ErrorDialog from "./ErrorDialog";
 import {Principal} from "@dfinity/principal";
 import {useNavigate} from "react-router-dom";
+import {generateUUID} from "../util/bigintutils";
 
 const Form = styled('form')({
     display: 'flex',
@@ -96,16 +97,6 @@ export default function WasmProposal() {
             setWasm(null);
         }
     };
-    function generateUUID() {
-        let uuid = '';
-        const possibleChars = '0123456789abcdefghijklmnopqrstuvwxyz';
-
-        for (let i = 0; i < 8; i++) {
-            uuid += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
-        }
-
-        return uuid;
-    }
 
     return (
         <Card sx={{ p: 5 }}>

@@ -36,7 +36,6 @@ export default function TopBar() {
     const {balancePretty} = useAppContext();
     const [proposalAnchorEl, setProposalAnchorEl] = useState(null);
     const [canisters, setCanisters] = useState<Map<string, string>>(new Map());
-
     const handleProposalClick = (event) => {
         setProposalAnchorEl(event.currentTarget);
     };
@@ -98,16 +97,9 @@ export default function TopBar() {
                         paddingLeft: 2,
                         flexGrow: 1
                     }}>
-                        <Typography variant="h6">
-                            <StyledLink  to="/" color="inherit">
-                                {config.name} DAO
-                            </StyledLink>
-                            <Typography variant='subtitle1'
-                                        sx={{marginRight: 1}}>Balance: {balancePretty}${config.symbol}</Typography>
-                        </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingBottom: "10px" }}>
+                        <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start" }}>
                             <StyledLink to="/" color="inherit" >
-                                Home
+                                {config.name} DAO
                             </StyledLink>
                             <Divider orientation="vertical" flexItem sx={{ margin: '0 16px', height: 40, backgroundColor: 'white' }} />
                             <StyledLink to="/distribution" color="inherit" >
@@ -123,7 +115,6 @@ export default function TopBar() {
                                     <StyledLink to="/admin" >
                                         Admin
                                     </StyledLink>
-                                    <Divider orientation="vertical" flexItem sx={{ margin: '0 16px', height: 40, backgroundColor: 'white' }} />
                                 </>
                             </AdminOnly>
 
@@ -134,6 +125,8 @@ export default function TopBar() {
                                     }
                                 })} />
                             }
+                        </Box>
+                        <Box>
 
                             <Button sx={{marginLeft: 2}} disabled={disabledIfProposal()}  variant='contained' color='secondary' onClick={handleProposalClick}>Create Proposal</Button>
                             <Menu

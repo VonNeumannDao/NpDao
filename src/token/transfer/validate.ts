@@ -1,7 +1,7 @@
 import {balance_of} from '../account';
 import {blob, ic, nat, nat64, Opt, Principal} from 'azle';
 import {state} from '../state';
-import {is_minting_account} from '../transfer/mint';
+import {is_minting_account} from './mint';
 import {Account, TransferArgs, ValidateTransferResult} from '../types';
 
 export function validate_transfer(
@@ -175,7 +175,7 @@ export function is_subaccount_valid(subaccount: Opt<blob>): boolean {
 }
 
 function is_memo_valid(memo: Opt<blob>): boolean {
-    return memo === null || memo.length <= 4;
+    return memo === null || memo.length <= 32;
 }
 
 function is_created_at_time_in_future(created_at_time: Opt<nat64>): boolean {
@@ -208,10 +208,8 @@ function find_duplicate_transaction_index(
     from: Account
 ): Opt<nat> {
     const now = ic.time();
-
     for (let i = 0; i < state.transactions.length; i++) {
         const transaction = state.transactions[i];
-
         if (
             stringify({
                 ...transfer_args,
@@ -220,7 +218,7 @@ function find_duplicate_transaction_index(
                 ...transaction.args,
                 from: transaction.from
             }) &&
-            transaction.timestamp < now + state.permitted_drift_nanos &&
+            transaction.timestamp > now + state.permitted_drift_nanos &&
             now - transaction.timestamp <
             state.transaction_window_nanos + state.permitted_drift_nanos
         ) {

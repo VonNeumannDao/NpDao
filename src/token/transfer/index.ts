@@ -70,9 +70,10 @@ export function icrc1_transfer(args: TransferArgs): TransferResult {
         return handle_mint(args, from);
     }
 
-    if (to_is_minting_account === true) {
+    if (to_is_minting_account) {
         return handle_burn(args, from);
     }
 
+    console.log("transfering...");
     return handle_transfer(args, from);
 }

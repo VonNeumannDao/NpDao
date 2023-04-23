@@ -32,6 +32,16 @@ type ProposalViewResponse = record {
   amount : opt nat64;
   receiver : opt Account;
 };
+type StakingAccount = record {
+  reward : opt nat;
+  "principal" : text;
+  accountId : text;
+  endStakeDate : opt nat;
+  startStakeDate : nat;
+  amount : nat;
+};
+type StakingClaimResponse = variant { Ok : nat; Err : text };
+type StakingResponse = variant { Ok : StakingAccount; Err : text };
 type SupportedStandard = record { url : text; name : text };
 type Transaction = record {
   fee : nat;
@@ -85,6 +95,7 @@ service : () -> {
   airdrop_snapshot_status : () -> (text) query;
   burnAllXtc : () -> (nat);
   canisters : () -> (vec Canisters) query;
+  claimStaking : (vec nat8) -> (StakingClaimResponse);
   createAndAddCanister : () -> (text);
   createDeleteWasmProposal : (Account, text, text, text) -> (ProposalResponse);
   createTreasuryProposal : (Account, text, text, Account, nat64) -> (
@@ -105,6 +116,7 @@ service : () -> {
   distributionExchangeRate : () -> (nat) query;
   drainCycles : () -> (ManualReply);
   getDrainCanister : () -> (float64) query;
+  getStakingAccount : (text) -> (vec StakingAccount) query;
   get_transactions : (opt nat64, opt nat64) -> (vec Transaction) query;
   icrc1_balance_of : (Account) -> (nat) query;
   icrc1_decimals : () -> (nat8) query;
@@ -119,6 +131,8 @@ service : () -> {
   installDrainCanister : (vec nat8) -> ();
   mint_tokens : () -> (TransferResult);
   pastProposals : () -> (vec ProposalViewResponse) query;
+  startEndStaking : (vec nat8) -> (StakingResponse);
+  startStaking : (vec nat8, nat, text) -> (StakingResponse);
   startTimer : () -> (nat64);
   tryDrainCanister : (principal) -> (text);
   vote : (Account, nat, nat64, bool) -> (ProposalResponse);

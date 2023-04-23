@@ -34,7 +34,7 @@ const DonateBalanceList: React.FC<Props> = ({ balances, loading }) => {
             <CardContent>
                 <Box textAlign="center">
                     <Typography variant="h5" component="h2">
-                        Balances
+                        XTC Balances
                     </Typography>
                 </Box>
                 {loading && <Spinner/>}

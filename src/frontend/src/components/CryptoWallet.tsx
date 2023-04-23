@@ -5,6 +5,7 @@ import config from "../../../../cig-config.json";
 import {Link} from "react-router-dom";
 import {StyledLink} from "./StyledComponents";
 import {useAppContext} from "./AppContext";
+import {useConnect} from "@connect2ic/react";
 
 type CryptoWalletProps = {};
 
@@ -13,6 +14,7 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
     const [coinStaked, setCoinStaked] = useState<string>();
     const [coinTransferAmount, setCoinTransferAmount] = useState<string>();
     const {setBalanceVal, balancePretty} = useAppContext();
+    const {principal} = useConnect();
 
     const handleMaxButton = () => {
     };
@@ -28,8 +30,11 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: 'auto' }}>
             <Card sx={{ width: '100%', marginBottom: '16px' }}>
                 <CardContent>
-                    <Typography variant="h5" component="h2" sx={{ marginBottom: '8px', textAlign: "center" }}>
-                        Wallet
+                    <Typography variant="h5" component="h2" sx={{textAlign: "left" }}>
+                        Balance: {balancePretty} {config.symbol}
+                    </Typography>
+                    <Typography variant="body2" component="span" sx={{ marginBottom: '8px', textAlign: "left" }}>
+                        {principal}
                     </Typography>
                         <Grid item xs={12} md={12}>
                             <Card sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: '5px'}}>

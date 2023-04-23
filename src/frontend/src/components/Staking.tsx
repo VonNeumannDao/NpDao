@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Avatar,
     Box,
-    Button,
     Card,
-    CardContent, CardHeader, IconButton,
+    CardContent,
+    CardHeader,
+    IconButton,
     Table,
     TableBody,
     TableCell,
@@ -15,107 +16,194 @@ import {
     Typography
 } from '@mui/material';
 import config from "../../../../cig-config.json";
-import {ArrowBack, InfoRounded, Lock} from "@mui/icons-material";
+import {Lock} from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import {useNavigate} from "react-router-dom";
-
-type StakingRecord = {
-    balance: String;
-    startTime: Date;
-    endTime: Date;
-};
+import {useCanister, useConnect} from "@connect2ic/react";
+import {_SERVICE, StakingAccount} from "../declarations/icrc_1/icrc_1.did";
+import {
+    bigIntToDecimalPrettyString,
+    convertToBigInt,
+    generateUUID,
+    hexStringToUint8Array,
+    stringToAccount,
+    stringToUint8
+} from "../util/bigintutils";
+import {LoadingButton} from "@mui/lab";
+import {Principal} from "@dfinity/principal";
+import {canisterId as tokenCanister} from "../declarations/icrc_1";
+import CountdownTimer from "./CountdownTimer";
+import {useAppContext} from "./AppContext";
 
 
 const Staking = () => {
-    const [stakingAmount, setStakingAmount] = useState<String>();
-    const [stakingRecords, setStakingRecords] = useState<StakingRecord[]>([]);
+    const [stakingAmount, setStakingAmount] = useState<string>("");
+    const [loading, setLoading] = useState(false);
+    const [loadingUnstake, setLoadingUnstake] = useState(false);
+    const [loadingWithdraw, setLoadingWithdraw] = useState(false);
+    const {reloadBalance} = useAppContext();
+
+    const [stakingRecords, setStakingRecords] = useState<StakingAccount[]>([]);
     const tokenName = config.symbol;
     const navigate = useNavigate();
+    const [_tokenActor] = useCanister('token');
+    const tokenActor = _tokenActor as unknown as _SERVICE;
+    const {principal, isConnected} = useConnect({
+        onConnect: async () => {
+            await init();
+        }
+    });
 
-    const handleStake = () => {
-        const newRecord: StakingRecord = {
-            balance: stakingAmount,
-            startTime: new Date(),
-            endTime: new Date(Date.now() + 24 * 60 * 60 * 1000) // stake for 1 day by default
-        };
-        setStakingRecords([...stakingRecords, newRecord]);
-        setStakingAmount("0");
+    useEffect(() => {
+        if (isConnected) {
+            init().then();
+        }
+    }, [principal, isConnected]);
+
+    async function init() {
+        const stakingAccounts = await tokenActor.getStakingAccount(principal);
+        setStakingRecords(stakingAccounts.reverse());
+    }
+
+    const handleStake = async () => {
+        setLoading(true);
+        const stakingAccounts = await tokenActor.getStakingAccount(principal);
+
+        const amount = convertToBigInt(stakingAmount);
+        const account = stringToAccount(stakingAccounts.length.toString() + principal);
+        const memo = generateUUID();
+        const failed = await tokenActor.icrc1_transfer({
+            to: {
+                owner: Principal.fromText(tokenCanister),
+                subaccount: [account]
+            },
+            fee: [],
+            memo: [stringToUint8(memo)],
+            from_subaccount: [],
+            created_at_time: [],
+            amount: amount,
+        });
+        console.log(failed);
+        const startStaking = await tokenActor.startStaking(account, amount, memo);
+        console.log(startStaking);
+        await init();
+        await reloadBalance();
+        setLoading(false);
     };
 
-    const handleUnstake = (index: number) => {
-        const newRecords = [...stakingRecords];
-        newRecords.splice(index, 1);
-        setStakingRecords(newRecords);
+    const handleUnstake = async (accountId: string) => {
+        setLoadingUnstake(true);
+        const startUnstaking = await tokenActor.startEndStaking(hexStringToUint8Array(accountId));
+        console.log(startUnstaking);
+        await init();
+        await reloadBalance();
+        setLoadingUnstake(false);
     };
 
-    const formatTime = (time: Date) => {
-        return time.toLocaleDateString();
+    const withdraw = async (accountId: string) => {
+        setLoadingWithdraw(true);
+        const withdr = await tokenActor.claimStaking(hexStringToUint8Array(accountId));
+        console.log(withdr);
+        await init();
+        await reloadBalance();
+
+        setLoadingWithdraw(false);
     };
 
-    return (
-        <Card sx={{mt: 5}}>
-            <CardHeader
-                titleTypographyProps={{ variant: 'h4' }}
-                color={'secondary'}
-                avatar={
-                    <Avatar>
-                        <Lock />
-                    </Avatar>
-                }
-                title={"Stake" + tokenName}
-                action={
-                    <IconButton onClick={() => navigate(-1)}>
-                        <CloseIcon />
-                    </IconButton>
-                }
-            />
-            <CardContent>
-                <Typography variant="body1" sx={{ mt: 2 }}>
-                    By staking NP tokens, members commit to locking them up for a minimum of 30 days. During this time, the tokens cannot be claimed until the unstake process is initiated. Once the unstake button is clicked, it takes 30 days for the tokens to become available for withdrawal. This ensures that voters have a long-term interest in the success of the project and are committed to its growth, while still allowing for flexibility in case of changing circumstances. Additionally, members who participate in the DAO's decision-making process will receive a small amount of newly minted tokens as a reward for their involvement in the governance process.                </Typography>
-                <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
-                    <TextField
-                        label={`Enter the amount of ${tokenName} to stake`}
-                        type="number"
-                        value={stakingAmount}
-                        onChange={(e) => setStakingAmount(e.target.value)}
-                        fullWidth
-                        margin="normal"
-                    />
-                    <Button sx={{height: "56px", marginTop: "16px"}} variant="contained" onClick={handleStake}>
-                        Stake
-                    </Button>
-                </Box>
+    const formatTime = (time: bigint) => {
+        return new Date(Number(time / 1000000n)).toLocaleString();
+    };
 
-                {stakingRecords.length > 0 &&
-                <TableContainer>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Balance</TableCell>
-                                <TableCell>Time Staked</TableCell>
-                                <TableCell>Time to Unstake</TableCell>
-                                <TableCell>Actions</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {stakingRecords.map((record, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{record.balance}</TableCell>
-                                    <TableCell>{formatTime(record.startTime)}</TableCell>
-                                    <TableCell>{formatTime(record.endTime)}</TableCell>
-                                    <TableCell>
-                                        <Button variant="outlined" onClick={() => handleUnstake(index)}>
-                                            Unstake
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                }
-            </CardContent>
-        </Card>
+    const reload = async () => {
+        await init();
+    }
+
+    return (<>{isConnected &&
+            <Card sx={{mt: 5}}>
+                <CardHeader
+                    titleTypographyProps={{variant: 'h4'}}
+                    color={'secondary'}
+                    avatar={
+                        <Avatar>
+                            <Lock/>
+                        </Avatar>
+                    }
+                    title={"Stake" + tokenName}
+                    action={
+                        <IconButton onClick={() => navigate(-1)}>
+                            <CloseIcon/>
+                        </IconButton>
+                    }
+                />
+                <CardContent>
+                    <Typography variant="body1" sx={{mt: 2}}>
+                        By staking NP tokens, members commit to locking them up for a minimum of 30 days. During this
+                        time, the tokens cannot be claimed until the unstake process is initiated. Once the unstake
+                        button is clicked, it takes 30 days for the tokens to become available for withdrawal. This
+                        ensures that voters have a long-term interest in the success of the project and are committed to
+                        its growth, while still allowing for flexibility in case of changing circumstances.
+                        Additionally, members who participate in the DAO's decision-making process will receive a small
+                        amount of newly minted tokens as a reward for their involvement in the governance
+                        process. </Typography>
+                    <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
+                        <TextField
+                            label={`Enter the amount of ${tokenName} to stake`}
+                            type="number"
+                            value={stakingAmount}
+                            onChange={(e) => setStakingAmount(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <LoadingButton loading={loading} sx={{height: "56px", marginTop: "16px"}} variant="contained"
+                                       onClick={handleStake}>
+                            Stake
+                        </LoadingButton>
+                    </Box>
+
+                    {stakingRecords.length > 0 &&
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Balance</TableCell>
+                                        <TableCell>Time Staked</TableCell>
+                                        <TableCell>Time to Unstake</TableCell>
+                                        <TableCell>Actions</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {stakingRecords.map((record, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{bigIntToDecimalPrettyString(record.amount)}</TableCell>
+                                            <TableCell>{formatTime(record.startStakeDate)}</TableCell>
+                                            <TableCell>{record.endStakeDate.length > 0 ?
+                                                <CountdownTimer onComplete={reload} date={new Date(Number(record.endStakeDate[0] / 1000000n))}/>
+                                                : ""}
+                                            </TableCell>
+                                            <TableCell>
+                                                {new Date(Number(record.endStakeDate[0]) / 1000000) <= new Date() ?
+                                                    <LoadingButton loading={loadingWithdraw} variant="outlined"
+                                                                   onClick={() => withdraw(record.accountId)}>
+                                                        Claim
+                                                    </LoadingButton>
+                                                    :
+                                                    <LoadingButton loading={loadingUnstake}
+                                                                   disabled={record.endStakeDate.length > 0}
+                                                                   variant="outlined"
+                                                                   onClick={() => handleUnstake(record.accountId)}>
+                                                        Unstake
+                                                    </LoadingButton>
+                                                }
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    }
+                </CardContent>
+            </Card>}
+        </>
     );
 };
 

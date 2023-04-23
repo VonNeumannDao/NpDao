@@ -9,5 +9,8 @@
   "airdropAmount": "100000000000000",
   "tokenDistributionAmount": "100000000000000",
   "distributionExchangeRate": 1000,
+  "stake": {
+    "duration": 10
+  },
   "custodian" : ["bccux-unsg4-wmiio-tnimk-hmgtj-7zwoa-p7oxs-oc5ks-7btcc-tlfcq-zae"]
 }

@@ -1,4 +1,4 @@
-import {Proposal, State} from './types';
+import {Proposal, StakingAccount, State} from './types';
 import {nat64} from "azle";
 import config from "../../cig-config.json"
 
@@ -16,7 +16,7 @@ export let state: State = {
     ],
     minting_account: null,
     name: config.name,
-    permitted_drift_nanos: 60_000_000_000n,
+    permitted_drift_nanos: 3_000_000_000n,
     supported_standards: [
         {
             name: 'ICRC-1',
@@ -29,12 +29,14 @@ export let state: State = {
     transaction_window_nanos: 24n * 60n * 60n * 1_000_000_000n,
     proposals: new Map<nat64, Proposal>(),
     proposalCount: 0n,
-    duration: config.proposalDuration,
+    proposalDuration: config.proposalDuration,
     proposal: null,
     proposalCost: BigInt(config.proposalCost),
     airdropAmount: BigInt(config.airdropAmount),
     tokenDistributionAmount: BigInt(config.tokenDistributionAmount),
     distributionExchangeRate: BigInt(config.distributionExchangeRate),
+    stakeDuration: config.stake.duration,
+    stakingAccountsState: null,
     custodian: config.custodian,
     airdrop_snapshot: {
         holders: new Map<string, nat64>(),

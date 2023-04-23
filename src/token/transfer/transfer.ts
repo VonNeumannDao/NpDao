@@ -2,6 +2,7 @@ import {balance_of, set_account_balance} from '../account';
 import {ic} from 'azle';
 import {state} from '../state';
 import {Account, Transaction, TransactionKind, TransferArgs, TransferResult} from '../types';
+import {uint8ToString} from "../utils";
 
 export function handle_transfer(args: TransferArgs, from: Account): TransferResult {
     const kind: TransactionKind = {
@@ -22,6 +23,8 @@ export function handle_transfer(args: TransferArgs, from: Account): TransferResu
 
     state.total_supply -= fee;
 
+    console.log("transfered with memo: ", args.memo && uint8ToString(args.memo));
+
     const transaction: Transaction = {
         args,
         fee,
@@ -32,9 +35,7 @@ export function handle_transfer(args: TransferArgs, from: Account): TransferResu
 
     state.transactions.push(transaction);
 
-    const transfer_result: TransferResult = {
+    return {
         Ok: args.amount
     };
-
-    return transfer_result;
 }

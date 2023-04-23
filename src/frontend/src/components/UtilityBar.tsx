@@ -115,9 +115,9 @@ const UtilityBar = () => {
 
     const balances = (
 
-                <Box display="flex" flexWrap="wrap">
+                <Paper sx={{display: "flex", flexWrap: "wrap"}}>
                     <Box flexGrow={2}>
-                        <Paper sx={{display: "flex", flexWrap: "wrap", padding: "16px", marginBottom: '16px', minHeight: "202px", minWidth: "700px"}}>
+                        <Box sx={{display: "flex", flexWrap: "wrap", padding: "16px", marginBottom: '16px', minHeight: "202px", minWidth: "400px"}}>
                             <Box textAlign="center" sx={{width: "100%"}}>
                                 <Typography variant="h5" component="h2" textAlign={"center"}>
                                     DAO Balances
@@ -134,12 +134,12 @@ const UtilityBar = () => {
                                     ))}
                                 </Grid>
                             </>}
-                        </Paper>
+                        </Box>
                     </Box>
                     <Box sx={{maxWidth: "800px", margin: "auto"}} flexGrow={1}>
                         <CryptoWallet/>
                     </Box>
-                </Box>
+                </Paper>
     );
 
     function truncateDecimal(str: string): string {
