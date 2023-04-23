@@ -96,3 +96,18 @@ export function uint8ArrayToHexString(uint8Array: Uint8Array): string {
     }
     return hexString;
 }
+export function stringToUint8Array(str) {
+    const result = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) {
+        result[i] = str.charCodeAt(i);
+    }
+    return result;
+}
+
+export function uint8ArrayToString(uint8Array) {
+    let result = "";
+    for (let i = 0; i < uint8Array.length; i++) {
+        result += String.fromCharCode(uint8Array[i]);
+    }
+    return result;
+}

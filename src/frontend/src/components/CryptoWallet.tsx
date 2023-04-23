@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {Box, Card, CardContent, Grid, TextField, Button, Typography, InputAdornment} from '@mui/material';
 import { Send as SendIcon, AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
 import config from "../../../../cig-config.json";
@@ -6,6 +6,10 @@ import {Link} from "react-router-dom";
 import {StyledLink} from "./StyledComponents";
 import {useAppContext} from "./AppContext";
 import {useConnect} from "@connect2ic/react";
+import {AccountIdentifier, SubAccount} from "@dfinity/nns";
+import {Principal} from "@dfinity/principal";
+import { SHA256, enc } from 'crypto-js';
+import {stringToUint8Array, uint8ArrayToString} from "../util/bigintutils";
 
 type CryptoWalletProps = {};
 
@@ -14,7 +18,15 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
     const [coinStaked, setCoinStaked] = useState<string>();
     const [coinTransferAmount, setCoinTransferAmount] = useState<string>();
     const {setBalanceVal, balancePretty} = useAppContext();
-    const {principal} = useConnect();
+    const {principal, isConnected} = useConnect();
+    useEffect(() => {
+        if (isConnected) {
+            init().then();
+        }
+    }, [principal, isConnected]);
+    const init = async () => {
+
+    }
 
     const handleMaxButton = () => {
     };
