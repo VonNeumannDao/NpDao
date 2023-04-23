@@ -125,9 +125,9 @@ const UtilityBar = () => {
                             </Box>
 
                             {!loading && <>
-                                <Grid container spacing={1} justifyContent="center">
+                                <Grid container spacing={1} justifyContent="center" wrap="wrap">
                                     {cards.map((card, index) => (
-                                        <Grid item key={index} md={3}>
+                                        <Grid item key={index} xs={4}>
                                             <BalanceCard {...card} />
                                         </Grid>
                                     ))}

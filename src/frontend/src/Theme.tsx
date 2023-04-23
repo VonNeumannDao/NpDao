@@ -10,4 +10,11 @@ export const themeOptions: ThemeOptions = {
             main: '#f50057',
         },
     },
+    components: {
+        MuiLink: {
+            defaultProps: {
+                color: '#ffa726',
+            }
+        }
+    }
 };
