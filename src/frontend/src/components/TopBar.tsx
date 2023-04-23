@@ -11,8 +11,7 @@ import {
     Typography
 } from '@mui/material';
 import React, {useEffect, useState} from 'react';
-import {useCanister, useConnect} from '@connect2ic/react';
-import {AstroX, InfinityWallet, NFID, PlugWallet, StoicWallet} from '@connect2ic/core/providers';
+import {ConnectButton, ConnectDialog, useCanister, useConnect} from '@connect2ic/react';
 import MintTokenButton from "./MintTokenButton";
 import config from "../../../../cig-config.json"
 import ContentModal from "./ContentModal";
@@ -65,11 +64,6 @@ export default function TopBar() {
 
     }
 
-    function handleLoginClick(provider: string) {
-        console.log(provider);
-        connect(provider);
-        setAnchorEl(null);
-    }
     const StyledLink = styled(Link)`
       color: inherit;
       text-decoration: none;
@@ -151,21 +145,9 @@ export default function TopBar() {
                             <AdminOnly>
                                 <MintTokenButton/>
                             </AdminOnly>
+                            <ConnectButton />
+                            <ConnectDialog dark={false} />
 
-                            <Button sx={{marginLeft: 2}} disabled={isInitializing} variant='outlined' color='inherit'
-                                    onClick={e => {
-                                        disconnect();
-                                        setAnchorEl(e.currentTarget);
-                                    }}>
-                                {isInitializing ? <CircularProgress color='inherit' size={24}/> :
-                                    isConnected ? 'Disconnect' : 'Connect'}
-                            </Button>
-                            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-                                <MenuItem onClick={() => handleLoginClick('plug')}>
-                                    <img src={new PlugWallet().meta.icon.light} height={20} width={20}/>
-                                    <Box sx={{marginLeft: 2}}>PLUG</Box>
-                                </MenuItem>
-                            </Menu>
                         </Box>
                     </Box>
                 </Toolbar>

@@ -5,21 +5,23 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import Main from "./Main";
-import {AstroX, InfinityWallet, NFID, PlugWallet, StoicWallet} from "@connect2ic/core/providers"
+import { Connect2ICProvider } from "@connect2ic/react"
+import { defaultProviders } from "@connect2ic/core/providers"
 import {createClient} from "@connect2ic/core"
 import "@connect2ic/core/style.css"
-import {Connect2ICProvider} from "@connect2ic/react"
 import {idlFactory as ledgerFactory} from "./ldl/ledgerIdlFactory.did";
 import {canisterId as backendCanisterId, idlFactory as backendFactory} from "./declarations/backend";
 import {canisterId as tokenCanister, idlFactory as tokenIdlFactory} from "./declarations/icrc_1";
 import {AppProvider} from "./components/AppContext";
 import {idlFactory as dip20Factory} from "./ldl/dip20.did";
 import {BrowserRouter} from "react-router-dom";
+import config from "../../../cig-config.json";
 
 const client = createClient({
     globalProviderConfig: {
         whitelist: ["ryjl3-tyaaa-aaaaa-aaaba-cai", "aanaa-xaaaa-aaaah-aaeiq-cai", backendCanisterId, tokenCanister],
-        autoConnect: false
+        autoConnect: false,
+        appName: config.name
     },
     canisters: {
         ["ledger"]: {
@@ -35,7 +37,7 @@ const client = createClient({
             canisterId: "aanaa-xaaaa-aaaah-aaeiq-cai", idlFactory: dip20Factory
         }
     },
-    providers: [new PlugWallet()],
+    providers: defaultProviders,
 })
 const container = document.getElementById('app');
 const root = createRoot(container)
