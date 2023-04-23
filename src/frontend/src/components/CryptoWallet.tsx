@@ -135,6 +135,7 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
                                         variant="contained"
                                         size={"small"}
                                         onClick={handleCoinTransferButton}
+                                        disabled={!isConnected}
                                         sx={{ marginRight: '8px', height: '56px' }}
                                     >
                                         <SendIcon />

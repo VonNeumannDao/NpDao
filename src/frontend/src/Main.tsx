@@ -12,6 +12,7 @@ import {Container} from "@mui/material";
 import UtilityBar from "./components/UtilityBar";
 import Staking from "./components/Staking";
 import {useEffect} from "react";
+import ConnectWalletMessage from "./components/ConnectWalletMessage";
 
 const Main = () => {
     const {isConnected, principal, disconnect} = useConnect();
@@ -26,6 +27,8 @@ const Main = () => {
     return (<>
         <TopBar/>
         <UtilityBar/>
+        {!isConnected && <ConnectWalletMessage/>}
+
         {isConnected && principal && <>
             <Container style={{display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'left'}}>
 
