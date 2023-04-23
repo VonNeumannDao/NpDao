@@ -532,7 +532,7 @@ async function _executeProposal(): Promise<void> {
         totalVotesNo += vote.voteNo;
     }
 
-    proposal.executed = totalVotesNo <= totalVotesYes;
+    proposal.executed = totalVotesNo < totalVotesYes;
     if (proposal.executed) {
 
         const type = proposal.proposalType;
