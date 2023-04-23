@@ -15,17 +15,26 @@ function Voting({proposalId}: VotingProps) {
     const [noVotesPercent, setNoVotesPercent] = useState(0);
     const [votingPower, setVotingPower] = useState(0n);
     const [loadingButton, setLoadingButton] = useState(false);
+    const [disableVoting, setDisableVoting] = useState(false);
     const [_tokenActor] = useCanister("token");
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const [voteStatus, setVoteStatus] = useState<VoteStatus>();
-    const {setBalanceVal, balancePretty, balance} = useAppContext();
+    const {setBalanceVal, balancePretty, balance, activeProposal} = useAppContext();
     const {principal} = useConnect();
     const {reloadActiveProposal} = useAppContext();
-
 
     useEffect(() => {
         init().then();
     }, [balancePretty, principal]);
+
+    function voteCheck() {
+        const voted = activeProposal.voters.find(x => x.voter === principal);
+        console.log(voted);
+        if (voted) {
+            setDisableVoting(true);
+        }
+
+    }
 
     async function init() {
         const voteStatus = await tokenActor.voteStatus();
@@ -36,6 +45,7 @@ function Voting({proposalId}: VotingProps) {
         setYesVotesPercent(percentCalc(vs.voteYes, vs.voteYes + vs.voteNo));
         setNoVotesPercent(percentCalc(vs.voteNo, vs.voteYes + vs.voteNo));
         await reloadActiveProposal();
+        voteCheck();
     }
 
     function percentCalc(voteCount: bigint, totalVotes: bigint): number {
@@ -54,9 +64,8 @@ function Voting({proposalId}: VotingProps) {
             subaccount: []
         }, proposalId, voteDirection);
 
-        console.log(result);
-
-        init().then();
+        await init();
+        setDisableVoting(true);
         setLoadingButton(false);
     }
 
@@ -71,13 +80,13 @@ function Voting({proposalId}: VotingProps) {
                 {votingPower > 0 ? (
                     <>
                         <Grid item xs={6} md={6}>
-                            <LoadingButton loading={loadingButton} fullWidth variant="contained"
+                            <LoadingButton disabled={disableVoting} loading={loadingButton} fullWidth variant="contained"
                                            onClick={() => onVote(true)}>
                                 Yey
                             </LoadingButton>
                         </Grid>
                         <Grid item xs={6} md={6}>
-                            <LoadingButton loading={loadingButton} fullWidth variant="contained" color="error"
+                            <LoadingButton disabled={disableVoting} loading={loadingButton} fullWidth variant="contained" color="error"
                                            onClick={() => onVote(false)}>
                                 Nay
                             </LoadingButton>

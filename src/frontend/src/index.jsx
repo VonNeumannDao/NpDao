@@ -20,7 +20,6 @@ import config from "../../../cig-config.json";
 const client = createClient({
     globalProviderConfig: {
         whitelist: ["ryjl3-tyaaa-aaaaa-aaaba-cai", "aanaa-xaaaa-aaaah-aaeiq-cai", backendCanisterId, tokenCanister],
-        autoConnect: false,
         appName: config.name
     },
     canisters: {
