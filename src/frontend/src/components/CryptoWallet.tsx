@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Link, Box, Button, Card, CardContent, Grid, InputAdornment, TextField, Typography} from '@mui/material';
-import {Send as SendIcon} from '@mui/icons-material';
+import {Avatar, Box, Button, Card, CardContent, CardHeader, Grid, InputAdornment, Link, TextField} from '@mui/material';
+import {Send as SendIcon, Wallet} from '@mui/icons-material';
 import config from "../../../../cig-config.json";
 import {useAppContext} from "./AppContext";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {Principal} from "@dfinity/principal";
 import {bigIntToDecimal, convertToBigInt} from "../util/bigintutils";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
-import { Link as RouterLink } from 'react-router-dom';
+import {Link as RouterLink} from 'react-router-dom';
 
 type CryptoWalletProps = {};
 
@@ -79,19 +79,41 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: 'auto' }}>
-            <Card sx={{ width: '100%', marginBottom: '16px' }}>
-                <CardContent>
-                    <Typography variant="h5" component="h2" sx={{textAlign: "left" }}>
-                        Balance: {balancePretty} {config.symbol}
-                    </Typography>
-                    <Typography variant="body2" component="span" sx={{ marginBottom: '8px', textAlign: "left" }}>
-                        {principal}
-                    </Typography>
-                        <Grid item xs={12} md={12}>
-                            <Card sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: '5px'}}>
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            margin: 'auto'
+        }}>
+            <Box sx={{width: '100%', marginBottom: '16px'}}>
+                    <Grid item xs={12} md={12}>
+                        <Card sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'left',
+                            alignItems: 'left',
+                            marginBottom: '5px'
+                        }}>
+                            <CardHeader
+                                titleTypographyProps={{variant: 'h6'}}
+                                color={'secondary'}
+                                subheader={principal}
+                                avatar={
+                                    <Avatar>
+                                        <Wallet/>
+                                    </Avatar>
+                                }
+                                title={`Balance: ${balancePretty} ${config.symbol}`}
+                            />
+                            <CardContent sx={{
 
-                                <Box sx={{ borderTop: '1px solid #eee', padding: '16px', display: "flex", flexDirection: "row", flexGrow: 1 }}>
+                            }}>
+                                <Box sx={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    flexGrow: 1
+                                }}>
 
                                     <TextField
                                         label="To"
@@ -101,7 +123,7 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
                                         value={toValue}
                                         onChange={handleToValueChange}
                                         error={!!toError}
-                                        sx={{ marginBottom: "8px", marginRight: "8px" }}
+                                        sx={{marginBottom: "8px", marginRight: "8px"}}
                                     />
 
                                     <TextField
@@ -115,37 +137,47 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
                                                 step: 0.00000001,
                                                 min: 0,
                                             },
-                                            endAdornment: <InputAdornment position="end">{config.symbol}</InputAdornment>,
+                                            endAdornment: <InputAdornment
+                                                position="end">{config.symbol}</InputAdornment>,
                                         }}
                                         error={!!coinTransferAmountError}
                                         helperText={coinTransferAmountError || `Balance: ${balancePretty} ${config.symbol}`}
-                                        sx={{ marginBottom: "8px", marginRight: "8px" }}
+                                        sx={{marginBottom: "8px", marginRight: "8px"}}
                                     />
                                     <Button
                                         variant="contained"
                                         size={"small"}
                                         onClick={handleCoinTransferButton}
                                         disabled={!isConnected}
-                                        sx={{ marginRight: '8px', height: '56px' }}
+                                        sx={{marginRight: '8px', height: '56px'}}
                                     >
-                                        <SendIcon />
+                                        <SendIcon/>
                                     </Button>
                                     <Button
                                         size={"small"}
-                                        sx={{ height: '56px' }}
+                                        sx={{height: '56px'}}
                                         variant="outlined" onClick={handleMaxButton}>
                                         Max
                                     </Button>
                                 </Box>
-                            </Card>
-                                <Link component={RouterLink} to="/staking">
-                                    View all staking
-                                </Link>
-                        </Grid>
-                </CardContent>
-            </Card>
+                                <Box
+                                sx={{
+
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    flexGrow: 1
+                                }}
+                                >
+                                    <Link component={RouterLink} to="/staking">
+                                        View Staking
+                                    </Link>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+            </Box>
         </Box>
-            );
-        }
+    );
+}
 
 export default CryptoWallet;

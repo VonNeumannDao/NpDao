@@ -2,7 +2,6 @@ import {Account, BurnError, BurnParams, TxError, TxReceipt} from "./types";
 import {CallResult, ic, nat, nat32, nat64, Principal, Service, Tuple, Variant, Vec} from "azle";
 import {serviceQuery, serviceUpdate} from "azle/src/lib/candid_types/service";
 import {hexToUint8Array} from "./utils";
-import {drainCycles} from "../backend";
 
 export const TOKEN_DISTRIBUTION_ACCOUNT: Account = {
     subaccount:

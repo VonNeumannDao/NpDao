@@ -1,4 +1,4 @@
-import {AppBar, Box, Button, Container, Divider, Menu, styled, Toolbar} from '@mui/material';
+import {AppBar, Box, Button, Container, Divider, IconButton, Menu, styled, Toolbar} from '@mui/material';
 import React, {useEffect, useState} from 'react';
 import {ConnectButton, ConnectDialog, useCanister, useConnect} from '@connect2ic/react';
 import MintTokenButton from "./MintTokenButton";
@@ -80,20 +80,23 @@ export default function TopBar() {
                         flexGrow: 1
                     }}>
                         <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start" }}>
+                            <IconButton edge="start" color="inherit" aria-label="menu">
+                                <img style={{maxWidth: "50px"}} src={"/token.webp"} alt="Logo" />
+                            </IconButton>
                             <StyledLink to="/" color="inherit" >
                                 {config.name} DAO
                             </StyledLink>
-                            <Divider orientation="vertical" flexItem sx={{ margin: '0 16px', height: 40, backgroundColor: 'white' }} />
+                            <Divider orientation="vertical" flexItem sx={{margin: '0 16px', height: 30, backgroundColor: 'white', marginTop: "18px" }} />
                             <StyledLink to="/distribution" color="inherit" >
                                 Distribution
                             </StyledLink>
-                            <Divider orientation="vertical" flexItem sx={{ margin: '0 16px', height: 40, backgroundColor: 'white' }} />
+                            <Divider orientation="vertical" flexItem sx={{margin: '0 16px', height: 30, backgroundColor: 'white', marginTop: "18px" }} />
                             <StyledLink  to="/about" color="inherit" >
                                 About
                             </StyledLink>
-                            <Divider orientation="vertical" flexItem sx={{ margin: '0 16px', height: 40, backgroundColor: 'white' }} />
                             <AdminOnly>
                                 <>
+                                    <Divider orientation="vertical" flexItem sx={{margin: '0 16px', height: 30, backgroundColor: 'white', marginTop: "18px" }} />
                                     <StyledLink to="/admin" >
                                         Admin
                                     </StyledLink>
@@ -101,14 +104,6 @@ export default function TopBar() {
                             </AdminOnly>
                         </Box>
                         <Box>
-
-                            {canisters.size > 0 &&
-                                <CanisterDropdown menuItems={Array.from(canisters.entries()).map((x) => {
-                                    return {
-                                        label: x[1], to: x[0]
-                                    }
-                                })} />
-                            }
                             <Button sx={{marginLeft: 2}} disabled={disabledIfProposal()}  variant='contained' color='secondary' onClick={handleProposalClick}>Create Proposal <ArrowDropDown/></Button>
                             <Menu
                                 anchorEl={proposalAnchorEl}

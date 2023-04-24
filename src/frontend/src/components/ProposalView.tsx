@@ -22,6 +22,7 @@ function ProposalView({proposal}: ProposalViewProps) {
         >
             <div
                 style={{
+                    marginBottom: '16px',
                     backgroundColor: !proposal.ended
                         ? theme.palette.primary.main
                         : proposal.executed

@@ -129,6 +129,11 @@ export type TransferError = Variant<{
     TooOld: null;
 }>;
 
+export type InternalResponse = Variant<{
+    Ok: null,
+    Err: string
+}>
+
 export type ProposalResponse = Variant<{
     Ok: nat64;
     Err: ProposalError

@@ -1,14 +1,22 @@
 import React from 'react';
-import {Card, CardContent, Typography} from '@mui/material';
+import {Button, Card, CardActions, CardContent, Link, Typography} from '@mui/material';
+import {isDebugOn} from "./DebugOnly";
 
 type Props = {
     icon: React.ReactNode;
     symbol: string;
     balance: string;
     title?: string;
+    canisterId?: string;
 };
-
-const BalanceCard = ({ icon, symbol, balance, title }: Props) => {
+const getLink = (canisterId) => {
+    if (isDebugOn) {
+        return `http://127.0.0.1:4943/?canisterId=rkp4c-7iaaa-aaaaa-aaaca-cai&id=${canisterId}`;
+    } else {
+        return `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=${canisterId}`;
+    }
+};
+const BalanceCard = ({ icon, symbol, balance, title, canisterId }: Props) => {
     return (
         <Card style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: "162px", marginTop: "8px" }}>
             <CardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
@@ -16,6 +24,7 @@ const BalanceCard = ({ icon, symbol, balance, title }: Props) => {
                 <Typography variant="h5" component="h2" style={{ marginBottom: '8px', textAlign: 'center' }}>
                     {title}
                 </Typography>
+                <Link sx={{fontSize: "1rem"}} href={getLink(canisterId)}>{canisterId}</Link>
                 <Typography variant="body1" style={{ textAlign: 'center' }}>
                     {balance +` ${symbol}`}
                 </Typography>

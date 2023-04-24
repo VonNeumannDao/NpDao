@@ -1,7 +1,6 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
 type ActiveProposal = variant { Ok : ProposalViewResponse; Err : text };
 type Canisters = record { appName : text; canisterId : text };
-type ManualReply = variant { Ok : nat32; Err : text };
 type ProposalError = variant {
   AccessDenied : text;
   ProposalNotFound;
@@ -118,7 +117,6 @@ service : () -> {
   distributeToken : (nat) -> (text);
   distributionBalance : () -> (nat) query;
   distributionExchangeRate : () -> (nat) query;
-  drainCycles : () -> (ManualReply);
   getDrainCanister : () -> (float64) query;
   getStakingAccount : (text) -> (vec StakingAccount) query;
   getTotalStaked : (text) -> (nat) query;

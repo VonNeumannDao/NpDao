@@ -8,18 +8,7 @@
       "candid": "src/token/index.did",
       "wasm": ".azle/icrc_1/icrc_1.wasm.gz"
     },
-    "backend": {
-      "type": "custom",
-      "build": "npx azle backend",
-      "root": "src/backend",
-      "ts": "src/backend/index.ts",
-      "candid": "src/backend/index.did",
-      "wasm": ".azle/backend/backend.wasm.gz"
-  },
     "frontend": {
-      "dependencies": [
-        "backend"
-      ],
       "frontend": {
         "entrypoint": "src/frontend/src/index.html"
       },

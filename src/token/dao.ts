@@ -558,12 +558,42 @@ async function _executeProposal(): Promise<void> {
                     canisterId = (createCanisterResultCallResult.Ok?.canister_id) as Principal;
                 }
             }
-            if (canisterId) await _installWasm(canisterId, proposal);
+            if (canisterId) {
+
+                const wasm = await _installWasm(canisterId, proposal);
+                if ("Ok" in wasm) {
+                    registerCanister(proposal.appName || "", canisterId.toText());
+                    state.proposals.set(proposal.id, proposal as Proposal);
+                    console.log("wasm installed");
+                } else {
+                    proposal.error = {
+                        other: wasm.Err || ""
+                    };
+                    state.proposals.set(proposal?.id, proposal);
+                }
+            }
 
         } else if ("deleteAppAction" in type) {
             let canisterId = proposal.canister as Principal;
-            await _tryDrainCanister(canisterId);
-            await _stopAndDeleteCanister(canisterId, proposal);
+            const drainCanister = await _tryDrainCanister(canisterId);
+            if ("Err" in drainCanister) {
+                proposal.error = {
+                    other: drainCanister.Err || ""
+                };
+                state.proposals.set(proposal?.id, proposal);
+                console.log("drain failed", drainCanister.Err);
+            }
+
+            const stopAndDelete = await _stopAndDeleteCanister(canisterId);
+            if ("Ok" in stopAndDelete) {
+                deleteCanister(canisterId.toText());
+            } else {
+                proposal.error = {
+                    other: stopAndDelete.Err || ""
+                };
+                state.proposals.set(proposal?.id, proposal);
+                return;
+            }
         }
     }
     proposal.ended = true;

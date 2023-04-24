@@ -3,7 +3,7 @@ import {Box, CircularProgress, Grid, Paper, Typography} from '@mui/material';
 import {AccountBalanceWallet, MoneyRounded} from '@mui/icons-material';
 import InternetComputerIcon from "./InternetComputerIcon";
 import {useCanister} from "@connect2ic/react";
-import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE, Canisters} from "../declarations/icrc_1/icrc_1.did";
 import {_SERVICE as ledgerService} from "../ldl/ledgerIdlFactory.did";
 
 import {canisterId} from "../declarations/icrc_1";
@@ -24,6 +24,7 @@ const UtilityBar = () => {
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const ledgerActor = _ledgerActor as unknown as ledgerService;
     const [icpBalance, setIcpBalance] = useState(0n);
+    const [canisters, setCanisters] = useState<Array<Canisters>>();
     const [cycleBalance, setCycleBalance] = useState(0n);
     const [loading, setLoading] = useState(false);
     const [tokenBalance, setTokenBalance] = useState(0n);
@@ -36,6 +37,7 @@ const UtilityBar = () => {
     async function init() {
         setLoading(true);
         const cycleBalancesPromise = tokenActor.cycleBalances();
+        const canistersPromise = tokenActor.canisters();
         const tokenBalancePromise = tokenActor.icrc1_balance_of({
             owner: Principal.fromText(canisterId),
             subaccount: []
@@ -53,9 +55,9 @@ const UtilityBar = () => {
                 account: identifier
             });
         }
-        const [cycleBalances, tokenBalance, icpBalance] = await Promise.all([cycleBalancesPromise, tokenBalancePromise, icpBalancePromise]);
+        const [cycleBalances, tokenBalance, icpBalance, cnstr] = await Promise.all([cycleBalancesPromise, tokenBalancePromise, icpBalancePromise, canistersPromise]);
 
-
+        setCanisters(cnstr);
         setCycleBalance(cycleBalances.find(x => x[0] === "DAO")[1] || 0n);
         setCanisterTokenBalance(cycleBalances.filter(x => x[0] !== "DAO"));
         setTokenBalance(tokenBalance);
@@ -87,27 +89,28 @@ const UtilityBar = () => {
     const cards = [
         {
             icon: <AccountBalanceWallet fontSize={"large"}/>,
-            symbol: "$XTC",
+            symbol: "XTC",
             balance: divideByTrillion(cycleBalance),
             title: "Cycles"
         },
         {
             icon: <InternetComputerIcon fontSize={"large"}/>,
-            symbol: "$ICP",
+            symbol: "ICP",
             balance: truncateDecimal(bigIntToDecimalPrettyString(icpBalance)),
             title: "ICP"
         },
         {
             icon: <MoneyRounded fontSize={"large"} />,
-            symbol: `$${config.symbol}`,
+            symbol: `${config.symbol}`,
             balance: truncateDecimal(bigIntToDecimalPrettyString(tokenBalance)),
             title: config.name
         },
         ...canisterTokenBalance.map((value) => ({
             icon: <AccountBalanceIcon fontSize={"large"}/>,
-            symbol: `$XTC`,
+            symbol: `XTC`,
             balance: divideByTrillion(value[1]),
-            title: value[0]
+            title: value[0],
+            canisterId: canisters.find(x => x.appName === value[0])?.canisterId
         })),
     ];
 

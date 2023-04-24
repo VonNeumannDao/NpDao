@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Menu, MenuItem} from '@mui/material';
+import {Button, Link, Menu, MenuItem} from '@mui/material';
 import {isDebugOn} from "./DebugOnly";
 import {ArrowDropDown} from "@mui/icons-material";
 
@@ -21,7 +21,7 @@ const CanisterDropdown: React.FC<Props> = ({ menuItems }) => {
         if (isDebugOn) {
             return `http://127.0.0.1:4943/?canisterId=rkp4c-7iaaa-aaaaa-aaaca-cai&id=${canisterId}`;
         } else {
-            return `https://icscan.io/canister/${canisterId}`;
+            return `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=${canisterId}`;
         }
     };
     return (
@@ -36,9 +36,9 @@ const CanisterDropdown: React.FC<Props> = ({ menuItems }) => {
                 >
                     {menuItems && menuItems.map((menuItem, index) => (
                         <MenuItem key={index} onClick={handleClose}>
-                            <a href={getLink(menuItem.to)} >
+                            <Link href={getLink(menuItem.to)} >
                                 {menuItem.label}
-                            </a>
+                            </Link>
                         </MenuItem>
                     ))}
                 </Menu>

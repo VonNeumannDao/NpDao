@@ -1,9 +1,9 @@
-import {Proposal} from "./types";
+import {InternalResponse, Proposal} from "./types";
 import {managementCanister} from "azle/canisters/management";
 import {state} from "./state";
 import {Principal} from "@dfinity/principal";
 import {blob} from "azle";
-import {deleteCanister, registerCanister} from "./canister_registry";
+import {registerCanister} from "./canister_registry";
 import {DrainCycles} from "./constants";
 
 export async function _createCanister(proposal: Partial<Proposal>) {
@@ -27,7 +27,7 @@ export async function _createCanister(proposal: Partial<Proposal>) {
     return createCanisterResultCallResult;
 }
 
-export async function _installWasm(canisterId: Principal, proposal: Partial<Proposal>) {
+export async function _installWasm(canisterId: Principal, proposal: Partial<Proposal>): Promise<InternalResponse>  {
     console.log("installing canister", canisterId.toText());
     // @ts-ignore
     console.log("wasm size: ", proposal.wasm.length)
@@ -49,22 +49,15 @@ export async function _installWasm(canisterId: Principal, proposal: Partial<Prop
             other: callResult.Err
         }
         proposal.wasm = null;
-        if (proposal?.id) {
-            state.proposals.set(proposal?.id, proposal as Proposal);
-        }
-        console.log("failed installing", callResult.Err);
+        return {Err: callResult.Err};
 
     } else {
         proposal.wasm = null;
-        if (proposal?.id) {
-            registerCanister(proposal.appName || "", canisterId.toText());
-            state.proposals.set(proposal?.id, proposal as Proposal);
-            console.log("wasm installed");
-        }
+        return {Ok: null};
     }
 }
 
-export async function _tryDrainCanister(canisterId: Principal) {
+export async function _tryDrainCanister(canisterId: Principal): Promise<InternalResponse> {
     if (state.drainCanister != null) {
         try {
             console.log("trying to drain cycles");
@@ -81,21 +74,23 @@ export async function _tryDrainCanister(canisterId: Principal) {
                 .cycles(100_000_000_000n)
                 .call();
             if ("Err" in callResult) {
-                throw new Error("failed to install drain canister " + callResult.Err)
+                return {Err: `failed to install drain canister ${callResult.Err}`}
             }
 
             const tokenCanister = new DrainCycles(canisterId);
             const drained = await tokenCanister.drainCycles().call();
             if ("Err" in drained) {
-                throw new Error("failed to drain cycles")
+                return {Err: `failed to drain cycles ${drained.Err}`}
             }
         } catch (e: any) {
-            console.log("failed to drain cycles " + e.toString());
+            return {Err: `failed to drain cycles ${e.toString()}`}
         }
+        return {Ok: null};
     }
+    return {Err: "no drain canister"};
 }
 
-export async function _stopAndDeleteCanister(canisterId: Principal, proposal: Proposal) {
+export async function _stopAndDeleteCanister(canisterId: Principal): Promise<InternalResponse> {
     console.log("trying to stop canister: ", canisterId.toText());
 
     const callStopResult = await managementCanister
@@ -105,10 +100,7 @@ export async function _stopAndDeleteCanister(canisterId: Principal, proposal: Pr
         .call();
     console.log("trying to stop canister: ", canisterId.toText());
     if ("Err" in callStopResult) {
-        proposal.error = {
-            other: callStopResult.Err || ""
-        }
-        state.proposals.set(proposal?.id, proposal);
+        return {Err: callStopResult.Err || ""};
     } else {
         console.log("Stopped canister");
 
@@ -120,13 +112,8 @@ export async function _stopAndDeleteCanister(canisterId: Principal, proposal: Pr
             .call();
 
         if ("Err" in callResult) {
-            proposal.error = {
-                other: callResult.Err || ""
-            }
-            state.proposals.set(proposal?.id, proposal);
-        } else {
-            deleteCanister(canisterId.toText());
+            return {Err: callResult.Err || ""};
         }
-        console.log("deleted: ", callResult.Err, ("Ok" in callResult) ? "Ok" : "");
+        return {Ok: null};
     }
 }
