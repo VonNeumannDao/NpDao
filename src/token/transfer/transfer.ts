@@ -3,6 +3,7 @@ import {ic} from 'azle';
 import {state} from '../state';
 import {Account, IcrcTransaction, TransactionKind, IcrcTransferArgs, IcrcTransferResult} from '../types';
 import {uint8ToString} from "../utils";
+import {putTransaction} from "./putTransaction";
 
 export function handle_transfer(args: IcrcTransferArgs, from: Account): IcrcTransferResult {
     const kind: TransactionKind = {
@@ -32,9 +33,7 @@ export function handle_transfer(args: IcrcTransferArgs, from: Account): IcrcTran
         kind,
         timestamp: ic.time()
     };
-
-    state.transactions.push(transaction);
-
+    putTransaction(transaction);
     return {
         Ok: args.amount
     };

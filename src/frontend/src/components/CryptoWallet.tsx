@@ -8,6 +8,7 @@ import {Principal} from "@dfinity/principal";
 import {bigIntToDecimal, convertToBigInt} from "../util/bigintutils";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
 import {Link as RouterLink} from 'react-router-dom';
+import {LoadingButton} from "@mui/lab";
 
 type CryptoWalletProps = {};
 
@@ -18,6 +19,7 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
     const [toValue, setToValue] = useState("");
     const [coinTransferAmount, setCoinTransferAmount] = useState("");
     const [coinTransferAmountError, setCoinTransferAmountError] = useState("");
+    const [loading, setLoading] = useState(false);
     const [_tokenActor] = useCanister("token");
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const {setBalanceVal, balancePretty, balance} = useAppContext();
@@ -31,7 +33,7 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
 
     }
 
-    const principalRegex = /^(?:[a-z0-9]+-){11}[a-z0-9]+$/i;
+    const principalRegex = /^(?:[a-z0-9]+-){10}[a-z0-9]+-?[a-z0-9]*$/i;
 
     const handleToValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
@@ -64,6 +66,7 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
     };
 
     const handleCoinTransferButton = async () => {
+        setLoading(true);
         const failed = await tokenActor.icrc1_transfer({
             to: {
                 owner: Principal.fromText(toValue),
@@ -75,7 +78,15 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
             created_at_time: [],
             amount: convertToBigInt(coinTransferAmount),
         });
-
+        console.log(failed);
+        const newBalance = await tokenActor.icrc1_balance_of({
+                owner: Principal.fromText(principal),
+                subaccount: []
+        });
+        setToValue("");
+        setCoinTransferAmount("");
+        setBalanceVal(newBalance);
+        setLoading(false);
     };
 
     return (
@@ -144,15 +155,16 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
                                         helperText={coinTransferAmountError || `Balance: ${balancePretty} ${config.symbol}`}
                                         sx={{marginBottom: "8px", marginRight: "8px"}}
                                     />
-                                    <Button
+                                    <LoadingButton
                                         variant="contained"
                                         size={"small"}
+                                        loading={loading}
                                         onClick={handleCoinTransferButton}
                                         disabled={!isConnected}
                                         sx={{marginRight: '8px', height: '56px'}}
                                     >
                                         <SendIcon/>
-                                    </Button>
+                                    </LoadingButton>
                                     <Button
                                         size={"small"}
                                         sx={{height: '56px'}}

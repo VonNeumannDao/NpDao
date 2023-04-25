@@ -2,6 +2,7 @@ import {balance_of, set_account_balance} from '../account';
 import {ic, Opt, Principal} from 'azle';
 import {state} from '../state';
 import {Account, IcrcTransaction, IcrcTransferArgs, IcrcTransferResult} from '../types';
+import {putTransaction} from "./putTransaction";
 
 export function handle_mint(args: IcrcTransferArgs, from: Opt<Account>): IcrcTransferResult {
     set_account_balance(args.to, balance_of(args.to) + args.amount);
@@ -17,7 +18,7 @@ export function handle_mint(args: IcrcTransferArgs, from: Opt<Account>): IcrcTra
         timestamp: ic.time()
     };
 
-    state.transactions.push(transaction);
+    putTransaction(transaction);
 
     const transfer_result: IcrcTransferResult = {
         Ok: args.amount

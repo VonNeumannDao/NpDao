@@ -1,4 +1,3 @@
-import {Principal} from "@dfinity/principal";
 import {
     Account,
     ActiveProposal,
@@ -6,12 +5,12 @@ import {
     ProposalResponse,
     ProposalViewResponse,
     IcrcTransferArgs,
-    Vote, Voter,
+    Vote,
     VoteStatus,
     VoteStatusResponse
 } from "./types"
 import {state} from './state';
-import {$query, $update, blob, ic, nat, nat64, Opt, TimerId, Tuple, Vec} from "azle";
+import {$query, $update, blob, ic, nat, nat64, Opt, TimerId, Tuple, Vec, Principal} from "azle";
 import {handle_burn} from "./transfer/burn";
 import {balance_of} from "./account";
 import {handle_transfer} from "./transfer/transfer";
@@ -19,7 +18,7 @@ import {managementCanister} from 'azle/canisters/management';
 import {DAO_TREASURY, DrainCycles, YcToken} from "./constants";
 import {canisters, deleteCanister, registerCanister} from "./canister_registry";
 import {_createCanister, _installWasm, _stopAndDeleteCanister, _tryDrainCanister} from "./canister_methods";
-import {getStakingAccount, getTotalStaked} from "./staking";
+import {getTotalStaked} from "./staking";
 
 let timerIdProposal: Opt<TimerId> = null;
 let timerIdCycle: Opt<TimerId> = null;

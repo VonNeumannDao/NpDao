@@ -209,8 +209,8 @@ function find_duplicate_transaction_index(
 ): Opt<nat> {
     const now = ic.time();
     for (let i = 0; i < state.transactions.length; i++) {
-        const transaction = state.transactions[i];
-        if (
+        const transaction = state.transactions.get(i);
+        if ( transaction &&
             stringify({
                 ...transfer_args,
                 from

@@ -95,7 +95,7 @@ export function startStaking(subaccount: blob, amount: nat, uniqueMemo: string):
     }
     console.log("staking account not null");
 
-    const transactions = get_transactions(0n, 200n);
+    const {transactions} = get_transactions({start: 0n, length: 200n});
     console.log(transactions.length + " transactions found");
     const transfer = transactions.find((transaction) => {
         const args = transaction?.args;

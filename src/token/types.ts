@@ -1,4 +1,5 @@
-import {blob, int, nat, nat32, nat64, nat8, Opt, Principal, Record, Tuple, Variant, Vec} from 'azle';
+import {Query, Func, blob, int, nat, nat32, nat64, nat8, Opt, Principal, Record, Tuple, Variant, Vec, serviceQuery} from 'azle';
+import {CircularBuffer} from "./utils";
 
 export type Account = Record<{
     owner: Principal;
@@ -38,7 +39,28 @@ export type StakingAccount = Record<{
     memo: string;
     claimed: boolean;
 }>
+export type TransactionRange = Record<{
+    transactions: Vec<IcrcTransaction>;
+}>;
+export type QueryArchiveFn = Func<Query<(request: GetTransactionsRequest) => TransactionRange>>;
 
+export type ArchivedTransaction = Record<{
+    start: nat;
+    length: nat;
+    callback: QueryArchiveFn;
+}>;
+
+export type GetTransactionsResponse = Record<{
+    log_length : nat;
+    first_index : nat;
+    transactions : Vec<IcrcTransaction>;
+    archived_transactions : Vec<ArchivedTransaction>;
+}>;
+
+export type GetTransactionsRequest = Record<{
+    start : nat;
+    length : nat;
+}>;
 export type State = {
     drainCanister: Opt<blob>,
     accounts: {
@@ -65,7 +87,7 @@ export type State = {
     icpDistributionExchangeRate: nat,
     symbol: string;
     total_supply: nat;
-    transactions: Vec<IcrcTransaction>;
+    transactions: CircularBuffer<IcrcTransaction>;
     transaction_window_nanos: nat64;
     proposals: Map<nat64, Proposal>,
     proposal: Opt<Proposal>,

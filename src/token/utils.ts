@@ -88,3 +88,77 @@ export function stringToUint8(str: string): blob {
 export function durationToSeconds(duration: number): nat {
     return BigInt(duration * 1e9);
 }
+
+export class CircularBuffer<T> implements Iterable<T> {
+    private buffer: (T | undefined)[] = new Array(this.max_size);
+    private head = 0;
+    private tail = 0;
+    public length = 0;
+
+    constructor(private max_size: number) {}
+
+    push(element: T) {
+        this.add(element);
+    }
+
+    add(element: T) {
+        if (this.length < this.max_size) {
+            this.buffer[this.head] = element;
+            this.head = (this.head + 1) % this.max_size;
+            this.length++;
+        } else {
+            this.buffer[this.tail] = element;
+            this.tail = (this.tail + 1) % this.max_size;
+        }
+    }
+
+    get(index: number): T {
+        if (index < 0 || index >= this.length) {
+            throw new Error(`Index ${index} out of bounds`);
+        }
+        const value = this.buffer[(this.tail + index) % this.max_size];
+        if (value === undefined) {
+            throw new Error(`Index ${index} is undefined`);
+        }
+
+        return value;
+    }
+
+    slice(start = 0, end = this.length): T[] {
+        if (start < 0) {
+            start += this.length;
+        }
+        if (end < 0) {
+            end += this.length;
+        }
+        start = Math.max(0, Math.min(this.length, start));
+        end = Math.max(0, Math.min(this.length, end));
+        const result: T[] = [];
+        for (let i = start; i < end; i++) {
+            const value = this.get(i);
+            if (value !== undefined) {
+                result.push(value);
+            }
+        }
+        return result;
+    }
+
+    [Symbol.iterator](): Iterator<T> {
+        let index = 0;
+        const buffer = this.buffer;
+        const count = this.length;
+        const tail = this.tail;
+        const max_size = this.max_size;
+
+        return {
+            next(): IteratorResult<T> {
+                if (index >= count) {
+                    return { done: true, value: undefined };
+                }
+                const value = buffer[(tail + index) % max_size];
+                index++;
+                return { done: false, value } as IteratorYieldResult<T>;
+            },
+        };
+    }
+}

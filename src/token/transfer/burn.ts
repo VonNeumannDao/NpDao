@@ -7,6 +7,7 @@ import {
     IcrcTransferArgs,
     IcrcTransferResult
 } from '../types';
+import {putTransaction} from "./putTransaction";
 
 export function handle_burn(args: IcrcTransferArgs, from: Account): IcrcTransferResult {
     set_account_balance(from, balance_of(from) - args.amount);
@@ -22,7 +23,7 @@ export function handle_burn(args: IcrcTransferArgs, from: Account): IcrcTransfer
         timestamp: ic.time()
     };
 
-    state.transactions.push(transaction);
+    putTransaction(transaction);
 
     const transfer_result: IcrcTransferResult = {
         Ok: args.amount

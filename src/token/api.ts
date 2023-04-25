@@ -1,18 +1,32 @@
 import {balance_of} from './account';
 import {$query, nat, nat64, nat8, Opt, Vec} from 'azle';
 import {state} from './state';
-import {Account, Metadatum, SupportedStandard, IcrcTransaction } from './types';
-
+import {Account, Metadatum, SupportedStandard, IcrcTransaction, GetTransactionsRequest, GetTransactionsResponse} from './types';
+const MAX_TRANSACTIONS_PER_REQUEST = 5000n;
 $query;
 
 export function get_transactions(
-    start: Opt<nat64>,
-    end: Opt<nat64>
-): Vec<IcrcTransaction> {
-    return state.transactions.slice(
-        start === null ? 0 : Number(start),
-        end === null ? state.transactions.length : Number(end)
-    );
+getTransactionsRequest: GetTransactionsRequest
+): GetTransactionsResponse {
+    let {start, length} = getTransactionsRequest;
+    const transactionLength = BigInt(state.transactions.length);
+    if (length > MAX_TRANSACTIONS_PER_REQUEST) {
+        length = MAX_TRANSACTIONS_PER_REQUEST;
+    }
+
+    let end = start + length;
+    if (end > transactionLength) {
+        end = transactionLength;
+    }
+
+
+    const transactions =  state.transactions.slice(Number(start), Number(end));
+    return {
+        log_length: BigInt(transactions.length),
+        first_index: start,
+        transactions,
+        archived_transactions: []
+    }
 }
 
 $query;

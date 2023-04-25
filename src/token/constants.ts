@@ -1,4 +1,4 @@
-import {Account, BurnError, BurnParams, TxReceipt} from "./types";
+import {Account, BurnError, BurnParams, GetTransactionsRequest, TransactionRange, TxReceipt} from "./types";
 import {CallResult, ic, nat, nat32, nat64, Principal, Service, Tuple, Variant, Vec} from "azle";
 import {serviceQuery, serviceUpdate} from "azle/src/lib/candid_types/service";
 import {hexToUint8Array} from "./utils";
@@ -68,4 +68,9 @@ export class DrainCycles extends Service {
 export class Icrc extends Service {
     @serviceQuery
     icrc1_balance_of: (account: Account) => CallResult<nat>;
+}
+
+export class Archive extends Service {
+    @serviceQuery
+    getTransactions: (request: GetTransactionsRequest) => CallResult<TransactionRange>;
 }

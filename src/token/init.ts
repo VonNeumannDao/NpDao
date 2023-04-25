@@ -3,7 +3,7 @@ import {state} from './state';
 import {handle_mint} from './transfer/mint';
 import {is_subaccount_valid, stringify} from './transfer/validate';
 
-import {Account, InitialAccountBalance, IcrcTransferArgs} from './types';
+import {Account, InitialAccountBalance, IcrcTransferArgs, IcrcTransaction} from './types';
 import {AIRDROP_ACCOUNT, DAO_TREASURY, MINTING_ACCOUNT, XTC_DISTRIBUTION_ACCOUNT} from "./constants";
 import {
     stableAccounts,
@@ -37,10 +37,11 @@ export function preUpgrade(): void {
         }
     }
     console.log("starting transactions");
-
-    for (let transaction of state.transactions) {
-        stableTransactions.insert(transaction.timestamp.toString(10), transaction);
+    for (let i = 0; i < state.transactions.length; i++) {
+        const transaction: IcrcTransaction = state.transactions.get(i);
+        stableTransactions.insert(i, transaction);
     }
+
     console.log("starting proposals");
     for (let [key, val] of state.proposals.entries()) {
         if(val.ended) {
@@ -89,9 +90,14 @@ export function postUpgrade(): void {
         }
     }
     console.log("starting transactions")
-    for (let transaction of stableTransactions.values()) {
-        state.transactions.push(transaction);
+
+    for (let i = 0; i< stableTransactions.len(); i ++) {
+        const transaction: Opt<IcrcTransaction> = stableTransactions.get(i);
+        if(transaction) {
+            state.transactions.push(transaction);
+        }
     }
+
     console.log("starting proposals")
 
     for (let value of stableProposals.values()) {
