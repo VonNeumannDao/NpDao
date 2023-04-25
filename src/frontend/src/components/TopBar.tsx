@@ -94,6 +94,11 @@ export default function TopBar() {
                             <StyledLink  to="/about" color="inherit" >
                                 About
                             </StyledLink>
+                            <Divider orientation="vertical" flexItem sx={{margin: '0 16px', height: 30, backgroundColor: 'white', marginTop: "18px" }} />
+
+                            <StyledLink  to="/transactions" color="inherit" >
+                                Transactions
+                            </StyledLink>
                             <AdminOnly>
                                 <>
                                     <Divider orientation="vertical" flexItem sx={{margin: '0 16px', height: 30, backgroundColor: 'white', marginTop: "18px" }} />

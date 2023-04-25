@@ -13,6 +13,7 @@ import {Container} from "@mui/material";
 import UtilityBar from "./components/UtilityBar";
 import Staking from "./components/Staking";
 import ConnectWalletMessage from "./components/ConnectWalletMessage";
+import TransactionTable from "./components/TransactionTable";
 
 const Main = () => {
     const {isConnected, principal, disconnect, activeProvider} = useConnect();
@@ -39,7 +40,7 @@ const Main = () => {
                     <Route path="/about" element={<NonProfitDAOPage/>}/>
                     <Route path="/distribution" element={<NonProfitDonation/>}/>
                     <Route path="/staking" element={<Staking/>}/>
-
+                    <Route path="/transactions" element={<TransactionTable/>}/>
                     <Route path="/admin" element={
                         <AdminOnly>
                             <UploadCard/>

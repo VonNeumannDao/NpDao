@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     TableContainer,
     Table,
@@ -7,7 +7,7 @@ import {
     TableCell,
     TableBody,
     TablePagination,
-    Paper,
+    Paper, CircularProgress, Typography, CardContent, Card,
 } from '@mui/material';
 import {IcrcTransaction} from "../declarations/icrc_1/icrc_1.did";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
@@ -17,7 +17,11 @@ export default function TransactionTable() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [transactions, setTransactions] = useState<IcrcTransaction[]>([]);
+    const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        setLoading(true);
+    }, []);
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -31,7 +35,7 @@ export default function TransactionTable() {
         rowsPerPage - Math.min(rowsPerPage, transactions.length - page * rowsPerPage);
 
     return (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{marginTop: "20px"}}>
             <Table>
                 <TableHead>
                     <TableRow>
@@ -42,7 +46,14 @@ export default function TransactionTable() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {transactions
+                    {!loading && transactions.length === 0 && (
+                        <TableRow>
+                            <TableCell colSpan={4} align="center">
+                                <Typography variant="subtitle1">No transactions found.</Typography>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                    {!loading && transactions.length > 0 && transactions
                         .map((transaction) => (
                             <TableRow key={transaction.timestamp.toString(10)}>
                                 <TableCell>
@@ -69,6 +80,15 @@ export default function TransactionTable() {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
             />
+
+            {loading && (
+                <Card style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
+                    <CardContent style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection:"column" }}>
+                        <CircularProgress />
+                        <Typography variant="subtitle1" align="center">Loading transactions. This might take a minute.</Typography>
+                    </CardContent>
+                </Card>
+            )}
         </TableContainer>
     );
 }
