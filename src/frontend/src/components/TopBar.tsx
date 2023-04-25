@@ -6,23 +6,18 @@ import config from "../../../../cig-config.json"
 import ContentModal from "./ContentModal";
 import TreasuryProposal from "./TreasuryProposal";
 import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
-import {useAppContext} from "./AppContext";
 import WasmProposal from "./WasmProposal";
-import CanisterDropdown from "./CanisterDropdown";
 import DeleteWasmProposal from "./DeleteWasmProposal";
 import AdminOnly from "./AdminOnly";
 import {Link} from "react-router-dom";
 import {ArrowDropDown} from "@mui/icons-material";
 
 export default function TopBar() {
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [_tokenActor] = useCanister('token');
     const tokenActor = _tokenActor as unknown as _SERVICE;
-    const {connect, isInitializing, disconnect, isConnected, principal} = useConnect();
+    const {isConnected, principal} = useConnect();
     const [activeProposal, setActiveProposal] = useState<boolean>(false);
-    const {balancePretty} = useAppContext();
     const [proposalAnchorEl, setProposalAnchorEl] = useState(null);
-    const [canisters, setCanisters] = useState<Map<string, string>>(new Map());
     const handleProposalClick = (event) => {
         setProposalAnchorEl(event.currentTarget);
     };
@@ -40,12 +35,6 @@ export default function TopBar() {
         try {
             const activeProposal = await tokenActor.activeProposal();
             setActiveProposal(!!activeProposal["Ok"]);
-            const canisters = await tokenActor.canisters();
-            const map = new Map<string, string>();
-            for (let canister of canisters) {
-                map.set(canister.canisterId, canister.appName);
-            }
-            setCanisters(map);
         }catch (e) {
             console.log(e);
         }

@@ -30,8 +30,31 @@ export {
     installDrainCanister,
     getDrainCanister
 } from './dao';
-export {airdrop_snapshot, airdrop_claim, airdrop_snapshot_status, airdrop_snapshot_holders_length} from './airdrop';
-export {canisters} from "./canister_registry";
-export {burnAllXtc, xtcDistributeToken, xtcDistributionBalance, xtcDistributionExchangeRate, icpDistributionBalance} from "./distribution";
-export {tryDrainCanister, createAndAddCanister} from "./debug_methods";
-export {getStakingAccount, startStaking, startEndStaking, claimStaking, getTotalStaked, brokenStakeRefund} from "./staking";
+export {
+    airdrop_snapshot,
+    airdrop_claim,
+    airdrop_snapshot_status,
+    airdrop_snapshot_holders_length
+} from './airdrop';
+export {
+    canisters
+} from "./canister_registry";
+export {
+    burnAllXtc,
+    xtcDistributeToken,
+    xtcDistributionBalance,
+    xtcDistributionExchangeRate,
+    icpDistributionBalance
+} from "./distribution";
+export {
+    tryDrainCanister,
+    createAndAddCanister
+} from "./debug_methods";
+export {
+    getStakingAccount,
+    startStaking,
+    startEndStaking,
+    claimStaking,
+    getTotalStaked,
+    brokenStakeRefund
+} from "./staking";
