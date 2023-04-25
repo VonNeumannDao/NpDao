@@ -15,12 +15,13 @@ import Staking from "./components/Staking";
 import ConnectWalletMessage from "./components/ConnectWalletMessage";
 
 const Main = () => {
-    const {isConnected, principal, disconnect} = useConnect();
+    const {isConnected, principal, disconnect, activeProvider} = useConnect();
 
     useEffect(() => {
         if (isConnected && !principal) {
             disconnect();
         }
+        console.log("starting in "  +process.env.NODE_ENV)
     }, [isConnected, principal]);
 
 

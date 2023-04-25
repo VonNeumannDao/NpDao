@@ -5,7 +5,7 @@ import {
     Proposal,
     ProposalResponse,
     ProposalViewResponse,
-    TransferArgs,
+    IcrcTransferArgs,
     Vote, Voter,
     VoteStatus,
     VoteStatusResponse
@@ -150,7 +150,7 @@ export function createDeleteWasmProposal(account: Account,
             Err: {ExistingProposal: null}
         }
     }
-    const transferArgs: TransferArgs = {
+    const transferArgs: IcrcTransferArgs = {
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
@@ -248,7 +248,7 @@ export async function createWasmProposal(account: Account,
             Err: {ExistingProposal: null}
         }
     }
-    const transferArgs: TransferArgs = {
+    const transferArgs: IcrcTransferArgs = {
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
@@ -314,7 +314,7 @@ export function createTreasuryProposal(account: Account,
         }
     }
 
-    const transferArgs: TransferArgs = {
+    const transferArgs: IcrcTransferArgs = {
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
@@ -538,7 +538,7 @@ async function _executeProposal(): Promise<void> {
         const type = proposal.proposalType;
         console.log("running, ", Object.keys(type)[0])
         if ("treasuryAction" in type) {
-            const transferArgs: TransferArgs = {
+            const transferArgs: IcrcTransferArgs = {
                 amount: proposal.amount as bigint,
                 created_at_time: null,
                 fee: null,

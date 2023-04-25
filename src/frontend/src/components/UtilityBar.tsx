@@ -4,8 +4,7 @@ import {AccountBalanceWallet, MoneyRounded} from '@mui/icons-material';
 import InternetComputerIcon from "./InternetComputerIcon";
 import {useCanister} from "@connect2ic/react";
 import {_SERVICE, Canisters} from "../declarations/icrc_1/icrc_1.did";
-import {_SERVICE as ledgerService} from "../ldl/ledgerIdlFactory.did";
-
+import {_SERVICE as ledgerService} from "../declarations/ledger/ledger.did";
 import {canisterId} from "../declarations/icrc_1";
 import {Principal} from "@dfinity/principal";
 import {AccountIdentifier, SubAccount} from "@dfinity/nns";
@@ -42,34 +41,21 @@ const UtilityBar = () => {
             owner: Principal.fromText(canisterId),
             subaccount: []
         });
-        const identifier = AccountIdentifier.fromPrincipal({
-            principal: Principal.fromText(canisterId),
-            subAccount: SubAccount.ZERO,
-        }).toNumbers();
 
-        let icpBalancePromise = null;
-        if (isDebugOn) {
-            icpBalancePromise = async () => 0n;
-        } else {
-            icpBalancePromise = ledgerActor.account_balance({
-                account: identifier
-            });
-        }
+        const icpBalancePromise = ledgerActor.icrc1_balance_of({
+            owner: Principal.fromText(canisterId),
+            subaccount: []
+        });
+
         const [cycleBalances, tokenBalance, icpBalance, cnstr] = await Promise.all([cycleBalancesPromise, tokenBalancePromise, icpBalancePromise, canistersPromise]);
 
         setCanisters(cnstr);
         setCycleBalance(cycleBalances.find(x => x[0] === "DAO")[1] || 0n);
         setCanisterTokenBalance(cycleBalances.filter(x => x[0] !== "DAO"));
         setTokenBalance(tokenBalance);
-        setIcpBalance(icpBalance.e8s);
+        setIcpBalance(icpBalance);
         setLoading(false);
     }
-
-
-    const handleDrawerToggle = () => {
-        setDrawerOpen(!drawerOpen);
-    };
-
     function Spinner() {
         return (
             <div style={{

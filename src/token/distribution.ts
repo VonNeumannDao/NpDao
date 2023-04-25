@@ -1,5 +1,5 @@
 import {$query, $update, ic, nat, Principal} from "azle";
-import {TOKEN_DISTRIBUTION_ACCOUNT, XTCToken} from "./constants";
+import {ICP_DISTRIBUTION_ACCOUNT, XTC_DISTRIBUTION_ACCOUNT, XTCToken} from "./constants";
 import {handle_transfer} from "./transfer/transfer";
 import {balance_of} from "./account";
 import {state} from "./state";
@@ -8,12 +8,26 @@ const xtcToken = new XTCToken(
     Principal.fromText('aanaa-xaaaa-aaaah-aaeiq-cai')
 );
 
-$update;
-export async function distributeToken(donatedAmount: nat): Promise<string> {
+
+$update
+export async function icpDistributeToken(donatedAmount: nat): Promise<string> {
     const caller = ic.caller();
     const myId = ic.id();
-    const balance = balance_of(TOKEN_DISTRIBUTION_ACCOUNT);
-    const amountBought = (donatedAmount * state.distributionExchangeRate) / 10000n ;
+    const balance = balance_of(ICP_DISTRIBUTION_ACCOUNT);
+    const amountBought = (donatedAmount * state.xtcDistributionExchangeRate) / 10000n ;
+    if (balance < amountBought) {
+        return "not enough balance";
+    }
+    return `${amountBought} tokens transferred to ${caller.toText()}`;
+}
+
+
+$update;
+export async function xtcDistributeToken(donatedAmount: nat): Promise<string> {
+    const caller = ic.caller();
+    const myId = ic.id();
+    const balance = balance_of(XTC_DISTRIBUTION_ACCOUNT);
+    const amountBought = (donatedAmount * state.xtcDistributionExchangeRate) / 10000n ;
     if (balance < amountBought) {
         return "not enough balance";
     }
@@ -27,26 +41,36 @@ export async function distributeToken(donatedAmount: nat): Promise<string> {
         amount: amountBought,
         created_at_time: null,
         fee: null,
-        from_subaccount: TOKEN_DISTRIBUTION_ACCOUNT.subaccount,
+        from_subaccount: XTC_DISTRIBUTION_ACCOUNT.subaccount,
         memo: null,
         to: {
             owner: caller,
             subaccount: null
         }
-    }, TOKEN_DISTRIBUTION_ACCOUNT);
+    }, XTC_DISTRIBUTION_ACCOUNT);
 
     await xtcToken.burn({amount: donatedAmount, canister_id: Principal.fromText("4dybz-kiaaa-aaaap-qba4q-cai")}).call();
     return `${amountBought} tokens transferred to ${caller.toText()}`;
 }
 
 $query
-export function distributionBalance(): nat {
-    return balance_of(TOKEN_DISTRIBUTION_ACCOUNT);
+export function xtcDistributionBalance(): nat {
+    return balance_of(XTC_DISTRIBUTION_ACCOUNT);
 }
 
 $query
-export function distributionExchangeRate(): nat {
-    return state.distributionExchangeRate;
+export function icpDistributionBalance(): nat {
+    return balance_of(ICP_DISTRIBUTION_ACCOUNT);
+}
+
+$query
+export function xtcDistributionExchangeRate(): nat {
+    return state.xtcDistributionExchangeRate;
+}
+
+$query
+export function icpDistributionExchangeRate(): nat {
+    return state.icpDistributionExchangeRate;
 }
 
 $update;

@@ -35,6 +35,8 @@ export type StakingAccount = Record<{
     endStakeDate: Opt<nat>;
     amount: nat;
     reward: Opt<nat>;
+    memo: string;
+    claimed: boolean;
 }>
 
 export type State = {
@@ -59,10 +61,11 @@ export type State = {
     permitted_drift_nanos: nat64;
     supported_standards: Vec<SupportedStandard>;
 
-    distributionExchangeRate: nat,
+    xtcDistributionExchangeRate: nat,
+    icpDistributionExchangeRate: nat,
     symbol: string;
     total_supply: nat;
-    transactions: Vec<Transaction>;
+    transactions: Vec<IcrcTransaction>;
     transaction_window_nanos: nat64;
     proposals: Map<nat64, Proposal>,
     proposal: Opt<Proposal>,
@@ -73,7 +76,7 @@ export type State = {
     initial_supply: nat64,
     airdrop_snapshot: airdropSnapshot,
     airdropAmount: nat64,
-    tokenDistributionAmount: nat64,
+    xtcDistributionAmount: nat64,
 };
 
 export type airdropSnapshot = {
@@ -89,8 +92,8 @@ export type SupportedStandard = Record<{
     url: string;
 }>;
 
-export type Transaction = Record<{
-    args: Opt<TransferArgs>;
+export type IcrcTransaction = Record<{
+    args: Opt<IcrcTransferArgs>;
     fee: nat;
     from: Opt<Account>;
     kind: TransactionKind;
@@ -109,7 +112,7 @@ export type ProposalType = Variant<{
     deleteAppAction: null;
 }>
 
-export type TransferArgs = Record<{
+export type IcrcTransferArgs = Record<{
     amount: nat;
     created_at_time: Opt<nat64>;
     fee: Opt<nat>;
@@ -118,7 +121,7 @@ export type TransferArgs = Record<{
     to: Account;
 }>;
 
-export type TransferError = Variant<{
+export type IcRcTransferError = Variant<{
     BadBurn: Record<{ min_burn_amount: nat }>;
     BadFee: Record<{ expected_fee: nat }>;
     CreatedInFuture: Record<{ ledger_time: nat64 }>;
@@ -153,14 +156,14 @@ export type ProposalError = Variant<{
     other: string;
 }>
 
-export type TransferResult = Variant<{
+export type IcrcTransferResult = Variant<{
     Ok: nat;
-    Err: TransferError;
+    Err: IcRcTransferError;
 }>;
 
 export type ValidateTransferResult = Variant<{
     Ok: boolean;
-    err: TransferError;
+    err: IcRcTransferError;
 }>;
 
 export type Value = Variant<{

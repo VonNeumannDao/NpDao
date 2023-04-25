@@ -3,13 +3,13 @@ import {handle_burn} from './burn';
 import {handle_mint, is_minting_account} from './mint';
 import {handle_transfer} from './transfer';
 import {validate_transfer} from './validate';
-import {Account, TransferArgs, TransferResult} from '../types';
+import {Account, IcrcTransferArgs, IcrcTransferResult} from '../types';
 import {MINTING_ACCOUNT} from "../constants";
 import {state} from "../state";
 
 $update;
 
-export async function mint_tokens(): Promise<TransferResult> {
+export async function mint_tokens(): Promise<IcrcTransferResult> {
     const from: Account = MINTING_ACCOUNT;
 
     if (!state.custodian.includes(ic.caller().toText())) {
@@ -24,7 +24,7 @@ export async function mint_tokens(): Promise<TransferResult> {
     const from_is_minting_account = is_minting_account(from.owner);
 
     if (from_is_minting_account) {
-        const transferArgs: TransferArgs = {
+        const transferArgs: IcrcTransferArgs = {
             amount: 10000000000n,
             created_at_time: null,
             fee: null,
@@ -48,7 +48,7 @@ export async function mint_tokens(): Promise<TransferResult> {
 
 $update;
 
-export function icrc1_transfer(args: TransferArgs): TransferResult {
+export function icrc1_transfer(args: IcrcTransferArgs): IcrcTransferResult {
     const from: Account = {
         owner: ic.caller(),
         subaccount: args.from_subaccount

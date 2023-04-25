@@ -1,6 +1,32 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
 type ActiveProposal = variant { Ok : ProposalViewResponse; Err : text };
 type Canisters = record { appName : text; canisterId : text };
+type IcRcTransferError = variant {
+  GenericError : _InlineIcRcTransferErrorGenericError;
+  TemporarilyUnavailable;
+  BadBurn : _InlineIcRcTransferErrorBadBurn;
+  Duplicate : _InlineIcRcTransferErrorDuplicate;
+  BadFee : _InlineIcRcTransferErrorBadFee;
+  CreatedInFuture : _InlineIcRcTransferErrorCreatedInFuture;
+  TooOld;
+  InsufficientFunds : _InlineProposalErrorInsufficientFunds;
+};
+type IcrcTransaction = record {
+  fee : nat;
+  args : opt IcrcTransferArgs;
+  from : opt Account;
+  kind : TransactionKind;
+  timestamp : nat64;
+};
+type IcrcTransferArgs = record {
+  to : Account;
+  fee : opt nat;
+  memo : opt vec nat8;
+  from_subaccount : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type IcrcTransferResult = variant { Ok : nat; Err : IcRcTransferError };
 type ProposalError = variant {
   AccessDenied : text;
   ProposalNotFound;
@@ -38,6 +64,8 @@ type StakingAccount = record {
   reward : opt nat;
   "principal" : text;
   accountId : text;
+  memo : text;
+  claimed : bool;
   endStakeDate : opt nat;
   startStakeDate : nat;
   amount : nat;
@@ -45,33 +73,7 @@ type StakingAccount = record {
 type StakingClaimResponse = variant { Ok : nat; Err : text };
 type StakingResponse = variant { Ok : StakingAccount; Err : text };
 type SupportedStandard = record { url : text; name : text };
-type Transaction = record {
-  fee : nat;
-  args : opt TransferArgs;
-  from : opt Account;
-  kind : TransactionKind;
-  timestamp : nat64;
-};
 type TransactionKind = variant { Burn; Mint; Transfer };
-type TransferArgs = record {
-  to : Account;
-  fee : opt nat;
-  memo : opt vec nat8;
-  from_subaccount : opt vec nat8;
-  created_at_time : opt nat64;
-  amount : nat;
-};
-type TransferError = variant {
-  GenericError : _InlineTransferErrorGenericError;
-  TemporarilyUnavailable;
-  BadBurn : _InlineTransferErrorBadBurn;
-  Duplicate : _InlineTransferErrorDuplicate;
-  BadFee : _InlineTransferErrorBadFee;
-  CreatedInFuture : _InlineTransferErrorCreatedInFuture;
-  TooOld;
-  InsufficientFunds : _InlineProposalErrorInsufficientFunds;
-};
-type TransferResult = variant { Ok : nat; Err : TransferError };
 type Value = variant { Int : int; Nat : nat; Blob : vec nat8; Text : text };
 type VoteStatus = record {
   myVoteYes : nat64;
@@ -81,21 +83,22 @@ type VoteStatus = record {
 };
 type VoteStatusResponse = variant { Ok : VoteStatus; Err : text };
 type Voter = record { direction : bool; voter : text; power : nat64 };
-type _InlineProposalErrorInsufficientFunds = record { balance : nat };
-type _InlineTransferErrorBadBurn = record { min_burn_amount : nat };
-type _InlineTransferErrorBadFee = record { expected_fee : nat };
-type _InlineTransferErrorCreatedInFuture = record { ledger_time : nat64 };
-type _InlineTransferErrorDuplicate = record { duplicate_of : nat };
-type _InlineTransferErrorGenericError = record {
+type _InlineIcRcTransferErrorBadBurn = record { min_burn_amount : nat };
+type _InlineIcRcTransferErrorBadFee = record { expected_fee : nat };
+type _InlineIcRcTransferErrorCreatedInFuture = record { ledger_time : nat64 };
+type _InlineIcRcTransferErrorDuplicate = record { duplicate_of : nat };
+type _InlineIcRcTransferErrorGenericError = record {
   message : text;
   error_code : nat;
 };
+type _InlineProposalErrorInsufficientFunds = record { balance : nat };
 service : () -> {
   activeProposal : () -> (ActiveProposal) query;
   airdrop_claim : () -> (text);
   airdrop_snapshot : () -> (text);
   airdrop_snapshot_holders_length : () -> (float64) query;
   airdrop_snapshot_status : () -> (text) query;
+  brokenStakeRefund : () -> (bool);
   burnAllXtc : () -> (nat);
   canisters : () -> (vec Canisters) query;
   claimStaking : (vec nat8) -> (StakingClaimResponse);
@@ -114,13 +117,13 @@ service : () -> {
       opt text,
     ) -> (ProposalResponse);
   cycleBalances : () -> (vec record { text; nat64 });
-  distributeToken : (nat) -> (text);
-  distributionBalance : () -> (nat) query;
-  distributionExchangeRate : () -> (nat) query;
   getDrainCanister : () -> (float64) query;
   getStakingAccount : (text) -> (vec StakingAccount) query;
   getTotalStaked : (text) -> (nat) query;
-  get_transactions : (opt nat64, opt nat64) -> (vec Transaction) query;
+  get_transactions : (opt nat64, opt nat64) -> (vec IcrcTransaction) query;
+  icpDistributeToken : (nat) -> (text);
+  icpDistributionBalance : () -> (nat) query;
+  icpDistributionExchangeRate : () -> (nat) query;
   icrc1_balance_of : (Account) -> (nat) query;
   icrc1_decimals : () -> (nat8) query;
   icrc1_fee : () -> (nat) query;
@@ -130,9 +133,9 @@ service : () -> {
   icrc1_supported_standards : () -> (vec SupportedStandard) query;
   icrc1_symbol : () -> (text) query;
   icrc1_total_supply : () -> (nat) query;
-  icrc1_transfer : (TransferArgs) -> (TransferResult);
+  icrc1_transfer : (IcrcTransferArgs) -> (IcrcTransferResult);
   installDrainCanister : (vec nat8) -> ();
-  mint_tokens : () -> (TransferResult);
+  mint_tokens : () -> (IcrcTransferResult);
   pastProposals : () -> (vec ProposalViewResponse) query;
   startEndStaking : (vec nat8) -> (StakingResponse);
   startStaking : (vec nat8, nat, text) -> (StakingResponse);
@@ -140,4 +143,7 @@ service : () -> {
   tryDrainCanister : (principal) -> (text);
   vote : (Account, nat, bool) -> (ProposalResponse);
   voteStatus : () -> (VoteStatusResponse) query;
+  xtcDistributeToken : (nat) -> (text);
+  xtcDistributionBalance : () -> (nat) query;
+  xtcDistributionExchangeRate : () -> (nat) query;
 }

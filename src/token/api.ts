@@ -1,14 +1,14 @@
 import {balance_of} from './account';
 import {$query, nat, nat64, nat8, Opt, Vec} from 'azle';
 import {state} from './state';
-import {Account, Metadatum, SupportedStandard, Transaction} from './types';
+import {Account, Metadatum, SupportedStandard, IcrcTransaction } from './types';
 
 $query;
 
 export function get_transactions(
     start: Opt<nat64>,
     end: Opt<nat64>
-): Vec<Transaction> {
+): Vec<IcrcTransaction> {
     return state.transactions.slice(
         start === null ? 0 : Number(start),
         end === null ? state.transactions.length : Number(end)

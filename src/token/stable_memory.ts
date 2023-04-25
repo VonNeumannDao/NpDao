@@ -1,8 +1,8 @@
 import {blob, StableBTreeMap, Vec} from "azle";
-import {AccountsRecord, SerializableProposal, StakingAccount, Transaction, Vote} from "./types";
+import {AccountsRecord, SerializableProposal, StakingAccount, IcrcTransaction, Vote} from "./types";
 
 export let stableAccounts = new StableBTreeMap<string, AccountsRecord>(0, 100, 200);
-export let stableTransactions = new StableBTreeMap<string, Transaction>(1, 100, 500);
+export let stableTransactions = new StableBTreeMap<string, IcrcTransaction>(1, 100, 500);
 export let stableProposals = new StableBTreeMap<string, SerializableProposal>(2, 100, 1000000);
 export let stableCanisterRegister = new StableBTreeMap<string, string>(4, 100, 100);
 export let stableIds = new StableBTreeMap<string, string>(5, 100, 100);

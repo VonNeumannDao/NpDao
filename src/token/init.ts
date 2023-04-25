@@ -3,8 +3,8 @@ import {state} from './state';
 import {handle_mint} from './transfer/mint';
 import {is_subaccount_valid, stringify} from './transfer/validate';
 
-import {Account, InitialAccountBalance, TransferArgs} from './types';
-import {AIRDROP_ACCOUNT, DAO_TREASURY, MINTING_ACCOUNT, TOKEN_DISTRIBUTION_ACCOUNT} from "./constants";
+import {Account, InitialAccountBalance, IcrcTransferArgs} from './types';
+import {AIRDROP_ACCOUNT, DAO_TREASURY, MINTING_ACCOUNT, XTC_DISTRIBUTION_ACCOUNT} from "./constants";
 import {
     stableAccounts,
     stableIds, stableMemory,
@@ -143,7 +143,7 @@ export function init(): void {
         balance: state.initial_supply
     });
 
-    const transferArgs: TransferArgs = {
+    const transferArgs: IcrcTransferArgs = {
         amount: state.airdropAmount,
         created_at_time: null,
         fee: null,
@@ -151,13 +151,13 @@ export function init(): void {
         memo: null,
         to: AIRDROP_ACCOUNT
     };
-    const transferTokenDistribution: TransferArgs = {
-        amount: state.tokenDistributionAmount,
+    const transferTokenDistribution: IcrcTransferArgs = {
+        amount: state.xtcDistributionAmount,
         created_at_time: null,
         fee: null,
         from_subaccount: null,
         memo: null,
-        to: TOKEN_DISTRIBUTION_ACCOUNT
+        to: XTC_DISTRIBUTION_ACCOUNT
     };
     handle_mint(transferArgs, MINTING_ACCOUNT);
     handle_mint(transferTokenDistribution, MINTING_ACCOUNT);
@@ -188,7 +188,7 @@ function initialize_account_balance(
         );
     }
 
-    const args: TransferArgs = {
+    const args: IcrcTransferArgs = {
         amount: initial_account_balance.balance,
         created_at_time: ic.time(),
         fee: null,

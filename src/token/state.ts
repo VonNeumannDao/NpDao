@@ -1,4 +1,4 @@
-import {Proposal, StakingAccount, State} from './types';
+import {Proposal, State} from './types';
 import {nat64} from "azle";
 import config from "../../cig-config.json"
 
@@ -33,8 +33,9 @@ export let state: State = {
     proposal: null,
     proposalCost: BigInt(config.proposalCost),
     airdropAmount: BigInt(config.airdropAmount),
-    tokenDistributionAmount: BigInt(config.tokenDistributionAmount),
-    distributionExchangeRate: BigInt(config.distributionExchangeRate),
+    xtcDistributionAmount: BigInt(config.distribution.xtc.amount),
+    xtcDistributionExchangeRate: BigInt(config.distribution.xtc.exchangeRate),
+    icpDistributionExchangeRate: BigInt(config.distribution.icp.exchangeRate),
     stakeDuration: config.stake.duration,
     stakingAccountsState: null,
     custodian: config.custodian,

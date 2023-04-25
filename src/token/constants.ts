@@ -1,9 +1,16 @@
-import {Account, BurnError, BurnParams, TxError, TxReceipt} from "./types";
+import {Account, BurnError, BurnParams, TxReceipt} from "./types";
 import {CallResult, ic, nat, nat32, nat64, Principal, Service, Tuple, Variant, Vec} from "azle";
 import {serviceQuery, serviceUpdate} from "azle/src/lib/candid_types/service";
 import {hexToUint8Array} from "./utils";
 
-export const TOKEN_DISTRIBUTION_ACCOUNT: Account = {
+export const XTC_DISTRIBUTION_ACCOUNT: Account = {
+    subaccount:
+        hexToUint8Array("3fb3d3f31477a34a465b56f4e4d4a4a0fc8c58191e551c57e0447b0f16e56a7b")
+    ,
+    owner: ic.id()
+};
+
+export const ICP_DISTRIBUTION_ACCOUNT: Account = {
     subaccount:
         hexToUint8Array("3fb3d3f31477a34a465b56f4e4d4a4a0fc8c58191e551c57e0447b0f16e56a7b")
     ,
@@ -29,7 +36,6 @@ export const DAO_TREASURY: Account = {
     subaccount: null,
     owner: ic.id()
 };
-
 export class XTCToken extends Service {
     @serviceUpdate
     transferFrom: (from: Principal, to: Principal, amount: nat) => CallResult<TxReceipt>;
@@ -57,4 +63,9 @@ export class DrainCycles extends Service {
         Ok: nat32;
         Err: string;
     }>>;
+}
+
+export class Icrc extends Service {
+    @serviceQuery
+    icrc1_balance_of: (account: Account) => CallResult<nat>;
 }

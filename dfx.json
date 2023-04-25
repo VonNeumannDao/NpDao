@@ -1,14 +1,29 @@
 {
   "canisters": {
+    "ledger": {
+      "type": "custom",
+      "wasm": "ledger.wasm",
+      "candid": "ledger.public.did",
+      "remote": {
+        "candid": "ledger.public.did",
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      }
+    },
     "icrc_1": {
       "type": "custom",
       "build": "npx azle icrc_1",
       "root": "src/token",
       "ts": "src/token/index.ts",
       "candid": "src/token/index.did",
-      "wasm": ".azle/icrc_1/icrc_1.wasm.gz"
+      "wasm": ".azle/icrc_1/icrc_1.wasm.gz",
+      "dependencies": [ "ledger" ]
     },
     "frontend": {
+      "dependencies": [
+        "icrc_1"
+      ],
       "frontend": {
         "entrypoint": "src/frontend/src/index.html"
       },
@@ -20,6 +35,9 @@
     }
   },
   "defaults": {
+    "replica": {
+      "subnet_type":"system"
+    },
     "build": {
       "args": "",
       "packtool": ""

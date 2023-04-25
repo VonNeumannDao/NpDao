@@ -1,9 +1,7 @@
 import {InternalResponse, Proposal} from "./types";
 import {managementCanister} from "azle/canisters/management";
 import {state} from "./state";
-import {Principal} from "@dfinity/principal";
-import {blob} from "azle";
-import {registerCanister} from "./canister_registry";
+import {blob, Principal} from "azle";
 import {DrainCycles} from "./constants";
 
 export async function _createCanister(proposal: Partial<Proposal>) {

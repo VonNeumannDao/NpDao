@@ -14,7 +14,7 @@
     "start": "node_modules/.bin/webpack serve --mode development --env development",
     "start:prod": "NODE_ENV=production node_modules/.bin/webpack serve --mode production --env production",
     "prestart": "npm run generate",
-    "generate": "dfx generate icrc_1 --identity anonymous"
+    "generate": "dfx generate --identity anonymous"
   },
   "devDependencies": {
     "@dfinity/agent": "^0.15.5",
@@ -48,8 +48,8 @@
     "last 2 edge version"
   ],
   "dependencies": {
-    "@connect2ic/core": "^0.2.0-beta.5",
-    "@connect2ic/react": "^0.2.0-beta.5",
+    "@connect2ic/core": "^0.2.0-beta.21",
+    "@connect2ic/react": "^0.2.0-beta.21",
     "@dfinity/nns": "^0.14.0",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",

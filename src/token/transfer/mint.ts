@@ -1,13 +1,13 @@
 import {balance_of, set_account_balance} from '../account';
 import {ic, Opt, Principal} from 'azle';
 import {state} from '../state';
-import {Account, Transaction, TransferArgs, TransferResult} from '../types';
+import {Account, IcrcTransaction, IcrcTransferArgs, IcrcTransferResult} from '../types';
 
-export function handle_mint(args: TransferArgs, from: Opt<Account>): TransferResult {
+export function handle_mint(args: IcrcTransferArgs, from: Opt<Account>): IcrcTransferResult {
     set_account_balance(args.to, balance_of(args.to) + args.amount);
     state.total_supply += args.amount;
 
-    const transaction: Transaction = {
+    const transaction: IcrcTransaction = {
         args,
         fee: 0n,
         from,
@@ -19,7 +19,7 @@ export function handle_mint(args: TransferArgs, from: Opt<Account>): TransferRes
 
     state.transactions.push(transaction);
 
-    const transfer_result: TransferResult = {
+    const transfer_result: IcrcTransferResult = {
         Ok: args.amount
     };
 

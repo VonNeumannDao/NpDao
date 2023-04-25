@@ -9,7 +9,6 @@ import {Connect2ICProvider} from "@connect2ic/react"
 import {defaultProviders} from "@connect2ic/core/providers"
 import {createClient} from "@connect2ic/core"
 import "@connect2ic/core/style.css"
-import {idlFactory as ledgerFactory} from "./ldl/ledgerIdlFactory.did";
 import {canisterId as tokenCanister, idlFactory as tokenIdlFactory} from "./declarations/icrc_1";
 import {AppProvider} from "./components/AppContext";
 import {idlFactory as dip20Factory} from "./ldl/dip20.did";
@@ -17,16 +16,20 @@ import {BrowserRouter} from "react-router-dom";
 import config from "../../../cig-config.json";
 import {ThemeProvider} from "@mui/material";
 import myTheme from "./ThemeImporter";
+import {idlFactory as ledgerFactory, canisterId} from "./declarations/ledger";
+import {isDebugOn} from "./components/DebugOnly";
 
+const ledgerCanister = isDebugOn ? canisterId : "ryjl3-tyaaa-aaaaa-aaaba-cai";
 const client = createClient({
     globalProviderConfig: {
-        whitelist: ["ryjl3-tyaaa-aaaaa-aaaba-cai", "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister],
+        whitelist: [ledgerCanister, "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister],
         appName: config.name,
         autoConnect: true,
+        dev: isDebugOn
     },
     canisters: {
         ["ledger"]: {
-            canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai", idlFactory: ledgerFactory
+            canisterId: ledgerCanister, idlFactory: ledgerFactory
         },
         ["token"]: {
             canisterId: tokenCanister, idlFactory: tokenIdlFactory

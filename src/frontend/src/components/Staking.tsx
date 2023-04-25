@@ -35,7 +35,6 @@ import {canisterId as tokenCanister} from "../declarations/icrc_1";
 import CountdownTimer from "./CountdownTimer";
 import {useAppContext} from "./AppContext";
 
-
 const Staking = () => {
     const [stakingAmount, setStakingAmount] = useState<string>("");
     const [loading, setLoading] = useState(false);
@@ -71,7 +70,7 @@ const Staking = () => {
 
         const amount = convertToBigInt(stakingAmount);
         const account = stringToAccount(stakingAccounts.length.toString() + principal);
-        const memo = generateUUID();
+        const memo = "stake_" + generateUUID();
         const failed = await tokenActor.icrc1_transfer({
             to: {
                 owner: Principal.fromText(tokenCanister),
@@ -86,6 +85,11 @@ const Staking = () => {
         console.log(failed);
         const startStaking = await tokenActor.startStaking(account, amount, memo);
         console.log(startStaking);
+        if ("Err" in startStaking) {
+            console.log("starting refund")
+            const refundStarted = await tokenActor.brokenStakeRefund();
+            if (refundStarted) console.log("refund done");
+        }
         await init();
         await reloadBalance();
         setLoading(false);
@@ -172,7 +176,7 @@ const Staking = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {stakingRecords.map((record, index) => (
+                                    {stakingRecords.filter(x => !x.claimed).map((record, index) => (
                                         <TableRow key={index}>
                                             <TableCell>{bigIntToDecimalPrettyString(record.amount)}</TableCell>
                                             <TableCell>{formatTime(record.startStakeDate)}</TableCell>

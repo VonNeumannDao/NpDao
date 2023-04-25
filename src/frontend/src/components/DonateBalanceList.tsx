@@ -25,7 +25,7 @@ const DonateBalanceList: React.FC<Props> = ({ balances, loading }) => {
         );
     }
     return (
-        <Card>
+        <Card sx={{marginTop:"20px"}}>
             <CardContent>
                 <Box textAlign="center">
                     <Typography variant="h5" component="h2">

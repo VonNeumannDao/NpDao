@@ -2,10 +2,10 @@ import {balance_of} from '../account';
 import {blob, ic, nat, nat64, Opt, Principal} from 'azle';
 import {state} from '../state';
 import {is_minting_account} from './mint';
-import {Account, TransferArgs, ValidateTransferResult} from '../types';
+import {Account, IcrcTransferArgs, ValidateTransferResult} from '../types';
 
 export function validate_transfer(
-    args: TransferArgs,
+    args: IcrcTransferArgs,
     from: Account
 ): ValidateTransferResult {
     const from_is_anonymous = is_anonymous(from.owner);
@@ -204,7 +204,7 @@ function is_created_at_time_too_old(created_at_time: Opt<nat64>): boolean {
 }
 
 function find_duplicate_transaction_index(
-    transfer_args: TransferArgs,
+    transfer_args: IcrcTransferArgs,
     from: Account
 ): Opt<nat> {
     const now = ic.time();
