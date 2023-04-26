@@ -1,8 +1,61 @@
 import {balance_of} from './account';
-import {$query, nat, nat64, nat8, Opt, Vec} from 'azle';
+import {$query, nat, nat64, nat8, Opt, Vec, ic} from 'azle';
 import {state} from './state';
-import {Account, Metadatum, SupportedStandard, IcrcTransaction, GetTransactionsRequest, GetTransactionsResponse} from './types';
+import {
+    Account,
+    Metadatum,
+    SupportedStandard,
+    IcrcTransaction,
+    TransactionRange,
+    GetTransactionsRequest,
+    GetTransactionsResponse,
+    ArchivedTransaction, QueryArchiveFn
+} from './types';
+import {stableArchivedTransactions} from "./stable_memory";
 const MAX_TRANSACTIONS_PER_REQUEST = 5000n;
+
+$query;
+export function getQueryArchiveFn(): QueryArchiveFn {
+    return [ic.id(), 'get_archived_transactions'];
+}
+
+$query;
+export function total_transactions(): nat {
+    return BigInt(state.transactions.length) + stableArchivedTransactions.len();
+}
+
+$query
+export function get_transaction(tx_index: nat): Opt<IcrcTransaction> {
+    if (tx_index > MAX_TRANSACTIONS_PER_REQUEST) {
+        return stableArchivedTransactions.get(tx_index.toString(10));
+    }
+
+    return state.transactions.get(Number(tx_index));
+}
+
+$query;
+export function get_archived_transactions(request: GetTransactionsRequest): TransactionRange {
+    let {start, length} = request;
+    const transactionLength = stableArchivedTransactions.len();
+    if (length > MAX_TRANSACTIONS_PER_REQUEST) {
+        length = MAX_TRANSACTIONS_PER_REQUEST;
+    }
+
+    if (length > transactionLength) {
+        length = transactionLength;
+    }
+
+    let end = start + length;
+    const transactions: IcrcTransaction[] = [];
+    for (let i = start; i < end; i++) {
+        const archived = stableArchivedTransactions.get(i.toString(10));
+        if (archived !== null)
+            transactions.push(archived);
+    }
+
+    return {transactions};
+}
+
 $query;
 
 export function get_transactions(
@@ -19,13 +72,40 @@ getTransactionsRequest: GetTransactionsRequest
         end = transactionLength;
     }
 
-
     const transactions =  state.transactions.slice(Number(start), Number(end));
+    let archivedStart = BigInt(transactions.length);
+    let archivedEnd = start + length;
+    if (archivedEnd > stableArchivedTransactions.len()) {
+        archivedEnd = stableArchivedTransactions.len();
+    }
+    let archivedTransactions: ArchivedTransaction[] = [];
+    let endIdx = archivedEnd + MAX_TRANSACTIONS_PER_REQUEST;
+    while (endIdx < archivedEnd) {
+        const archivedTransaction = {
+            start: archivedStart,
+            length: MAX_TRANSACTIONS_PER_REQUEST,
+            callback: getQueryArchiveFn(),
+        };
+        archivedTransactions.push(archivedTransaction);
+        archivedStart += MAX_TRANSACTIONS_PER_REQUEST;
+        endIdx += MAX_TRANSACTIONS_PER_REQUEST;
+    }
+
+    if (archivedStart < archivedEnd) {
+        const archivedTransaction = {
+            start: archivedStart,
+            length: archivedEnd - archivedStart,
+            callback: getQueryArchiveFn()
+        }
+        archivedTransactions.push(archivedTransaction);
+    }
+
+
     return {
         log_length: BigInt(transactions.length),
         first_index: start,
         transactions,
-        archived_transactions: []
+        archived_transactions: archivedTransactions
     }
 }
 

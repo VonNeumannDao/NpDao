@@ -1,4 +1,8 @@
 export {
+    get_transaction,
+    getQueryArchiveFn,
+    total_transactions,
+    get_archived_transactions,
     get_transactions,
     icrc1_balance_of,
     icrc1_decimals,
