@@ -33,11 +33,21 @@ export default function TransactionTable() {
         async function init() {
             const start = BigInt(page) * BigInt(rowsPerPage);
             const length = BigInt(rowsPerPage);
-            const result = await tokenActor.get_transactions({start, length});
+            let transactions: IcrcTransaction[];
+            if (start > 1000) {
+                transactions = (await tokenActor.get_archived_transactions({start, length})).transactions;
+            } else if (start < 1000 && (start + length) < 1000) {
+                transactions = (await tokenActor.get_transactions({start, length})).transactions;
+            } else {
+                transactions = (await tokenActor.get_transactions({start, length})).transactions;
+                let secondaryTransactions = (await tokenActor.get_archived_transactions({start: 0n, length: length - BigInt(transactions.length)})).transactions;
+                transactions.push(...secondaryTransactions);
+            }
+
             const tranAmmount = await tokenActor.total_transactions();
             setTransactionAmount(Number(tranAmmount));
-            setTransactions(result.transactions);
-            setRowsPerPage(result.transactions.length);
+            setTransactions(transactions);
+            setRowsPerPage(transactions.length);
             setLoading(false);
         }
 
