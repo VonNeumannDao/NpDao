@@ -9,8 +9,9 @@ import {
     TablePagination,
     Paper, CircularProgress, Typography, CardContent, Card,
 } from '@mui/material';
-import {IcrcTransaction} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE, IcrcTransaction} from "../declarations/token/token.did";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
+import {useCanister} from "@connect2ic/react";
 
 
 export default function TransactionTable() {
@@ -18,10 +19,22 @@ export default function TransactionTable() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [transactions, setTransactions] = useState<IcrcTransaction[]>([]);
     const [loading, setLoading] = useState(false);
-
+    const [_tokenActor] = useCanister("token");
+    const tokenActor = _tokenActor as unknown as _SERVICE;
     useEffect(() => {
         setLoading(true);
-    }, []);
+
+        async function init() {
+            const start = BigInt(page) * BigInt(rowsPerPage);
+            const length = BigInt(rowsPerPage);
+            const result = await tokenActor.get_transactions({ start, length });
+            setTransactions(result.transactions);
+            setLoading(false);
+        }
+
+        init();
+    }, [page, rowsPerPage, tokenActor]);
+
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -57,7 +70,15 @@ export default function TransactionTable() {
                         .map((transaction) => (
                             <TableRow key={transaction.timestamp.toString(10)}>
                                 <TableCell>
-                                    {new Date(Number(transaction.timestamp) / 1000000).toLocaleDateString()}
+                                    {transaction.timestamp.toString(10)}
+                                    {new Date(Number(transaction.timestamp) / 1000000).toLocaleDateString(undefined, {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: 'numeric',
+                                        minute: 'numeric',
+                                        second: 'numeric',
+                                    })}
                                 </TableCell>
                                 <TableCell>{transaction.from.length > 0 ? transaction.from[0].owner.toText() : ""}</TableCell>
                                 <TableCell>{transaction.args.length > 0 ? transaction.args[0].to.owner.toText() : ""}</TableCell>

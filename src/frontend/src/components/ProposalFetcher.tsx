@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import ProposalView from "./ProposalView";
 import {useCanister} from "@connect2ic/react";
-import {_SERVICE, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE, ProposalViewResponse} from "../declarations/token/token.did";
 import {useNavigate, useParams} from "react-router-dom";
 import {Avatar, Card, CardContent, CardHeader, IconButton} from "@mui/material";
 import {EmojiPeopleRounded} from "@mui/icons-material";

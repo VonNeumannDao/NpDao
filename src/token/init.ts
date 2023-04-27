@@ -12,7 +12,7 @@ import {
     stableStakingAccounts,
     stableTransactions
 } from "./stable_memory";
-import {startTimer} from "./dao";
+import {startTimer} from "./Timer";
 
 $preUpgrade;
 

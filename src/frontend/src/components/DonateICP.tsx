@@ -14,7 +14,7 @@ import config from "../../../../cig-config.json";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE as ledgerService} from "../declarations/ledger/ledger.did";
-import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE} from "../declarations/token/token.did";
 import {useAppContext} from "./AppContext";
 
 export default function DonateICP() {

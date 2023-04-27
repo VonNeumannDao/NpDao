@@ -1,7 +1,7 @@
 import React from 'react';
 import ProposalView from './ProposalView';
 import {useCanister} from "@connect2ic/react";
-import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE} from "../declarations/token/token.did";
 import {Avatar, Card, CardContent, CardHeader} from "@mui/material";
 import Voting from "./Voting";
 import EmptyProposalsCard from "./EmptyProposalsCard";

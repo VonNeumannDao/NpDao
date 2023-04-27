@@ -1,7 +1,7 @@
 import {Box, Grid, LinearProgress, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import {useCanister, useConnect} from "@connect2ic/react";
-import {_SERVICE, VoteStatus} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE, VoteStatus} from "../declarations/token/token.did";
 import {useAppContext} from "./AppContext";
 import {Principal} from "@dfinity/principal";
 import LoadingButton from "@mui/lab/LoadingButton";

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Grid, Paper, Typography} from '@mui/material';
-import {ProposalType, ProposalViewResponse} from '../declarations/icrc_1/icrc_1.did';
+import {ProposalType, ProposalViewResponse} from '../declarations/token/token.did';
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import {JSON_BIGINT} from "../util/josnutil";
 import {useTheme} from '@mui/material/styles';

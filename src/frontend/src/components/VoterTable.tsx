@@ -11,7 +11,7 @@ import {
     TableRow,
     Typography,
 } from "@mui/material";
-import {Voter} from "../declarations/icrc_1/icrc_1.did";
+import {Voter} from "../declarations/token/token.did";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 
 type Props = {

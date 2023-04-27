@@ -2,8 +2,8 @@ import {CardContent, List, ListItem, ListItemAvatar, ListItemText, Typography} f
 import React, {useState} from 'react';
 import {useCanister, useConnect} from '@connect2ic/react';
 import Card from "@mui/material/Card";
-import {canisterId as tokenCanister} from "../declarations/icrc_1";
-import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {canisterId as tokenCanister} from "../declarations/token";
+import {_SERVICE} from "../declarations/token/token.did";
 import Avatar from '@mui/material/Avatar';
 import ImageIcon from '@mui/icons-material/Image';
 import WorkIcon from '@mui/icons-material/Work';

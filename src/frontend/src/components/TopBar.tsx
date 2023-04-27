@@ -5,12 +5,13 @@ import MintTokenButton from "./MintTokenButton";
 import config from "../../../../cig-config.json"
 import ContentModal from "./ContentModal";
 import TreasuryProposal from "./TreasuryProposal";
-import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE} from "../declarations/token/token.did";
 import WasmProposal from "./WasmProposal";
 import DeleteWasmProposal from "./DeleteWasmProposal";
 import AdminOnly from "./AdminOnly";
 import {Link} from "react-router-dom";
 import {ArrowDropDown} from "@mui/icons-material";
+import AirdropButton from "./AirdropButton";
 
 export default function TopBar() {
     const [_tokenActor] = useCanister('token');
@@ -27,7 +28,6 @@ export default function TopBar() {
     };
 
     useEffect(() => {
-        if (principal)
             init().then();
     }, [principal]);
 
@@ -121,6 +121,7 @@ export default function TopBar() {
                             <AdminOnly>
                                 <MintTokenButton/>
                             </AdminOnly>
+                            <AirdropButton />
                             <ConnectButton />
                             <ConnectDialog />
 

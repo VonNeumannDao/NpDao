@@ -6,7 +6,7 @@ import {useAppContext} from "./AppContext";
 import {useCanister, useConnect} from "@connect2ic/react";
 import {Principal} from "@dfinity/principal";
 import {bigIntToDecimal, convertToBigInt} from "../util/bigintutils";
-import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE} from "../declarations/token/token.did";
 import {Link as RouterLink} from 'react-router-dom';
 import {LoadingButton} from "@mui/lab";
 

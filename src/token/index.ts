@@ -14,7 +14,7 @@ export {
     icrc1_symbol,
     icrc1_total_supply,
     icrc1_transfer,
-    mint_tokens
+    mint_tokens,
 } from './api';
 export {
     init,
@@ -25,7 +25,6 @@ export {
     vote,
     createTreasuryProposal,
     createWasmProposal,
-    startTimer,
     voteStatus,
     pastProposals,
     activeProposal,
@@ -38,7 +37,8 @@ export {
     airdrop_snapshot,
     airdrop_claim,
     airdrop_snapshot_status,
-    airdrop_snapshot_holders_length
+    airdrop_snapshot_holders_length,
+    airdrop_entitled
 } from './airdrop';
 export {
     canisters

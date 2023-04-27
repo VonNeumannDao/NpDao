@@ -20,10 +20,6 @@ import {canisters, deleteCanister, registerCanister} from "./canister_registry";
 import {_createCanister, _installWasm, _stopAndDeleteCanister, _tryDrainCanister} from "./canister_methods";
 import {getTotalStaked} from "./staking";
 
-let timerIdProposal: Opt<TimerId> = null;
-let timerIdCycle: Opt<TimerId> = null;
-
-
 $update
 export async function cycleBalances(): Promise<Vec<Tuple<[string, nat64]>>> {
     const cans = canisters();
@@ -438,32 +434,7 @@ export function getDrainCanister(): number {
     return state.drainCanister?.length || 0;
 }
 
-$update;
-
-export function startTimer(): TimerId {
-    if (timerIdProposal) {
-        console.log("this is happening");
-        ic.trap("timer already exists");
-    }
-    console.log("this is happening", timerIdProposal);
-
-    // @ts-ignore
-    timerIdProposal = ic.setTimerInterval(
-        60n,
-        _executeProposal
-    );
-
-    timerIdCycle = ic.setTimerInterval(
-        3600n,
-        _checkCycles
-    );
-
-    console.log("cyclesTimer", timerIdCycle);
-
-    return timerIdProposal;
-}
-
-async function _checkCycles(): Promise<void> {
+export async function _checkCycles(): Promise<void> {
     var canisters1 = canisters();
 
     console.log("cycle check for ", canisters1.length)
@@ -496,7 +467,7 @@ async function _checkCycles(): Promise<void> {
 }
 
 
-async function _executeProposal(): Promise<void> {
+export async function _executeProposal(): Promise<void> {
 
     const proposal = state.proposal;
     if (!proposal) {

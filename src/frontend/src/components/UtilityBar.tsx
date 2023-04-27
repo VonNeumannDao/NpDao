@@ -2,10 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {Box, CircularProgress, Grid, Paper, Typography} from '@mui/material';
 import {AccountBalanceWallet, MoneyRounded} from '@mui/icons-material';
 import InternetComputerIcon from "./InternetComputerIcon";
-import {useCanister} from "@connect2ic/react";
-import {_SERVICE, Canisters} from "../declarations/icrc_1/icrc_1.did";
+import {useCanister, useConnect} from "@connect2ic/react";
+import {_SERVICE, Canisters} from "../declarations/token/token.did";
 import {_SERVICE as ledgerService} from "../declarations/ledger/ledger.did";
-import {canisterId} from "../declarations/icrc_1";
+import {canisterId} from "../declarations/token";
 import {Principal} from "@dfinity/principal";
 import {AccountIdentifier, SubAccount} from "@dfinity/nns";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
@@ -17,7 +17,6 @@ import CryptoWallet from "./CryptoWallet";
 
 
 const UtilityBar = () => {
-    const [drawerOpen, setDrawerOpen] = useState(false);
     const [_tokenActor] = useCanister('token');
     const [_ledgerActor] = useCanister('ledger');
     const tokenActor = _tokenActor as unknown as _SERVICE;
@@ -28,10 +27,13 @@ const UtilityBar = () => {
     const [loading, setLoading] = useState(false);
     const [tokenBalance, setTokenBalance] = useState(0n);
     const [canisterTokenBalance, setCanisterTokenBalance] = useState<[string, bigint][]>([]);
+    const {principal} = useConnect();
 
     useEffect(() => {
-        init().then();
-    }, []);
+        if (principal) {
+            init().then();
+        }
+    }, [principal]);
 
     async function init() {
         setLoading(true);

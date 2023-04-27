@@ -14,7 +14,7 @@ import {
     Typography
 } from '@mui/material';
 import {useCanister, useConnect} from "@connect2ic/react";
-import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE} from "../declarations/token/token.did";
 import {_SERVICE as dip20Service} from "../ldl/dip20.did";
 
 import {bigIntToDecimalPrettyString, convertToBigInt, hexToUint8Array} from "../util/bigintutils";
@@ -22,7 +22,7 @@ import {Principal} from "@dfinity/principal";
 import {useAppContext} from "./AppContext";
 import DonateBalanceList, {Balance} from "./DonateBalanceList";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import {canisterId as tokenCanister} from "../declarations/icrc_1";
+import {canisterId as tokenCanister} from "../declarations/token";
 import config from "../../../../cig-config.json";
 import DonateXTC from "./DonateXTC";
 import DonateICP from "./DonateICP";

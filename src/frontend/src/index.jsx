@@ -9,7 +9,7 @@ import {Connect2ICProvider} from "@connect2ic/react"
 import {defaultProviders} from "@connect2ic/core/providers"
 import {createClient} from "@connect2ic/core"
 import "@connect2ic/core/style.css"
-import {canisterId as tokenCanister, idlFactory as tokenIdlFactory} from "./declarations/icrc_1";
+import {canisterId as tokenCanister, idlFactory as tokenIdlFactory} from "./declarations/token";
 import {AppProvider} from "./components/AppContext";
 import {idlFactory as dip20Factory} from "./ldl/dip20.did";
 import {BrowserRouter} from "react-router-dom";
@@ -20,9 +20,11 @@ import {idlFactory as ledgerFactory, canisterId} from "./declarations/ledger";
 import {isDebugOn} from "./components/DebugOnly";
 
 const ledgerCanister = isDebugOn ? canisterId : "ryjl3-tyaaa-aaaaa-aaaba-cai";
+const whiteList = [ledgerCanister, "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister]
+console.log(whiteList);
 const client = createClient({
     globalProviderConfig: {
-        whitelist: [ledgerCanister, "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister],
+        whitelist: whiteList,
         appName: config.name,
         autoConnect: true,
         dev: isDebugOn

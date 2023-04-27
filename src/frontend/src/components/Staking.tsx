@@ -20,7 +20,7 @@ import {Lock} from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import {useNavigate} from "react-router-dom";
 import {useCanister, useConnect} from "@connect2ic/react";
-import {_SERVICE, StakingAccount} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE, StakingAccount} from "../declarations/token/token.did";
 import {
     bigIntToDecimalPrettyString,
     convertToBigInt,
@@ -31,7 +31,7 @@ import {
 } from "../util/bigintutils";
 import {LoadingButton} from "@mui/lab";
 import {Principal} from "@dfinity/principal";
-import {canisterId as tokenCanister} from "../declarations/icrc_1";
+import {canisterId as tokenCanister} from "../declarations/token";
 import CountdownTimer from "./CountdownTimer";
 import {useAppContext} from "./AppContext";
 

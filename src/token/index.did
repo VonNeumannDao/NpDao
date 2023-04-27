@@ -108,6 +108,7 @@ type _InlineProposalErrorInsufficientFunds = record { balance : nat };
 service : () -> {
   activeProposal : () -> (ActiveProposal) query;
   airdrop_claim : () -> (text);
+  airdrop_entitled : () -> (bool) query;
   airdrop_snapshot : () -> (text);
   airdrop_snapshot_holders_length : () -> (float64) query;
   airdrop_snapshot_status : () -> (text) query;
@@ -162,6 +163,7 @@ service : () -> {
   startEndStaking : (vec nat8) -> (StakingResponse);
   startStaking : (vec nat8, nat, text) -> (StakingResponse);
   startTimer : () -> (nat64);
+  stopTimer : () -> (nat32);
   total_transactions : () -> (nat) query;
   tryDrainCanister : (principal) -> (text);
   vote : (Account, nat, bool) -> (ProposalResponse);

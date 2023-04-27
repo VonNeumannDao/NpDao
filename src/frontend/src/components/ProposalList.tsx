@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Avatar, Card, CardHeader, List, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CloseIcon from '@mui/icons-material/Close';
-import {_SERVICE, ProposalType, ProposalViewResponse} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE, ProposalType, ProposalViewResponse} from "../declarations/token/token.did";
 import {useCanister} from "@connect2ic/react";
 import {useNavigate} from "react-router-dom";
 import {DescriptionRounded, Error} from "@mui/icons-material";

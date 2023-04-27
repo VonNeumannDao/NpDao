@@ -1,17 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {Box, Card, CardHeader, InputLabel, MenuItem, Select, styled, TextField} from "@mui/material";
 import {useCanister, useConnect} from "@connect2ic/react";
-import {_SERVICE} from "../declarations/icrc_1/icrc_1.did";
+import {_SERVICE} from "../declarations/token/token.did";
 import LoadingButton from "@mui/lab/LoadingButton";
 import ErrorDialog from "./ErrorDialog";
 import {Principal} from "@dfinity/principal";
 import {useNavigate} from "react-router-dom";
-
-const Form = styled('form')({
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: "700px"
-});
 
 export default function DeleteWasmProposal() {
     const {principal} = useConnect();

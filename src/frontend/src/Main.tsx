@@ -14,6 +14,7 @@ import UtilityBar from "./components/UtilityBar";
 import Staking from "./components/Staking";
 import ConnectWalletMessage from "./components/ConnectWalletMessage";
 import TransactionTable from "./components/TransactionTable";
+import TokenSnapshotButton from "./components/TokenSnapshotButton";
 
 const Main = () => {
     const {isConnected, principal, disconnect, activeProvider} = useConnect();
@@ -43,7 +44,10 @@ const Main = () => {
                     <Route path="/transactions" element={<TransactionTable/>}/>
                     <Route path="/admin" element={
                         <AdminOnly>
-                            <UploadCard/>
+                            <>
+                                <UploadCard/>
+                                <TokenSnapshotButton/>
+                            </>
                         </AdminOnly>
                     }/>
                     <Route path="*" element={<div>Not found</div>}/>
