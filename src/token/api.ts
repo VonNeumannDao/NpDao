@@ -21,7 +21,7 @@ export function getQueryArchiveFn(): QueryArchiveFn {
 
 $query;
 export function total_transactions(): nat {
-    return BigInt(state.transactions.length) + stableArchivedTransactions.len();
+    return BigInt(state.transactions.length) + stableArchivedTransactions.len() + BigInt(state.transactions.temporaryArchive.size());
 }
 
 $query

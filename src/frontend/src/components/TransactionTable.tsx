@@ -69,7 +69,7 @@ export default function TransactionTable() {
                 title="Transaction History"
             />
             <CardContent>
-                <TableContainer component={Paper} sx={{marginTop: "20px", height: "640px"}}>
+                <TableContainer component={Paper} sx={{height: "640px"}}>
                     <Table stickyHeader>
                         <TableHead>
                             <TableRow>

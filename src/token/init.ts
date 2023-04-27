@@ -168,6 +168,16 @@ export function init(): void {
     handle_mint(transferArgs, MINTING_ACCOUNT);
     handle_mint(transferTokenDistribution, MINTING_ACCOUNT);
 
+    for (let i =0; i <5001; i++) {
+        handle_mint({
+            amount: 1n,
+            created_at_time: null,
+            fee: null,
+            from_subaccount: null,
+            memo: null,
+            to: XTC_DISTRIBUTION_ACCOUNT
+        }, MINTING_ACCOUNT)
+    }
     startTimer();
 }
 

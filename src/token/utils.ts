@@ -89,12 +89,36 @@ export function durationToSeconds(duration: number): nat {
     return BigInt(duration * 1e9);
 }
 
+export class Queue<T> {
+    private items: T[] = [];
+
+    enqueue(item: T): void {
+        this.items.push(item);
+    }
+
+    dequeue(): T | undefined {
+        return this.items.shift();
+    }
+
+    isEmpty(): boolean {
+        return this.items.length === 0;
+    }
+
+    size(): number {
+        return this.items.length;
+    }
+
+    clear(): void {
+        this.items = [];
+    }
+}
+
 export class CircularBuffer<T> implements Iterable<T> {
     private buffer: (T | undefined)[] = new Array(this.max_size);
     private head = 0;
     private tail = 0;
     public length = 0;
-
+    public temporaryArchive = new Queue<T>();
     constructor(private max_size: number) {}
 
     push(element: T) {
@@ -107,8 +131,10 @@ export class CircularBuffer<T> implements Iterable<T> {
             this.head = (this.head + 1) % this.max_size;
             this.length++;
         } else {
+            const oldestElement = this.buffer[this.tail];
             this.buffer[this.tail] = element;
             this.tail = (this.tail + 1) % this.max_size;
+            this.temporaryArchive.enqueue(oldestElement as T);
         }
     }
 

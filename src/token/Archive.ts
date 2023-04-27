@@ -1,20 +1,16 @@
 import {IcrcTransaction} from "./types";
 import {stableArchivedTransactions} from "./stable_memory";
 import {state} from "./state";
-import {CircularBuffer} from "./utils";
+import {Queue} from "./utils";
 
 export function _loadTransactions(): void {
     console.log("Loading transactions");
-    const transactions: CircularBuffer<IcrcTransaction> = state.transactions;
-    for (const transaction of transactions) {
-        const timestampStr = transaction.timestamp.toString();
-        // Check if the transaction already exists in the map
-        if (stableArchivedTransactions.containsKey(timestampStr)) {
-            console.log(`Skipping duplicate transaction at timestamp ${timestampStr}`);
-            continue;
-        }
-        stableArchivedTransactions.insert(timestampStr, transaction);
+    const transactions: Queue<IcrcTransaction> = state.transactions.temporaryArchive;
+    while (!transactions.isEmpty()) {
+        const transaction = transactions.dequeue();
+        if (transaction)
+            stableArchivedTransactions.insert(stableArchivedTransactions.len().toString(10), transaction);
     }
-    console.log(`Loaded ${transactions.length} transactions`);
-    return;
+    console.log(`Loaded ${stableArchivedTransactions.len().toString(10)} transactions`);
 }
+
