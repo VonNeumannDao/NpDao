@@ -4,7 +4,13 @@ import {handle_mint} from './transfer/mint';
 import {is_subaccount_valid, stringify} from './transfer/validate';
 
 import {Account, InitialAccountBalance, IcrcTransferArgs, IcrcTransaction} from './types';
-import {AIRDROP_ACCOUNT, DAO_TREASURY, MINTING_ACCOUNT, XTC_DISTRIBUTION_ACCOUNT} from "./constants";
+import {
+    AIRDROP_ACCOUNT,
+    DAO_TREASURY,
+    MAX_TRANSACTIONS_PER_REQUEST,
+    MINTING_ACCOUNT,
+    XTC_DISTRIBUTION_ACCOUNT
+} from "./constants";
 import {
     stableAccounts,
     stableIds, stableMemory,
@@ -13,21 +19,19 @@ import {
     stableTransactions
 } from "./stable_memory";
 import {startTimer} from "./Timer";
+import {_loadTransactions} from "./Archive";
 
 $preUpgrade;
 
 export function preUpgrade(): void {
-    console.log(state.accounts)
     stableIds.insert("proposalCount", state.proposalCount.toString(10));
     stableIds.insert("totalSupply", state.total_supply.toString(10));
     if (state.drainCanister) {
         stableMemory.insert("drainCanister", state.drainCanister);
     }
     for (let ownerKey in state.accounts) {
-        console.log(ownerKey);
 
         for (let accountKey in state.accounts?.[ownerKey]) {
-            console.log(accountKey, ownerKey);
             const balance: bigint | undefined = state.accounts?.[ownerKey]?.[accountKey];
             stableAccounts.insert(ownerKey + accountKey, {
                 ownerKey: ownerKey,
@@ -36,13 +40,12 @@ export function preUpgrade(): void {
             });
         }
     }
-    console.log("starting transactions");
+    _loadTransactions();
     for (let i = 0; i < state.transactions.length; i++) {
         const transaction: IcrcTransaction = state.transactions.get(i);
         stableTransactions.insert(i, transaction);
     }
 
-    console.log("starting proposals");
     for (let [key, val] of state.proposals.entries()) {
         if(val.ended) {
             val.wasm = null;
@@ -51,12 +54,9 @@ export function preUpgrade(): void {
             stableProposals.insert(val.id.toString(10), val);
         }
     }
-    console.log("end proposals")
 
-    console.log("starting staking accounts", state.stakingAccountsState);
     let index = 0;
     if (state.stakingAccountsState) {
-        console.log("staking not null")
         Object.keys(state.stakingAccountsState).forEach((key) => {
             if (key) {
                 // @ts-ignore
@@ -67,9 +67,6 @@ export function preUpgrade(): void {
             }
         });
     }
-
-
-    console.log("end staking accounts")
 }
 
 $postUpgrade;
@@ -79,7 +76,6 @@ export function postUpgrade(): void {
     state.proposalCount = BigInt(stableIds.get("proposalCount") || 0);
     state.total_supply = BigInt(stableIds.get("totalSupply") || 0);
     state.drainCanister = stableMemory.get("drainCanister");
-    console.log("starting accounts")
     for (let accounts of stableAccounts.values()) {
         if (accounts != null && accounts.ownerKey != null && accounts.accountKey != null) {
             if (state.accounts[accounts.ownerKey] == null) {
@@ -89,7 +85,6 @@ export function postUpgrade(): void {
             state.accounts[accounts.ownerKey][accounts.accountKey] = accounts.balance || 0n;
         }
     }
-    console.log("starting transactions")
 
     for (let i = 0; i< stableTransactions.len(); i ++) {
         const transaction: Opt<IcrcTransaction> = stableTransactions.get(i);
@@ -97,8 +92,6 @@ export function postUpgrade(): void {
             state.transactions.push(transaction);
         }
     }
-
-    console.log("starting proposals")
 
     for (let value of stableProposals.values()) {
         const proposal = {
@@ -168,9 +161,9 @@ export function init(): void {
     handle_mint(transferArgs, MINTING_ACCOUNT);
     handle_mint(transferTokenDistribution, MINTING_ACCOUNT);
 
-    for (let i =0; i <5001; i++) {
+    for (let i =0; i < MAX_TRANSACTIONS_PER_REQUEST; i++) {
         handle_mint({
-            amount: 1n,
+            amount: BigInt(i),
             created_at_time: null,
             fee: null,
             from_subaccount: null,

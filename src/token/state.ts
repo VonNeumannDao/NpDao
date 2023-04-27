@@ -2,6 +2,7 @@ import {IcrcTransaction, Proposal, State} from './types';
 import {nat64} from "azle";
 import config from "../../cig-config.json"
 import {CircularBuffer} from "./utils";
+import {MAX_TRANSACTIONS_PER_REQUEST} from "./constants";
 
 export let state: State = {
     accounts: {},
@@ -26,7 +27,7 @@ export let state: State = {
     ],
     symbol: config.symbol,
     total_supply: 0n,
-    transactions: new CircularBuffer<IcrcTransaction>(5000),
+    transactions: new CircularBuffer<IcrcTransaction>(Number(MAX_TRANSACTIONS_PER_REQUEST)),
     transaction_window_nanos: 24n * 60n * 60n * 1_000_000_000n,
     proposals: new Map<nat64, Proposal>(),
     proposalCount: 0n,

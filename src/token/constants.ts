@@ -3,6 +3,8 @@ import {CallResult, ic, nat, nat32, nat64, Principal, Service, Tuple, Variant, V
 import {serviceQuery, serviceUpdate} from "azle/src/lib/candid_types/service";
 import {hexToUint8Array} from "./utils";
 
+export const MAX_TRANSACTIONS_PER_REQUEST = 1000n;
+
 export const XTC_DISTRIBUTION_ACCOUNT: Account = {
     subaccount:
         hexToUint8Array("3fb3d3f31477a34a465b56f4e4d4a4a0fc8c58191e551c57e0447b0f16e56a7b")

@@ -69,7 +69,7 @@ export default function TransactionTable() {
                 title="Transaction History"
             />
             <CardContent>
-                <TableContainer component={Paper} sx={{height: "640px"}}>
+                <TableContainer component={Paper} sx={{height: "100%"}}>
                     <Table stickyHeader>
                         <TableHead>
                             <TableRow>
@@ -121,7 +121,7 @@ export default function TransactionTable() {
                     {loading && (
                         <Card style={{
                             position: 'absolute',
-                            top: '50%',
+                            top: '55%',
                             left: '50%',
                             transform: 'translate(-50%, -50%)',
                             zIndex: 1
