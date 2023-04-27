@@ -1,7 +1,18 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
 type ActiveProposal = variant { Ok : ProposalViewResponse; Err : text };
+type ArchivedTransaction = record {
+  callback : func (GetTransactionsRequest) -> (TransactionRange) query;
+  start : nat;
+  length : nat;
+};
 type Canisters = record { appName : text; canisterId : text };
 type GetTransactionsRequest = record { start : nat; length : nat };
+type GetTransactionsResponse = record {
+  first_index : nat;
+  log_length : nat;
+  transactions : vec IcrcTransaction;
+  archived_transactions : vec ArchivedTransaction;
+};
 type IcRcTransferError = variant {
   GenericError : _InlineIcRcTransferErrorGenericError;
   TemporarilyUnavailable;
@@ -75,6 +86,7 @@ type StakingClaimResponse = variant { Ok : nat; Err : text };
 type StakingResponse = variant { Ok : StakingAccount; Err : text };
 type SupportedStandard = record { url : text; name : text };
 type TransactionKind = variant { Burn; Mint; Transfer };
+type TransactionRange = record { transactions : vec IcrcTransaction };
 type Value = variant { Int : int; Nat : nat; Blob : vec nat8; Text : text };
 type VoteStatus = record {
   myVoteYes : nat64;
@@ -119,9 +131,18 @@ service : () -> {
     ) -> (ProposalResponse);
   cycleBalances : () -> (vec record { text; nat64 });
   getDrainCanister : () -> (float64) query;
+  getQueryArchiveFn : () -> (
+      func (GetTransactionsRequest) -> (TransactionRange) query,
+    ) query;
   getStakingAccount : (text) -> (vec StakingAccount) query;
   getTotalStaked : (text) -> (nat) query;
-  get_transactions : (GetTransactionsRequest) -> (vec IcrcTransaction) query;
+  get_archived_transactions : (GetTransactionsRequest) -> (
+      TransactionRange,
+    ) query;
+  get_transaction : (nat) -> (opt IcrcTransaction) query;
+  get_transactions : (GetTransactionsRequest) -> (
+      GetTransactionsResponse,
+    ) query;
   icpDistributeToken : (nat) -> (text);
   icpDistributionBalance : () -> (nat) query;
   icpDistributionExchangeRate : () -> (nat) query;
@@ -141,6 +162,7 @@ service : () -> {
   startEndStaking : (vec nat8) -> (StakingResponse);
   startStaking : (vec nat8, nat, text) -> (StakingResponse);
   startTimer : () -> (nat64);
+  total_transactions : () -> (nat) query;
   tryDrainCanister : (principal) -> (text);
   vote : (Account, nat, bool) -> (ProposalResponse);
   voteStatus : () -> (VoteStatusResponse) query;

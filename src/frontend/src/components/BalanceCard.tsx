@@ -11,7 +11,7 @@ type Props = {
 };
 const getLink = (canisterId) => {
     if (isDebugOn) {
-        return `http://127.0.0.1:4943/?canisterId=rkp4c-7iaaa-aaaaa-aaaca-cai&id=${canisterId}`;
+        return `http://127.0.0.1:4943/?canisterId=ryjl3-tyaaa-aaaaa-aaaba-cai&id=${canisterId}`;
     } else {
         return `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=${canisterId}`;
     }

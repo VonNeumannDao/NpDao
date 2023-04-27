@@ -11,18 +11,18 @@
         }
       }
     },
-    "icrc_1": {
+    "token": {
       "type": "custom",
-      "build": "npx azle icrc_1",
+      "build": "npx azle token",
       "root": "src/token",
       "ts": "src/token/index.ts",
       "candid": "src/token/index.did",
-      "wasm": ".azle/icrc_1/icrc_1.wasm.gz",
+      "wasm": ".azle/token/token.wasm.gz",
       "dependencies": [ "ledger" ]
     },
     "frontend": {
       "dependencies": [
-        "icrc_1"
+        "token"
       ],
       "frontend": {
         "entrypoint": "src/frontend/src/index.html"
