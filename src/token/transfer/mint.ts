@@ -6,6 +6,7 @@ import {putTransaction} from "./putTransaction";
 
 export function handle_mint(args: IcrcTransferArgs, from: Opt<Account>): IcrcTransferResult {
     set_account_balance(args.to, balance_of(args.to) + args.amount);
+    console.log("minting tokens " + args.amount.toString(10));
     state.total_supply += args.amount;
 
     const transaction: IcrcTransaction = {

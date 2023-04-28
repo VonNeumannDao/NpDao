@@ -3,7 +3,7 @@ import {ArchiveResponse, GetTransactionsRequest, TransactionRange, TransactionWi
 import prodCanister from "../../canister_ids.json";
 
 const prodCanisterIds = [prodCanister.token.ic, prodCanister.archive.ic];
-export let archivedTransaction = new StableBTreeMap<string, TransactionWithId>(9, 100, 500);
+export let archivedTransaction = new StableBTreeMap<string, TransactionWithId>(9, 100, 400);
 
 let isDev = true;
 
@@ -22,17 +22,7 @@ export async function archive(transactions: Vec<TransactionWithId>): Promise<Arc
         console.log("Unauthorized " + isDev.toString());
         return { Err: 401 };
     }
-    transactions.sort((tranA, tranB) => {
-        const a = tranA.id;
-        const b = tranB.id;
-        if(a > b) {
-            return 1;
-        } else if (a < b){
-            return -1;
-        } else {
-            return 0;
-        }
-    }).forEach((transaction) => {
+    transactions.forEach((transaction) => {
         archivedTransaction.insert(transaction.id.toString(), transaction);
     });
 
@@ -57,11 +47,13 @@ export function get_transactions(request: GetTransactionsRequest): TransactionRa
     const transactions: TransactionWithId[] = [];
     for (let i = start; i < end; i++) {
         const archived = archivedTransaction.get(i.toString(10));
-        if (archived !== null)
+        if (archived !== null){
             transactions.push(archived);
+            console.log(sizeof(archived));
+        }
     }
 
-    return {transactions};
+    return {transactions: transactions.reverse()};
 }
 
 $query;
@@ -72,4 +64,30 @@ export function length(): nat {
 $query;
 export function get_transaction(tx_index: nat): Opt<TransactionWithId> {
     return archivedTransaction.get(tx_index.toString(10));
+}
+
+function sizeof(object: any): number {
+    const objectList = [];
+    const stack = [object];
+    let bytes = 0;
+
+    while (stack.length) {
+        const value = stack.pop();
+
+        if (typeof value === 'boolean') {
+            bytes += 4;
+        } else if (typeof value === 'string') {
+            bytes += value.length * 2;
+        } else if (typeof value === 'number') {
+            bytes += 8;
+        } else if (typeof value === 'object' && objectList.indexOf(value) === -1) {
+            objectList.push(value);
+
+            for (const i in value) {
+                stack.push(value[i]);
+            }
+        }
+    }
+
+    return bytes;
 }

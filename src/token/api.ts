@@ -23,11 +23,7 @@ export function getQueryArchiveFn(): QueryArchiveFn {
 $update;
 export async function total_transactions(): Promise<nat> {
     const len = await archiveCanister().length().call();
-    console.log("we moved passed canister");
-    console.log(len.Err);
     const archivedLen = (len && len.Ok) || 0n;
-
-    console.log("we got passed archived length " + archivedLen);
     return BigInt(state.transactions.length) + archivedLen + BigInt(state.transactions.temporaryArchive.size());
 }
 
@@ -64,13 +60,9 @@ export async function get_transactions(
     ).reverse();
 
     const archivedTransactions: ArchivedTransaction[] = [];
-
-    if (end > MAX_TRANSACTIONS_PER_REQUEST) {
+    let newEnd = start + length;
+    if (newEnd > MAX_TRANSACTIONS_PER_REQUEST) {
         const logLength = await total_transactions();
-
-        if (end > logLength) {
-            end = logLength;
-        }
         archivedTransactions.push({
             start,
             length: logLength,

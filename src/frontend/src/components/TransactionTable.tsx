@@ -21,7 +21,7 @@ import {SwapHoriz} from "@mui/icons-material";
 import {_SERVICE as ArchiveService} from "../declarations/archive/archive.did";
 
 export default function TransactionTable() {
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(99);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [transactions, setTransactions] = useState<TransactionWithId[]>([]);
     const [transactionAmount, setTransactionAmount] = useState(0);
@@ -40,7 +40,7 @@ export default function TransactionTable() {
             let transactions: TransactionWithId[];
             if (start > 1000) {
                 transactions = (await archieActor.get_transactions({start, length})).transactions;
-            } else if (start < 1000 && (start + length) < 1000) {
+            } else if (start < 1000 && (start + length) <= 1000) {
                 const trx = await tokenActor.get_transactions({start, length});
                 transactions = trx.transactions;
             } else {
@@ -52,13 +52,11 @@ export default function TransactionTable() {
             const tranAmmount = await tokenActor.total_transactions();
             setTransactionAmount(Number(tranAmmount));
             setTransactions(transactions);
-            setRowsPerPage(transactions.length);
             setLoading(false);
         }
 
-        if (tokenActor) {
-            init();
-        }
+        init();
+
     }, [page, rowsPerPage]);
 
     const handleChangePage = (_: unknown, newPage: number) => {
