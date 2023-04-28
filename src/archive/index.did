@@ -1,0 +1,37 @@
+type Account = record { owner : principal; subaccount : opt vec nat8 };
+type Burn = record {
+  from : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type GetTransactionsRequest = record { start : nat; length : nat };
+type IcrcTransaction = record {
+  burn : opt Burn;
+  kind : text;
+  mint : opt Mint;
+  timestamp : nat64;
+  transfer : opt IcrcTransferArgs;
+};
+type IcrcTransferArgs = record {
+  to : Account;
+  fee : opt nat;
+  from : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type ManualReply = variant { Ok : nat32; Err : nat32 };
+type Mint = record {
+  to : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type TransactionRange = record { transactions : vec TransactionWithId };
+type TransactionWithId = record { id : nat; transaction : IcrcTransaction };
+service : () -> {
+  archive : (vec TransactionWithId) -> (ManualReply);
+  get_transactions : (GetTransactionsRequest) -> (TransactionRange) query;
+  length : () -> (nat) query;
+}
