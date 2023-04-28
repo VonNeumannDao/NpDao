@@ -1,15 +1,11 @@
 import {balance_of, set_account_balance} from '../account';
 import {ic} from 'azle';
 import {state} from '../state';
-import {Account, IcrcTransaction, TransactionKind, IcrcTransferArgs, IcrcTransferResult} from '../types';
+import {Account, IcrcTransaction, IcrcTransferArgs, IcrcTransferResult} from '../types';
 import {uint8ToString} from "../utils";
 import {putTransaction} from "./putTransaction";
 
 export function handle_transfer(args: IcrcTransferArgs, from: Account): IcrcTransferResult {
-    const kind: TransactionKind = {
-        Transfer: null
-    };
-
     const fee = args.fee ?? state.fee;
 
     set_account_balance(from, balance_of(from) - args.amount - fee);
@@ -27,14 +23,14 @@ export function handle_transfer(args: IcrcTransferArgs, from: Account): IcrcTran
     console.log("transfered with memo: ", args.memo && uint8ToString(args.memo));
 
     const transaction: IcrcTransaction = {
-        args,
-        fee,
-        from,
-        kind,
+        kind: "Transfer",
+        burn: null,
+        mint: null,
+        transfer: args,
         timestamp: ic.time()
     };
-    putTransaction(transaction);
+
     return {
-        Ok: args.amount
+        Ok: putTransaction(transaction)
     };
 }

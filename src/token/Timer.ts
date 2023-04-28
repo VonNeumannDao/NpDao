@@ -50,7 +50,5 @@ export function startTimer(): TimerId {
         _checkCycles
     );
 
-    console.log("cyclesTimer", timerIdCycle);
-
     return timerIdProposal;
 }

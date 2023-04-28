@@ -9,7 +9,7 @@ import {
     TransactionRange,
     GetTransactionsRequest,
     GetTransactionsResponse,
-    ArchivedTransaction, QueryArchiveFn
+    ArchivedTransaction, QueryArchiveFn, TransactionWithId
 } from './types';
 import {stableArchivedTransactions} from "./stable_memory";
 import {MAX_TRANSACTIONS_PER_REQUEST} from "./constants";
@@ -21,11 +21,11 @@ export function getQueryArchiveFn(): QueryArchiveFn {
 
 $query;
 export function total_transactions(): nat {
-    return BigInt(state.transactions.length) + stableArchivedTransactions.len();
+    return BigInt(state.transactions.length) + stableArchivedTransactions.len() + BigInt(state.transactions.temporaryArchive.size());
 }
 
 $query
-export function get_transaction(tx_index: nat): Opt<IcrcTransaction> {
+export function get_transaction(tx_index: nat): Opt<TransactionWithId> {
     if (tx_index > MAX_TRANSACTIONS_PER_REQUEST) {
         return stableArchivedTransactions.get(tx_index.toString(10));
     }
@@ -46,7 +46,7 @@ export function get_archived_transactions(request: GetTransactionsRequest): Tran
     }
 
     let end = start + length;
-    const transactions: IcrcTransaction[] = [];
+    const transactions: TransactionWithId[] = [];
     for (let i = start; i < end; i++) {
         const archived = stableArchivedTransactions.get(i.toString(10));
         if (archived !== null)

@@ -9,22 +9,30 @@ export function handle_mint(args: IcrcTransferArgs, from: Opt<Account>): IcrcTra
     state.total_supply += args.amount;
 
     const transaction: IcrcTransaction = {
-        args,
-        fee: 0n,
-        from,
-        kind: {
-            Mint: null
+        kind: "Mint",
+        burn: null,
+        mint: {
+            to: args.to,
+            amount: args.amount,
+            memo: args.memo,
+            created_at_time: args.created_at_time
+        },
+        transfer: {
+            from: from || args.from,
+            to: args.to,
+            amount: args.amount,
+            fee: args.fee,
+            memo: args.memo,
+            created_at_time: args.created_at_time
         },
         timestamp: ic.time()
     };
 
-    putTransaction(transaction);
 
-    const transfer_result: IcrcTransferResult = {
-        Ok: args.amount
+
+    return {
+        Ok: putTransaction(transaction)
     };
-
-    return transfer_result;
 }
 
 export function is_minting_account(owner: Principal): boolean {

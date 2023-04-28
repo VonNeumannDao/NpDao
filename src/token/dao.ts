@@ -149,7 +149,7 @@ export function createDeleteWasmProposal(account: Account,
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
-        from_subaccount: null,
+        from: account,
         memo: null,
         to: DAO_TREASURY
     };
@@ -247,7 +247,7 @@ export async function createWasmProposal(account: Account,
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
-        from_subaccount: null,
+        from: account,
         memo: null,
         to: DAO_TREASURY
     };
@@ -313,7 +313,7 @@ export function createTreasuryProposal(account: Account,
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
-        from_subaccount: null,
+        from: account,
         memo: null,
         to: DAO_TREASURY
     };
@@ -512,7 +512,7 @@ export async function _executeProposal(): Promise<void> {
                 amount: proposal.amount as bigint,
                 created_at_time: null,
                 fee: null,
-                from_subaccount: null,
+                from: DAO_TREASURY,
                 memo: null,
                 to: proposal.receiver as Account
             };

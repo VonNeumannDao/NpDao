@@ -59,6 +59,5 @@ export {
     startStaking,
     startEndStaking,
     claimStaking,
-    getTotalStaked,
-    brokenStakeRefund
+    getTotalStaked
 } from "./staking";

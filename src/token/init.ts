@@ -3,7 +3,7 @@ import {state} from './state';
 import {handle_mint} from './transfer/mint';
 import {is_subaccount_valid, stringify} from './transfer/validate';
 
-import {Account, InitialAccountBalance, IcrcTransferArgs, IcrcTransaction} from './types';
+import {Account, InitialAccountBalance, IcrcTransferArgs, TransactionWithId} from './types';
 import {
     AIRDROP_ACCOUNT,
     DAO_TREASURY,
@@ -22,7 +22,6 @@ import {startTimer} from "./Timer";
 import {_loadTransactions} from "./Archive";
 
 $preUpgrade;
-
 export function preUpgrade(): void {
     stableIds.insert("proposalCount", state.proposalCount.toString(10));
     stableIds.insert("totalSupply", state.total_supply.toString(10));
@@ -42,7 +41,7 @@ export function preUpgrade(): void {
     }
     _loadTransactions();
     for (let i = 0; i < state.transactions.length; i++) {
-        const transaction: IcrcTransaction = state.transactions.get(i);
+        const transaction: TransactionWithId = state.transactions.get(i);
         stableTransactions.insert(i, transaction);
     }
 
@@ -70,7 +69,6 @@ export function preUpgrade(): void {
 }
 
 $postUpgrade;
-
 export function postUpgrade(): void {
     state.minting_account = MINTING_ACCOUNT;
     state.proposalCount = BigInt(stableIds.get("proposalCount") || 0);
@@ -87,7 +85,7 @@ export function postUpgrade(): void {
     }
 
     for (let i = 0; i< stableTransactions.len(); i ++) {
-        const transaction: Opt<IcrcTransaction> = stableTransactions.get(i);
+        const transaction: Opt<TransactionWithId> = stableTransactions.get(i);
         if(transaction) {
             state.transactions.push(transaction);
         }
@@ -133,7 +131,6 @@ export function postUpgrade(): void {
 }
 
 $init;
-
 export function init(): void {
     console.log('this runs the init', state.initial_supply);
     state.minting_account = validate_minting_account(MINTING_ACCOUNT);
@@ -141,12 +138,13 @@ export function init(): void {
         account: DAO_TREASURY,
         balance: state.initial_supply
     });
+    console.log("initial supply");
 
     const transferArgs: IcrcTransferArgs = {
         amount: state.airdropAmount,
         created_at_time: null,
         fee: null,
-        from_subaccount: null,
+        from: MINTING_ACCOUNT,
         memo: null,
         to: AIRDROP_ACCOUNT
     };
@@ -154,19 +152,22 @@ export function init(): void {
         amount: state.xtcDistributionAmount,
         created_at_time: null,
         fee: null,
-        from_subaccount: null,
+        from: MINTING_ACCOUNT,
         memo: null,
         to: XTC_DISTRIBUTION_ACCOUNT
     };
     handle_mint(transferArgs, MINTING_ACCOUNT);
+    console.log("airdrop amount");
+
     handle_mint(transferTokenDistribution, MINTING_ACCOUNT);
+    console.log("xtc distribution amount");
 
     for (let i =0; i < MAX_TRANSACTIONS_PER_REQUEST; i++) {
         handle_mint({
             amount: BigInt(i),
             created_at_time: null,
             fee: null,
-            from_subaccount: null,
+            from: MINTING_ACCOUNT,
             memo: null,
             to: XTC_DISTRIBUTION_ACCOUNT
         }, MINTING_ACCOUNT)
@@ -177,7 +178,7 @@ export function init(): void {
 function validate_minting_account(minting_account: Opt<Account>): Opt<Account> {
     if (
         minting_account !== null &&
-        is_subaccount_valid(minting_account.subaccount) === false
+        !is_subaccount_valid(minting_account.subaccount)
     ) {
         ic.trap(`subaccount for minting account must be 32 bytes in length`);
     }
@@ -189,8 +190,7 @@ function initialize_account_balance(
     initial_account_balance: InitialAccountBalance
 ) {
     if (
-        is_subaccount_valid(initial_account_balance.account.subaccount) ===
-        false
+        !is_subaccount_valid(initial_account_balance.account.subaccount)
     ) {
         ic.trap(
             `subaccount for initial account ${initial_account_balance.account.owner.toText()} must be 32 bytes in length`
@@ -201,7 +201,7 @@ function initialize_account_balance(
         amount: initial_account_balance.balance,
         created_at_time: ic.time(),
         fee: null,
-        from_subaccount: null,
+        from: MINTING_ACCOUNT,
         memo: null,
         to: initial_account_balance.account
     };

@@ -14,15 +14,15 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
-import {_SERVICE, IcrcTransaction} from "../declarations/token/token.did";
+import {_SERVICE, IcrcTransaction, TransactionWithId} from "../declarations/token/token.did";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import {useCanister} from "@connect2ic/react";
-import {InfoRounded, SwapHoriz} from "@mui/icons-material";
+import {SwapHoriz} from "@mui/icons-material";
 
 export default function TransactionTable() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [transactions, setTransactions] = useState<IcrcTransaction[]>([]);
+    const [transactions, setTransactions] = useState<TransactionWithId[]>([]);
     const [transactionAmount, setTransactionAmount] = useState(0);
     const [loading, setLoading] = useState(false);
     const [_tokenActor] = useCanister("token");
@@ -33,11 +33,12 @@ export default function TransactionTable() {
         async function init() {
             const start = BigInt(page) * BigInt(rowsPerPage);
             const length = BigInt(rowsPerPage);
-            let transactions: IcrcTransaction[];
+            let transactions: TransactionWithId[];
             if (start > 1000) {
                 transactions = (await tokenActor.get_archived_transactions({start, length})).transactions;
             } else if (start < 1000 && (start + length) < 1000) {
-                transactions = (await tokenActor.get_transactions({start, length})).transactions;
+                const trx = await tokenActor.get_transactions({start, length});
+                transactions = trx.transactions;
             } else {
                 transactions = (await tokenActor.get_transactions({start, length})).transactions;
                 let secondaryTransactions = (await tokenActor.get_archived_transactions({start: 0n, length: length - BigInt(transactions.length)})).transactions;
@@ -51,8 +52,10 @@ export default function TransactionTable() {
             setLoading(false);
         }
 
-        init();
-    }, [page, rowsPerPage, tokenActor]);
+        if (tokenActor) {
+            init();
+        }
+    }, [page, rowsPerPage]);
 
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
@@ -62,9 +65,6 @@ export default function TransactionTable() {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
-
-    const emptyRows =
-        rowsPerPage - Math.min(rowsPerPage, transactions.length - page * rowsPerPage);
 
     return (
         <Card sx={{margin: '20px'}}>
@@ -83,6 +83,7 @@ export default function TransactionTable() {
                     <Table stickyHeader>
                         <TableHead>
                             <TableRow>
+                                <TableCell>Block</TableCell>
                                 <TableCell>Date</TableCell>
                                 <TableCell>From</TableCell>
                                 <TableCell>To</TableCell>
@@ -100,8 +101,9 @@ export default function TransactionTable() {
                             {!loading && transactions.length > 0 && transactions
                                 .map((transaction, index) => (
                                     <TableRow key={index}>
+                                        <TableCell>{transaction.id.toString(10)}</TableCell>
                                         <TableCell>
-                                            {new Date(Number(transaction.timestamp) / 1000000).toLocaleDateString(undefined, {
+                                            {new Date(Number(transaction.transaction.timestamp) / 1000000).toLocaleDateString(undefined, {
                                                 year: 'numeric',
                                                 month: 'long',
                                                 day: 'numeric',
@@ -110,9 +112,9 @@ export default function TransactionTable() {
                                                 second: 'numeric',
                                             })}
                                         </TableCell>
-                                        <TableCell>{transaction.from.length > 0 ? transaction.from[0].owner.toText() : ""}</TableCell>
-                                        <TableCell>{transaction.args.length > 0 ? transaction.args[0].to.owner.toText() : ""}</TableCell>
-                                        <TableCell>{transaction.args.length > 0 ? bigIntToDecimalPrettyString(transaction.args[0].amount) : ""}</TableCell>
+                                        <TableCell>{transaction.transaction.transfer.length > 0 ? transaction.transaction.transfer[0].from.owner.toText() : ""}</TableCell>
+                                        <TableCell>{transaction.transaction.transfer.length > 0 ? transaction.transaction.transfer[0].to.owner.toText() : ""}</TableCell>
+                                        <TableCell>{transaction.transaction.transfer.length > 0 ? bigIntToDecimalPrettyString(transaction.transaction.transfer[0].amount) : ""}</TableCell>
                                     </TableRow>
                                 ))}
 

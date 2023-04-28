@@ -74,7 +74,10 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
             },
             fee: [],
             memo: [],
-            from_subaccount: [],
+            from: {
+                owner: Principal.fromText(principal),
+                subaccount: []
+            },
             created_at_time: [],
             amount: convertToBigInt(coinTransferAmount),
         });

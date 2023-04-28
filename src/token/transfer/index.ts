@@ -25,12 +25,13 @@ export async function mint_tokens(): Promise<IcrcTransferResult> {
 
     if (from_is_minting_account) {
         const transferArgs: IcrcTransferArgs = {
+            from,
+            to: toAccount,
             amount: 10000000000n,
-            created_at_time: null,
             fee: null,
-            from_subaccount: null,
             memo: null,
-            to: toAccount
+            created_at_time: null
+
         };
 
         return handle_mint(transferArgs, from);
@@ -51,7 +52,7 @@ $update;
 export function icrc1_transfer(args: IcrcTransferArgs): IcrcTransferResult {
     const from: Account = {
         owner: ic.caller(),
-        subaccount: args.from_subaccount
+        subaccount: args.from.subaccount
     };
 
     const validate_transfer_result = validate_transfer(args, from);

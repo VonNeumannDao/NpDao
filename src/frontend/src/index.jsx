@@ -21,7 +21,6 @@ import {isDebugOn} from "./components/DebugOnly";
 
 const ledgerCanister = isDebugOn ? canisterId : "ryjl3-tyaaa-aaaaa-aaaba-cai";
 const whiteList = [ledgerCanister, "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister]
-console.log(whiteList);
 const client = createClient({
     globalProviderConfig: {
         whitelist: whiteList,

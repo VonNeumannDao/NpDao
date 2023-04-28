@@ -5,12 +5,18 @@ type ArchivedTransaction = record {
   start : nat;
   length : nat;
 };
+type Burn = record {
+  from : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
 type Canisters = record { appName : text; canisterId : text };
 type GetTransactionsRequest = record { start : nat; length : nat };
 type GetTransactionsResponse = record {
   first_index : nat;
   log_length : nat;
-  transactions : vec IcrcTransaction;
+  transactions : vec TransactionWithId;
   archived_transactions : vec ArchivedTransaction;
 };
 type IcRcTransferError = variant {
@@ -24,21 +30,27 @@ type IcRcTransferError = variant {
   InsufficientFunds : _InlineProposalErrorInsufficientFunds;
 };
 type IcrcTransaction = record {
-  fee : nat;
-  args : opt IcrcTransferArgs;
-  from : opt Account;
-  kind : TransactionKind;
+  burn : opt Burn;
+  kind : text;
+  mint : opt Mint;
   timestamp : nat64;
+  transfer : opt IcrcTransferArgs;
 };
 type IcrcTransferArgs = record {
   to : Account;
   fee : opt nat;
+  from : Account;
   memo : opt vec nat8;
-  from_subaccount : opt vec nat8;
   created_at_time : opt nat64;
   amount : nat;
 };
 type IcrcTransferResult = variant { Ok : nat; Err : IcRcTransferError };
+type Mint = record {
+  to : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
 type ProposalError = variant {
   AccessDenied : text;
   ProposalNotFound;
@@ -76,7 +88,6 @@ type StakingAccount = record {
   reward : opt nat;
   "principal" : text;
   accountId : text;
-  memo : text;
   claimed : bool;
   endStakeDate : opt nat;
   startStakeDate : nat;
@@ -85,8 +96,8 @@ type StakingAccount = record {
 type StakingClaimResponse = variant { Ok : nat; Err : text };
 type StakingResponse = variant { Ok : StakingAccount; Err : text };
 type SupportedStandard = record { url : text; name : text };
-type TransactionKind = variant { Burn; Mint; Transfer };
-type TransactionRange = record { transactions : vec IcrcTransaction };
+type TransactionRange = record { transactions : vec TransactionWithId };
+type TransactionWithId = record { id : nat; transaction : IcrcTransaction };
 type Value = variant { Int : int; Nat : nat; Blob : vec nat8; Text : text };
 type VoteStatus = record {
   myVoteYes : nat64;
@@ -112,7 +123,6 @@ service : () -> {
   airdrop_snapshot : () -> (text);
   airdrop_snapshot_holders_length : () -> (float64) query;
   airdrop_snapshot_status : () -> (text) query;
-  brokenStakeRefund : () -> (bool);
   burnAllXtc : () -> (nat);
   canisters : () -> (vec Canisters) query;
   claimStaking : (vec nat8) -> (StakingClaimResponse);
@@ -140,7 +150,7 @@ service : () -> {
   get_archived_transactions : (GetTransactionsRequest) -> (
       TransactionRange,
     ) query;
-  get_transaction : (nat) -> (opt IcrcTransaction) query;
+  get_transaction : (nat) -> (opt TransactionWithId) query;
   get_transactions : (GetTransactionsRequest) -> (
       GetTransactionsResponse,
     ) query;
@@ -161,7 +171,7 @@ service : () -> {
   mint_tokens : () -> (IcrcTransferResult);
   pastProposals : () -> (vec ProposalViewResponse) query;
   startEndStaking : (vec nat8) -> (StakingResponse);
-  startStaking : (vec nat8, nat, text) -> (StakingResponse);
+  startStaking : (vec nat8, nat, nat) -> (StakingResponse);
   startTimer : () -> (nat64);
   stopTimer : () -> (nat32);
   total_transactions : () -> (nat) query;

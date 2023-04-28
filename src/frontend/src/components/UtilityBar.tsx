@@ -7,12 +7,10 @@ import {_SERVICE, Canisters} from "../declarations/token/token.did";
 import {_SERVICE as ledgerService} from "../declarations/ledger/ledger.did";
 import {canisterId} from "../declarations/token";
 import {Principal} from "@dfinity/principal";
-import {AccountIdentifier, SubAccount} from "@dfinity/nns";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import config from "../../../../cig-config.json";
 import BalanceCard from "./BalanceCard";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import {isDebugOn} from "./DebugOnly";
 import CryptoWallet from "./CryptoWallet";
 
 

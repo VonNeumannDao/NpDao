@@ -36,11 +36,10 @@ export type StakingAccount = Record<{
     endStakeDate: Opt<nat>;
     amount: nat;
     reward: Opt<nat>;
-    memo: string;
     claimed: boolean;
 }>
 export type TransactionRange = Record<{
-    transactions: Vec<IcrcTransaction>;
+    transactions: Vec<TransactionWithId>;
 }>;
 export type QueryArchiveFn = Func<Query<(request: GetTransactionsRequest) => TransactionRange>>;
 
@@ -53,7 +52,7 @@ export type ArchivedTransaction = Record<{
 export type GetTransactionsResponse = Record<{
     log_length : nat;
     first_index : nat;
-    transactions : Vec<IcrcTransaction>;
+    transactions : Vec<TransactionWithId>;
     archived_transactions : Vec<ArchivedTransaction>;
 }>;
 
@@ -87,7 +86,7 @@ export type State = {
     icpDistributionExchangeRate: nat,
     symbol: string;
     total_supply: nat;
-    transactions: CircularBuffer<IcrcTransaction>;
+    transactions: CircularBuffer<TransactionWithId>;
     transaction_window_nanos: nat64;
     proposals: Map<nat64, Proposal>,
     proposal: Opt<Proposal>,
@@ -115,11 +114,30 @@ export type SupportedStandard = Record<{
 }>;
 
 export type IcrcTransaction = Record<{
-    args: Opt<IcrcTransferArgs>;
-    fee: nat;
-    from: Opt<Account>;
-    kind: TransactionKind;
+    kind: string;
+    mint: Opt<Mint>;
+    burn: Opt<Burn>;
+    transfer: Opt<IcrcTransferArgs>;
     timestamp: nat64;
+}>;
+
+export type TransactionWithId = Record<{
+    id : nat;
+    transaction : IcrcTransaction;
+}>;
+
+export type Mint = Record<{
+    to : Account;
+    amount : nat;
+    memo : Opt<blob>;
+    created_at_time : Opt<nat64>;
+}>;
+
+export type Burn = Record<{
+    from : Account;
+    amount : nat;
+    memo : Opt<blob>;
+    created_at_time : Opt<nat64>;
 }>;
 
 export type TransactionKind = Variant<{
@@ -136,11 +154,11 @@ export type ProposalType = Variant<{
 
 export type IcrcTransferArgs = Record<{
     amount: nat;
+    from: Account;
+    to: Account;
+    memo: Opt<blob>;
     created_at_time: Opt<nat64>;
     fee: Opt<nat>;
-    from_subaccount: Opt<blob>;
-    memo: Opt<blob>;
-    to: Account;
 }>;
 
 export type IcRcTransferError = Variant<{

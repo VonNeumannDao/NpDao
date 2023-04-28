@@ -71,25 +71,27 @@ const Staking = () => {
         const amount = convertToBigInt(stakingAmount);
         const account = stringToAccount(stakingAccounts.length.toString() + principal);
         const memo = "stake_" + generateUUID();
-        const failed = await tokenActor.icrc1_transfer({
+        const response = await tokenActor.icrc1_transfer({
             to: {
                 owner: Principal.fromText(tokenCanister),
                 subaccount: [account]
             },
             fee: [],
             memo: [stringToUint8(memo)],
-            from_subaccount: [],
+            from: {
+                owner: Principal.fromText(principal),
+                subaccount: []
+            },
             created_at_time: [],
             amount: amount,
         });
-        console.log(failed);
-        const startStaking = await tokenActor.startStaking(account, amount, memo);
-        console.log(startStaking);
-        if ("Err" in startStaking) {
-            console.log("starting refund")
-            const refundStarted = await tokenActor.brokenStakeRefund();
-            if (refundStarted) console.log("refund done");
+        if ("Err" in response) {
+            console.log(response.Err);
+            setLoading(false);
+            return;
         }
+        const startStaking = await tokenActor.startStaking(account, amount, response.Ok);
+        console.log(startStaking);
         await init();
         await reloadBalance();
         setLoading(false);

@@ -12,7 +12,6 @@ const xtcToken = new XTCToken(
 $update
 export async function icpDistributeToken(donatedAmount: nat): Promise<string> {
     const caller = ic.caller();
-    const myId = ic.id();
     const balance = balance_of(ICP_DISTRIBUTION_ACCOUNT);
     const amountBought = (donatedAmount * state.xtcDistributionExchangeRate) / 10000n ;
     if (balance < amountBought) {
@@ -41,7 +40,7 @@ export async function xtcDistributeToken(donatedAmount: nat): Promise<string> {
         amount: amountBought,
         created_at_time: null,
         fee: null,
-        from_subaccount: XTC_DISTRIBUTION_ACCOUNT.subaccount,
+        from: XTC_DISTRIBUTION_ACCOUNT,
         memo: null,
         to: {
             owner: caller,

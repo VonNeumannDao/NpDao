@@ -1,12 +1,7 @@
 import {balance_of, set_account_balance} from '../account';
 import {ic} from 'azle';
 import {state} from '../state';
-import {
-    Account,
-    IcrcTransaction,
-    IcrcTransferArgs,
-    IcrcTransferResult
-} from '../types';
+import {Account, IcrcTransaction, IcrcTransferArgs, IcrcTransferResult} from '../types';
 import {putTransaction} from "./putTransaction";
 
 export function handle_burn(args: IcrcTransferArgs, from: Account): IcrcTransferResult {
@@ -14,20 +9,22 @@ export function handle_burn(args: IcrcTransferArgs, from: Account): IcrcTransfer
     state.total_supply -= args.amount;
 
     const transaction: IcrcTransaction = {
-        args,
-        fee: 0n,
-        from,
-        kind: {
-            Burn: null
+        kind: "Burn",
+        burn: {
+            amount: args.amount,
+            memo: args.memo,
+            created_at_time: null,
+            from: {
+                subaccount: args.from.subaccount,
+                owner: ic.caller()
+            }
         },
+        mint: null,
+        transfer: args,
         timestamp: ic.time()
     };
 
-    putTransaction(transaction);
-
-    const transfer_result: IcrcTransferResult = {
-        Ok: args.amount
+    return {
+        Ok: putTransaction(transaction)
     };
-
-    return transfer_result;
 }

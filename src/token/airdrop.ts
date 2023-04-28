@@ -104,15 +104,15 @@ export async function airdrop_claim(): Promise<string> {
         const holdingsPercent = (holdings * HOLDINGS_PERCENT_PRECISION) / circulatingSupply;
         const airdropAmount = (holdingsPercent / HOLDINGS_PERCENT_PRECISION) * state.airdropAmount;
         handle_transfer({
-            amount: airdropAmount,
-            created_at_time: null,
-            fee: null,
-            from_subaccount: AIRDROP_ACCOUNT.subaccount,
-            memo: null,
+            from: AIRDROP_ACCOUNT,
             to: {
                 owner: ic.caller(),
                 subaccount: null
-            }
+            },
+            amount: airdropAmount,
+            fee: null,
+            memo: null,
+            created_at_time: null,
         }, AIRDROP_ACCOUNT);
         state.airdrop_snapshot.holders.delete(ic.caller().toText());
         return `airdrop claimed: ${airdropAmount.toString(10)}`;

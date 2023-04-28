@@ -1,13 +1,14 @@
-import {$query, $update, blob, ic, nat, nat64, Opt, Vec} from "azle";
+import {$query, $update, blob, ic, nat, Vec} from "azle";
 import {state} from "./state";
-import {Account, StakingAccount, StakingClaimResponse, StakingResponse} from "./types";
-import {durationToSeconds, stringToUint8, uint8ArrayToHexString, uint8ToString, hexStringToUint8Array} from "./utils";
+import {StakingAccount, StakingClaimResponse, StakingResponse} from "./types";
+import {durationToSeconds, stringToUint8, uint8ArrayToHexString, uint8ToString} from "./utils";
 import {handle_transfer} from "./transfer/transfer";
 import {is_subaccount_valid} from "./transfer/validate";
 import {get_transactions, icrc1_transfer} from "./api";
 
 
 $query
+
 export function getTotalStaked(principal: string): nat {
     const stakingAccounts = getStakingAccount(principal).filter(x => !x.claimed);
 
@@ -19,6 +20,7 @@ export function getTotalStaked(principal: string): nat {
 }
 
 $query
+
 export function getStakingAccount(principal: string): Vec<StakingAccount> {
     if (!state.stakingAccountsState) {
         return [];
@@ -27,55 +29,8 @@ export function getStakingAccount(principal: string): Vec<StakingAccount> {
 }
 
 $update
-export function brokenStakeRefund(): boolean {
-    const caller = ic.caller();
-    const stakingAccounts = getStakingAccount(caller.toText());
 
-    //if there are no staking accounts, there is nothing to refund
-    if (stakingAccounts.length === 0) {
-        return false;
-    }
-
-    // @ts-ignore get staking transaction
-    const transactions = get_transactions(0n).filter(x => x.from.owner.toText() === caller.toText()).filter(x => x.args.memo).filter(x => uint8ToString(x.args.memo).startsWith("stake"));
-    if (transactions.length === 0) {
-        return false;
-    }
-
-    //if there are more staking accounts than transactions, refund the difference
-    if (stakingAccounts.length === transactions.length) {
-        return false;
-    }
-
-    for (let transaction of transactions) {
-        // @ts-ignore
-        const stringMemo = uint8ToString(transaction.args.memo);
-        //every transaction should have a matching staking account
-        const matchingStakingAccount = stakingAccounts.find(x => x.memo == stringMemo);
-        if (!matchingStakingAccount) {
-            if (transaction.args) {
-                icrc1_transfer({
-                    amount: transaction.args.amount,
-                    created_at_time: null,
-                    fee: null,
-                    from_subaccount: transaction.args.to.subaccount,
-                    memo: stringToUint8("Refund for broken stake"),
-                    to: {
-                        owner: caller,
-                        subaccount: null
-                    }
-                });
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-
-$update
-export function startStaking(subaccount: blob, amount: nat, uniqueMemo: string): StakingResponse {
+export function startStaking(subaccount: blob, amount: nat, blockNumber: nat): StakingResponse {
     const caller = ic.caller();
     const id = ic.id();
     console.log("caller", caller.toText());
@@ -98,15 +53,23 @@ export function startStaking(subaccount: blob, amount: nat, uniqueMemo: string):
     const {transactions} = get_transactions({start: 0n, length: 200n});
     console.log(transactions.length + " transactions found");
     const transfer = transactions.find((transaction) => {
-        const args = transaction?.args;
-        const memo = args?.memo;
-        const innerAmount = args?.amount;
-        const to = args?.to;
-        const ownerId = to?.owner?.toText?.();
-        const innerSubaccount = to?.subaccount;
-        return memo && uint8ToString(memo) === uniqueMemo &&
-            innerAmount === amount && ownerId === id.toText() &&
-            innerSubaccount && uint8ArrayToHexString(innerSubaccount) === uint8ArrayToHexString(subaccount);
+        if (transaction.transaction) {
+            const block = transaction.id;
+
+            // @ts-ignore
+            const innerAmount = transaction.transaction.transfer.amount;
+            // @ts-ignore
+            const ownerId = transaction.transaction.transfer.to.owner.toText();
+            // @ts-ignore
+            const memo = transaction.transaction.transfer.memo;
+            // @ts-ignore
+            const innerSubaccount = transaction.transaction.transfer.to.subaccount;
+            return memo && uint8ToString(memo) === "Stake" &&
+                block === blockNumber &&
+                innerAmount === amount && ownerId === id.toText() &&
+                innerSubaccount && uint8ArrayToHexString(innerSubaccount) === uint8ArrayToHexString(subaccount);
+        }
+
     });
     if (!transfer) {
         return {Err: "No staking transfer found"};
@@ -119,7 +82,6 @@ export function startStaking(subaccount: blob, amount: nat, uniqueMemo: string):
         endStakeDate: null,
         amount,
         reward: null,
-        memo: uniqueMemo,
         claimed: false
     };
     state.stakingAccountsState[caller.toText()].push(stake);
@@ -127,6 +89,7 @@ export function startStaking(subaccount: blob, amount: nat, uniqueMemo: string):
 }
 
 $update
+
 export function startEndStaking(subaccount: blob): StakingResponse {
     const caller = ic.caller();
     if (!state.stakingAccountsState) {
@@ -155,6 +118,7 @@ export function startEndStaking(subaccount: blob): StakingResponse {
 }
 
 $update
+
 export function claimStaking(subaccount: blob): StakingClaimResponse {
     const caller = ic.caller();
     const id = ic.id();
@@ -176,7 +140,7 @@ export function claimStaking(subaccount: blob): StakingClaimResponse {
         return {Err: "No staking account found"};
     }
 
-    if (!singleStakingAccount.endStakeDate ) {
+    if (!singleStakingAccount.endStakeDate) {
         return {Err: "Staking has not started unstaking"};
     }
 
@@ -189,7 +153,10 @@ export function claimStaking(subaccount: blob): StakingClaimResponse {
         amount: claim,
         created_at_time: ic.time(),
         fee: null,
-        from_subaccount: subaccount,
+        from: {
+            owner: id,
+            subaccount
+        },
         memo: stringToUint8("stakingClaim"),
         to: {
             owner: caller,

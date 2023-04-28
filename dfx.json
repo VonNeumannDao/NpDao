@@ -2,8 +2,8 @@
   "canisters": {
     "ledger": {
       "type": "custom",
-      "wasm": "ledger.wasm",
       "candid": "ledger.public.did",
+      "wasm": "ledger.wasm",
       "remote": {
         "candid": "ledger.public.did",
         "id": {

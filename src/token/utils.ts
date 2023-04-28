@@ -1,6 +1,4 @@
 import {blob, nat} from "azle";
-import {state} from "./state";
-
 export function hexToUint8Array(hexString: string): Uint8Array {
     if (hexString.length % 2 !== 0) {
         throw new Error("Invalid hex string length");

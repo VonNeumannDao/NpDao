@@ -21,7 +21,7 @@ export function validate_transfer(
         };
     }
 
-    const from_subaccount_is_valid = is_subaccount_valid(args.from_subaccount);
+    const from_subaccount_is_valid = is_subaccount_valid(args.from.subaccount);
 
     if (!from_subaccount_is_valid) {
         return {
@@ -210,16 +210,18 @@ function find_duplicate_transaction_index(
     const now = ic.time();
     for (let i = 0; i < state.transactions.length; i++) {
         const transaction = state.transactions.get(i);
+
         if ( transaction &&
             stringify({
                 ...transfer_args,
                 from
             }) === stringify({
-                ...transaction.args,
-                from: transaction.from
+                ...transaction.transaction.transfer,
+                // @ts-ignore
+                from: transaction.transaction.transfer.from
             }) &&
-            transaction.timestamp > now + state.permitted_drift_nanos &&
-            now - transaction.timestamp <
+            transaction.transaction.timestamp > now + state.permitted_drift_nanos &&
+            now - transaction.transaction.timestamp <
             state.transaction_window_nanos + state.permitted_drift_nanos
         ) {
             return BigInt(i);
