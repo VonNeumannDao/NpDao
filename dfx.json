@@ -17,8 +17,7 @@
       "root": "src/archive",
       "ts": "src/archive/index.ts",
       "candid": "src/archive/index.did",
-      "wasm": ".azle/archive/archive.wasm.gz",
-      "dependencies": [ "token" ]
+      "wasm": ".azle/archive/archive.wasm.gz"
     },
     "token": {
       "type": "custom",

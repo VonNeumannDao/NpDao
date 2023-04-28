@@ -7,10 +7,10 @@ import {
     TransactionWithId,
     TxReceipt
 } from "./types";
-import {CallResult, ic, nat, nat32, nat64, Principal, Service, Tuple, Variant, Vec} from "azle";
+import {CallResult, ic, nat, nat32, nat64, Opt, Principal, Service, Tuple, Variant, Vec} from "azle";
 import {serviceQuery, serviceUpdate} from "azle/src/lib/candid_types/service";
 import {hexToUint8Array} from "./utils";
-import {archive, get_transactions, length} from "../archive";
+import {state} from "./state";
 
 export const MAX_TRANSACTIONS_PER_REQUEST = 1000n;
 
@@ -82,11 +82,15 @@ export class Icrc extends Service {
 }
 
 export class Archive extends Service {
+
     @serviceUpdate
     archive: (transactions: Vec<TransactionWithId>) => CallResult<ArchiveResponse>;
 
     @serviceQuery
     get_transactions: (request: GetTransactionsRequest) => CallResult<TransactionRange>;
+
+    @serviceQuery
+    get_transaction: (tx_index: nat) => CallResult<Opt<TransactionWithId>>;
 
     @serviceQuery
     length: () => CallResult<nat>;

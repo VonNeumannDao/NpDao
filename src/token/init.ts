@@ -1,12 +1,12 @@
-import {$init, $postUpgrade, $preUpgrade, ic, Opt} from 'azle';
+import {$init, $postUpgrade, $preUpgrade, ic, Opt, Principal} from 'azle';
 import {state} from './state';
 import {handle_mint} from './transfer/mint';
 import {is_subaccount_valid, stringify} from './transfer/validate';
+import prodCanister from "../../canister_ids.json";
 
 import {Account, InitialAccountBalance, IcrcTransferArgs, TransactionWithId} from './types';
 import {
-    AIRDROP_ACCOUNT,
-    DAO_TREASURY,
+    AIRDROP_ACCOUNT, DAO_TREASURY,
     MAX_TRANSACTIONS_PER_REQUEST,
     MINTING_ACCOUNT,
     XTC_DISTRIBUTION_ACCOUNT
@@ -14,12 +14,11 @@ import {
 import {
     stableAccounts,
     stableIds, stableMemory,
-    stableProposals,
+    stableProposals, stableQueuedTransactions,
     stableStakingAccounts,
     stableTransactions
 } from "./stable_memory";
 import {startTimer} from "./Timer";
-import {_loadTransactions} from "./Archive";
 
 $preUpgrade;
 export function preUpgrade(): void {
@@ -39,7 +38,10 @@ export function preUpgrade(): void {
             });
         }
     }
-    _loadTransactions();
+    for (let item of state.transactions.temporaryArchive.items) {
+        stableQueuedTransactions.insert(item.id.toString(10), item);
+    }
+
     for (let i = 0; i < state.transactions.length; i++) {
         const transaction: TransactionWithId = state.transactions.get(i);
         stableTransactions.insert(i, transaction);
@@ -82,6 +84,12 @@ export function postUpgrade(): void {
             // @ts-ignore
             state.accounts[accounts.ownerKey][accounts.accountKey] = accounts.balance || 0n;
         }
+    }
+
+    for (let i = 0n; i< stableQueuedTransactions.len(); i++) {
+        const transaction = stableQueuedTransactions.get(i.toString(10));
+        if (transaction)
+        state.transactions.temporaryArchive.items.push(transaction);
     }
 
     for (let i = 0; i< stableTransactions.len(); i ++) {
@@ -133,6 +141,10 @@ export function postUpgrade(): void {
 $init;
 export function init(): void {
     console.log('this runs the init', state.initial_supply);
+    if (prodCanister.token.ic === ic.id().toText()) {
+        state.isDev = false;
+    }
+
     state.minting_account = validate_minting_account(MINTING_ACCOUNT);
     initialize_account_balance({
         account: DAO_TREASURY,

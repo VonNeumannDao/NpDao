@@ -8,4 +8,4 @@ export let stableCanisterRegister = new StableBTreeMap<string, string>(4, 100, 1
 export let stableIds = new StableBTreeMap<string, string>(5, 100, 100);
 export let stableMemory = new StableBTreeMap<string, blob>(6, 100, 5000000);
 export let stableStakingAccounts = new StableBTreeMap<number, StakingAccount>(7, 100, 256);
-export let stableArchivedTransactions = new StableBTreeMap<string, TransactionWithId>(8, 100, 500);
+export let stableQueuedTransactions = new StableBTreeMap<string, TransactionWithId>(8, 100, 500);

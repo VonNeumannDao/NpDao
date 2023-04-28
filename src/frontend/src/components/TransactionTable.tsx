@@ -14,10 +14,11 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
-import {_SERVICE, IcrcTransaction, TransactionWithId} from "../declarations/token/token.did";
+import {_SERVICE as TokenService, TransactionWithId} from "../declarations/token/token.did";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
 import {useCanister} from "@connect2ic/react";
 import {SwapHoriz} from "@mui/icons-material";
+import {_SERVICE as ArchiveService} from "../declarations/archive/archive.did";
 
 export default function TransactionTable() {
     const [page, setPage] = useState(0);
@@ -26,7 +27,10 @@ export default function TransactionTable() {
     const [transactionAmount, setTransactionAmount] = useState(0);
     const [loading, setLoading] = useState(false);
     const [_tokenActor] = useCanister("token");
-    const tokenActor = _tokenActor as unknown as _SERVICE;
+    const [_archiveActor] = useCanister("archive");
+
+    const tokenActor = _tokenActor as unknown as TokenService;
+    const archieActor = _archiveActor as unknown as ArchiveService;
     useEffect(() => {
         setLoading(true);
 
@@ -35,13 +39,13 @@ export default function TransactionTable() {
             const length = BigInt(rowsPerPage);
             let transactions: TransactionWithId[];
             if (start > 1000) {
-                transactions = (await tokenActor.get_archived_transactions({start, length})).transactions;
+                transactions = (await archieActor.get_transactions({start, length})).transactions;
             } else if (start < 1000 && (start + length) < 1000) {
                 const trx = await tokenActor.get_transactions({start, length});
                 transactions = trx.transactions;
             } else {
                 transactions = (await tokenActor.get_transactions({start, length})).transactions;
-                let secondaryTransactions = (await tokenActor.get_archived_transactions({start: 0n, length: length - BigInt(transactions.length)})).transactions;
+                let secondaryTransactions = (await archieActor.get_transactions({start: 0n, length: length - BigInt(transactions.length)})).transactions;
                 transactions.push(...secondaryTransactions);
             }
 

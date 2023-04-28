@@ -1,15 +1,27 @@
-import {$query, $update, ic, nat, nat32, StableBTreeMap, Variant, Vec} from "azle";
+import {$init, $query, $update, ic, nat, Opt, StableBTreeMap, Vec} from "azle";
 import {ArchiveResponse, GetTransactionsRequest, TransactionRange, TransactionWithId} from "../token/types";
-import {MAX_TRANSACTIONS_PER_REQUEST} from "../token/constants";
-export let archivedTransaction = new StableBTreeMap<string, TransactionWithId>(8, 100, 500);
+import prodCanister from "../../canister_ids.json";
+
+const prodCanisterIds = [prodCanister.token.ic, prodCanister.archive.ic];
+export let archivedTransaction = new StableBTreeMap<string, TransactionWithId>(9, 100, 500);
+
+let isDev = true;
+
+$init;
+export function init(): void {
+    if (prodCanister.archive.ic === ic.id.toString()) {
+        isDev = false;
+    }
+}
 
 $update;
 export async function archive(transactions: Vec<TransactionWithId>): Promise<ArchiveResponse> {
+    console.log("Archiving transactions");
     const caller = ic.caller();
-    if (caller.toText() !== "4dybz-kiaaa-aaaap-qba4q-cai" || caller.toText() !== "r7inp-6aaaa-aaaaa-aaabq-cai") {
+    if (!isDev && !prodCanisterIds.includes(caller.toString())) {
+        console.log("Unauthorized " + isDev.toString());
         return { Err: 401 };
     }
-
     transactions.sort((tranA, tranB) => {
         const a = tranA.id;
         const b = tranB.id;
@@ -24,6 +36,8 @@ export async function archive(transactions: Vec<TransactionWithId>): Promise<Arc
         archivedTransaction.insert(transaction.id.toString(), transaction);
     });
 
+    console.log("Archived transactions " + archivedTransaction.len().toString());
+
     return { Ok: 200 };
 }
 
@@ -31,8 +45,8 @@ $query;
 export function get_transactions(request: GetTransactionsRequest): TransactionRange {
     let {start, length} = request;
     const transactionLength = archivedTransaction.len();
-    if (length > MAX_TRANSACTIONS_PER_REQUEST) {
-        length = MAX_TRANSACTIONS_PER_REQUEST;
+    if (length > 1000n) {
+        length = 1000n;
     }
 
     if (length > transactionLength) {
@@ -53,4 +67,9 @@ export function get_transactions(request: GetTransactionsRequest): TransactionRa
 $query;
 export function length(): nat {
     return archivedTransaction.len();
+}
+
+$query;
+export function get_transaction(tx_index: nat): Opt<TransactionWithId> {
+    return archivedTransaction.get(tx_index.toString(10));
 }

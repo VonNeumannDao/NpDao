@@ -32,6 +32,7 @@ type TransactionRange = record { transactions : vec TransactionWithId };
 type TransactionWithId = record { id : nat; transaction : IcrcTransaction };
 service : () -> {
   archive : (vec TransactionWithId) -> (ManualReply);
+  get_transaction : (nat) -> (opt TransactionWithId) query;
   get_transactions : (GetTransactionsRequest) -> (TransactionRange) query;
   length : () -> (nat) query;
 }

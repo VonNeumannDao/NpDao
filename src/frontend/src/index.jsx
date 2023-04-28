@@ -18,9 +18,10 @@ import {ThemeProvider} from "@mui/material";
 import myTheme from "./ThemeImporter";
 import {idlFactory as ledgerFactory, canisterId} from "./declarations/ledger";
 import {isDebugOn} from "./components/DebugOnly";
+import {canisterId as archiveCanisterId, idlFactory as archiveIdlFactory} from "./declarations/archive";
 
 const ledgerCanister = isDebugOn ? canisterId : "ryjl3-tyaaa-aaaaa-aaaba-cai";
-const whiteList = [ledgerCanister, "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister]
+const whiteList = [ledgerCanister, "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister, archiveCanisterId]
 const client = createClient({
     globalProviderConfig: {
         whitelist: whiteList,
@@ -37,6 +38,9 @@ const client = createClient({
         },
         ["xtc"]: {
             canisterId: "aanaa-xaaaa-aaaah-aaeiq-cai", idlFactory: dip20Factory
+        },
+        ["archive"]: {
+            canisterId: archiveCanisterId, idlFactory: archiveIdlFactory
         }
     },
     providers: defaultProviders,

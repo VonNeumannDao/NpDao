@@ -1,71 +1,58 @@
 import {balance_of} from './account';
-import {$query, nat, nat64, nat8, Opt, Vec, ic} from 'azle';
+import {$query, nat, nat8, Opt, Vec, $update, Principal} from 'azle';
 import {state} from './state';
 import {
     Account,
     Metadatum,
     SupportedStandard,
-    IcrcTransaction,
     TransactionRange,
     GetTransactionsRequest,
     GetTransactionsResponse,
     ArchivedTransaction, QueryArchiveFn, TransactionWithId
 } from './types';
-import {stableArchivedTransactions} from "./stable_memory";
 import {MAX_TRANSACTIONS_PER_REQUEST} from "./constants";
+import devCanister from "../../.dfx/local/canister_ids.json";
+import prodCanister from "../../canister_ids.json";
+import {archiveCanister} from "./utils";
 
 $query;
 export function getQueryArchiveFn(): QueryArchiveFn {
-    return [ic.id(), 'get_archived_transactions'];
+    return [Principal.fromText(state.isDev ? devCanister.archive.local : prodCanister.archive.ic), 'get_transactions'];
 }
 
-$query;
-export function total_transactions(): nat {
-    return BigInt(state.transactions.length) + stableArchivedTransactions.len() + BigInt(state.transactions.temporaryArchive.size());
+$update;
+export async function total_transactions(): Promise<nat> {
+    const len = await archiveCanister().length().call();
+    console.log("we moved passed canister");
+    console.log(len.Err);
+    const archivedLen = (len && len.Ok) || 0n;
+
+    console.log("we got passed archived length " + archivedLen);
+    return BigInt(state.transactions.length) + archivedLen + BigInt(state.transactions.temporaryArchive.size());
 }
 
-$query
-export function get_transaction(tx_index: nat): Opt<TransactionWithId> {
+$update
+export async function get_transaction(tx_index: nat): Promise<Opt<TransactionWithId>> {
     if (tx_index > MAX_TRANSACTIONS_PER_REQUEST) {
-        return stableArchivedTransactions.get(tx_index.toString(10));
+        const arch = await archiveCanister().get_transaction(tx_index).call();
+        if (arch && "Ok" in arch && arch.Ok) {
+            // @ts-ignore
+            return arch.Ok;
+        }
     }
 
     return state.transactions.get(Number(tx_index));
 }
 
-$query;
-export function get_archived_transactions(request: GetTransactionsRequest): TransactionRange {
-    let {start, length} = request;
-    const transactionLength = stableArchivedTransactions.len();
-    if (length > MAX_TRANSACTIONS_PER_REQUEST) {
-        length = MAX_TRANSACTIONS_PER_REQUEST;
-    }
-
-    if (length > transactionLength) {
-        length = transactionLength;
-    }
-
-    let end = start + length;
-    const transactions: TransactionWithId[] = [];
-    for (let i = start; i < end; i++) {
-        const archived = stableArchivedTransactions.get(i.toString(10));
-        if (archived !== null)
-            transactions.push(archived);
-    }
-
-    return {transactions};
-}
-
-$query;
-export function get_transactions(
+$update;
+export async function get_transactions(
     getTransactionsRequest: GetTransactionsRequest
-): GetTransactionsResponse {
+): Promise<GetTransactionsResponse> {
     let { start, length } = getTransactionsRequest;
     const transactionLength = BigInt(state.transactions.length);
     if (length > MAX_TRANSACTIONS_PER_REQUEST) {
         length = MAX_TRANSACTIONS_PER_REQUEST;
     }
-
     let end = start + length;
     if (end > transactionLength) {
         end = transactionLength;
@@ -76,39 +63,26 @@ export function get_transactions(
         Number(transactionLength - start)
     ).reverse();
 
-    let archivedEnd = start;
-    let archivedStart = BigInt(archivedEnd - MAX_TRANSACTIONS_PER_REQUEST);
-    if (archivedStart < 0) {
-        archivedStart = BigInt(0);
-    }
+    const archivedTransactions: ArchivedTransaction[] = [];
 
-    let archivedTransactions: ArchivedTransaction[] = [];
-    let endIdx = archivedStart - MAX_TRANSACTIONS_PER_REQUEST;
-    while (endIdx >= archivedStart) {
-        const archivedTransaction = {
-            start: BigInt(endIdx),
-            length: MAX_TRANSACTIONS_PER_REQUEST,
-            callback: getQueryArchiveFn(),
-        };
-        archivedTransactions.push(archivedTransaction);
-        archivedEnd -= MAX_TRANSACTIONS_PER_REQUEST;
-        endIdx -= MAX_TRANSACTIONS_PER_REQUEST;
-    }
+    if (end > MAX_TRANSACTIONS_PER_REQUEST) {
+        const logLength = await total_transactions();
 
-    if (archivedStart < archivedEnd) {
-        const archivedTransaction = {
-            start: archivedStart,
-            length: archivedEnd - archivedStart,
-            callback: getQueryArchiveFn(),
-        };
-        archivedTransactions.push(archivedTransaction);
+        if (end > logLength) {
+            end = logLength;
+        }
+        archivedTransactions.push({
+            start,
+            length: logLength,
+            callback: getQueryArchiveFn()
+        });
     }
 
     return {
         log_length: BigInt(state.transactions.length),
         first_index: start,
         transactions,
-        archived_transactions: archivedTransactions,
+        archived_transactions: archivedTransactions
     };
 }
 

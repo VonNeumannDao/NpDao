@@ -75,6 +75,7 @@ export type State = {
     }>
     decimals: nat8;
     fee: nat;
+    isDev: boolean;
     metadata: Vec<Metadatum>;
     minting_account: Opt<Account>;
     name: string;

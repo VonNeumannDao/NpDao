@@ -6,6 +6,7 @@ import {MAX_TRANSACTIONS_PER_REQUEST} from "./constants";
 
 export let state: State = {
     accounts: {},
+    isDev: true,
     initial_supply: BigInt(config.initialSupply),
     decimals: config.decimal,
     fee: BigInt(config.fee),

@@ -1,4 +1,8 @@
-import {blob, nat} from "azle";
+import {blob, nat, Principal} from "azle";
+import {Archive} from "./constants";
+import {state} from "./state";
+import devCanister from "../../.dfx/local/canister_ids.json";
+import prodCanister from "../../canister_ids.json";
 export function hexToUint8Array(hexString: string): Uint8Array {
     if (hexString.length % 2 !== 0) {
         throw new Error("Invalid hex string length");
@@ -87,8 +91,12 @@ export function durationToSeconds(duration: number): nat {
     return BigInt(duration * 1e9);
 }
 
+export function archiveCanister() {
+    return new Archive(Principal.fromText(state.isDev ? devCanister.archive.local : prodCanister.archive.ic));
+}
+
 export class Queue<T> {
-    private items: T[] = [];
+    public items: T[] = [];
 
     enqueue(item: T): void {
         this.items.push(item);
