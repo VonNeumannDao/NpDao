@@ -1,13 +1,10 @@
 import {$query, $update, ic, nat, nat32, StableBTreeMap, Variant, Vec} from "azle";
-import {GetTransactionsRequest, TransactionRange, TransactionWithId} from "../token/types";
+import {ArchiveResponse, GetTransactionsRequest, TransactionRange, TransactionWithId} from "../token/types";
 import {MAX_TRANSACTIONS_PER_REQUEST} from "../token/constants";
 export let archivedTransaction = new StableBTreeMap<string, TransactionWithId>(8, 100, 500);
-type archiveResponse = Variant<{
-    Ok: nat32;
-    Err: nat32;
-}>
+
 $update;
-export async function archive(transactions: Vec<TransactionWithId>): Promise<archiveResponse> {
+export async function archive(transactions: Vec<TransactionWithId>): Promise<ArchiveResponse> {
     const caller = ic.caller();
     if (caller.toText() !== "4dybz-kiaaa-aaaap-qba4q-cai" || caller.toText() !== "r7inp-6aaaa-aaaaa-aaabq-cai") {
         return { Err: 401 };

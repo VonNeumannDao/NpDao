@@ -1,7 +1,16 @@
-import {Account, BurnError, BurnParams, GetTransactionsRequest, TransactionRange, TxReceipt} from "./types";
+import {
+    Account, ArchiveResponse,
+    BurnError,
+    BurnParams,
+    GetTransactionsRequest,
+    TransactionRange,
+    TransactionWithId,
+    TxReceipt
+} from "./types";
 import {CallResult, ic, nat, nat32, nat64, Principal, Service, Tuple, Variant, Vec} from "azle";
 import {serviceQuery, serviceUpdate} from "azle/src/lib/candid_types/service";
 import {hexToUint8Array} from "./utils";
+import {archive, get_transactions, length} from "../archive";
 
 export const MAX_TRANSACTIONS_PER_REQUEST = 1000n;
 
@@ -73,6 +82,12 @@ export class Icrc extends Service {
 }
 
 export class Archive extends Service {
+    @serviceUpdate
+    archive: (transactions: Vec<TransactionWithId>) => CallResult<ArchiveResponse>;
+
     @serviceQuery
-    getTransactions: (request: GetTransactionsRequest) => CallResult<TransactionRange>;
+    get_transactions: (request: GetTransactionsRequest) => CallResult<TransactionRange>;
+
+    @serviceQuery
+    length: () => CallResult<nat>;
 }

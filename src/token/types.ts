@@ -330,3 +330,8 @@ export type BurnError = Variant<{
     InvalidTokenContract: null;
     NotSufficientLiquidity: null;
 }>;
+
+export type ArchiveResponse = Variant<{
+    Ok: nat32;
+    Err: nat32;
+}>
