@@ -42,6 +42,7 @@ export let state: State = {
     stakeDuration: config.stake.duration,
     stakingAccountsState: null,
     custodian: config.custodian,
+    deployers: config.deployers,
     airdrop_snapshot: {
         holders: new Map<string, nat64>(),
         dateTaken: 0n,

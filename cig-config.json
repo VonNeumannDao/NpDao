@@ -4,7 +4,7 @@
   "name": "Non Profit",
   "symbol": "NP",
   "proposalDuration": 61,
-  "proposalCost": "100000000",
+  "proposalCost": "300000000000",
   "initialSupply": "300000000000000",
   "airdropAmount": "100000000000000",
   "distribution": {
@@ -20,6 +20,7 @@
   "stake": {
     "duration": 10
   },
+  "deployers" : [],
   "custodian" : ["hvqau-ni36f-xg5xf-b2woa-m72po-3ebjk-2slud-oqilk-fonmr-huvso-gqe",
     "bccux-unsg4-wmiio-tnimk-hmgtj-7zwoa-p7oxs-oc5ks-7btcc-tlfcq-zae",
     "gnesl-ahn4g-fy5f4-x2ysf-yjsd7-n5t7w-u5iiu-bzgyj-zc2hz-5bkkl-uqe", "jafwa-rslpq-lvu67-hspva-n23wr-2vwye-fs63m-xb4x3-dj35v-mshl7-fqe"]

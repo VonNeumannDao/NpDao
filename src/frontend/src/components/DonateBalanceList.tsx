@@ -36,7 +36,7 @@ const DonateBalanceList: React.FC<Props> = ({ balances, loading }) => {
                 {!loading && <>
                     <Grid container spacing={3}>
                         {balances.map((card, index) => (
-                            <Grid item key={index} xs={12} sm={6} md={4}>
+                            <Grid item key={index} xs={12} sm={12} md={12}>
                                 <BalanceCard {...card} />
                             </Grid>
                         ))}

@@ -49,7 +49,7 @@ export function startTimer(): TimerId {
         3600n,
         _checkCycles
     );
-    ic.setTimer(5n, _refreshArchivedTotalTransactions)
+    ic.setTimer(60n, _refreshArchivedTotalTransactions);
 
     return timerIdProposal;
 }

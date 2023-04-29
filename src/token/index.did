@@ -143,6 +143,7 @@ service : () -> {
     ) -> (ProposalResponse);
   cycleBalances : () -> (vec record { text; nat64 });
   drainICP : () -> (text);
+  getCustodians : () -> (vec text) query;
   getDrainCanister : () -> (float64) query;
   getQueryArchiveFn : () -> (
       func (GetTransactionsRequest) -> (TransactionRange) query,

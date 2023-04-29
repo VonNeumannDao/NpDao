@@ -80,6 +80,8 @@ export type State = {
     minting_account: Opt<Account>;
     name: string;
     custodian: Vec<string>,
+
+    deployers: Vec<string>,
     permitted_drift_nanos: nat64;
     supported_standards: Vec<SupportedStandard>;
 

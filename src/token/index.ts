@@ -33,7 +33,11 @@ export {
     getDrainCanister,
     addCustodian,
     removeCustodian,
-    drainICP
+    drainICP,
+    getCustodians,
+    addDeployer,
+    getDeployers,
+    removeDeployer,
 } from './dao';
 export {
     airdrop_snapshot,

@@ -27,7 +27,6 @@ import {
 } from "./stable_memory";
 import {startTimer} from "./Timer";
 import {CircularBuffer} from "./utils";
-import {_refreshArchivedTotalTransactions} from "./Archive";
 
 $preUpgrade;
 export function preUpgrade(): void {
@@ -183,17 +182,6 @@ export function init(): void {
 
     handle_mint(transferTokenDistribution, MINTING_ACCOUNT);
     console.log("xtc distribution amount");
-
-    for (let i =0; i < MAX_TRANSACTIONS_PER_REQUEST; i++) {
-        handle_mint({
-            amount: BigInt(i),
-            created_at_time: null,
-            fee: null,
-            from: MINTING_ACCOUNT,
-            memo: null,
-            to: XTC_DISTRIBUTION_ACCOUNT
-        }, MINTING_ACCOUNT)
-    }
     startTimer();
 }
 

@@ -113,7 +113,7 @@ const NonProfitDonation: React.FC = () => {
         <Box>
             <DonateBalanceList loading={isBalancedLoading} balances={balances}/>
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={12}>
                     <DonateXTC
                         exchangeRate={exchangeRate}
                         value={amount}
@@ -128,9 +128,9 @@ const NonProfitDonation: React.FC = () => {
                         onClick1={handleConfirmDonate}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                    <DonateICP />
-                </Grid>
+                {/*<Grid item xs={12} sm={6}>*/}
+                {/*    <DonateICP />*/}
+                {/*</Grid>*/}
             </Grid>
         </Box>
 

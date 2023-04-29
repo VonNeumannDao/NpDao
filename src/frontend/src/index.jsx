@@ -22,12 +22,17 @@ import {canisterId as archiveCanisterId, idlFactory as archiveIdlFactory} from "
 
 const ledgerCanister = isDebugOn ? canisterId : "ryjl3-tyaaa-aaaaa-aaaba-cai";
 const whiteList = [ledgerCanister, "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister, archiveCanisterId]
+
+console.log(process.env.DFX_NETWORK)
+
 const client = createClient({
     globalProviderConfig: {
         whitelist: whiteList,
         appName: config.name,
-        autoConnect: true,
-        dev: isDebugOn
+        autoConnect: false,
+        host: isDebugOn ? undefined : "https://icp0.io",
+        dev: isDebugOn,
+        customDomain: isDebugOn ? undefined : "https://dev.icnonprofit.app"
     },
     canisters: {
         ["ledger"]: {

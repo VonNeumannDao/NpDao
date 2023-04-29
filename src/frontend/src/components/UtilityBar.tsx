@@ -28,9 +28,7 @@ const UtilityBar = () => {
     const {principal} = useConnect();
 
     useEffect(() => {
-        if (principal) {
-            init().then();
-        }
+        init().then();
     }, [principal]);
 
     async function init() {

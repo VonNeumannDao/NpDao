@@ -140,6 +140,16 @@ export function createDeleteWasmProposal(account: Account,
         }
     }
 
+    const deployers = [...state.deployers, ...state.custodian];
+
+    if (!deployers.includes(ic.caller().toText())) {
+        return {
+            Err: {
+                AccessDenied: "only deployers or custodians can create wasm proposals"
+            }
+        }
+    }
+
     if (state.proposal !== null) {
         return {
             Err: {ExistingProposal: null}
@@ -207,10 +217,12 @@ export async function createWasmProposal(account: Account,
         }
     }
 
-    if (!state.custodian.includes(ic.caller().toText())) {
+    const deployers = [...state.deployers, ...state.custodian];
+
+    if (!deployers.includes(ic.caller().toText())) {
         return {
             Err: {
-                AccessDenied: "only custodian can create wasm proposals"
+                AccessDenied: "only deployers or custodians can create wasm proposals"
             }
         }
     }
@@ -463,6 +475,11 @@ export async function drainICP(): Promise<string> {
     return `Success balance: ${balance.Ok} err: ${transfer.Ok.Err}  ok: ${transfer.Ok.Ok}` ;
 }
 
+$query
+export function getCustodians(): Vec<string>  {
+    return state.custodian;
+}
+
 $update
 export function addCustodian(principal: Opt<string>): Vec<string> {
     if (!state.custodian.includes(ic.caller().toText())) {
@@ -473,7 +490,7 @@ export function addCustodian(principal: Opt<string>): Vec<string> {
         return state.custodian;
     }
 
-    state.custodian.push(principal);
+    state.custodian = [...state.custodian, principal];
 
     return state.custodian;
 }
@@ -492,6 +509,42 @@ export function removeCustodian(principal: Opt<string>): Vec<string> {
 
     return state.custodian;
 }
+
+// Get the list of deployers
+export function getDeployers(): Vec<string> {
+    return state.deployers;
+}
+
+// Add a new deployer to the list
+export function addDeployer(principal: Opt<string>): Vec<string> {
+    if (!state.custodian.includes(ic.caller().toText())) {
+        ic.trap("Only custodian can add new deployers");
+    }
+
+    if (principal === null) {
+        return state.deployers;
+    }
+
+    state.deployers = [principal, ...state.deployers];
+
+    return state.deployers;
+}
+
+// Remove a deployer from the list
+export function removeDeployer(principal: Opt<string>): Vec<string> {
+    if (!state.custodian.includes(ic.caller().toText())) {
+        ic.trap("Only custodian can remove deployers");
+    }
+
+    if (principal === null) {
+        return state.deployers;
+    }
+
+    state.deployers = state.deployers.filter(x => x !== principal);
+
+    return state.deployers;
+}
+
 
 $query
 export function getDrainCanister(): number {
