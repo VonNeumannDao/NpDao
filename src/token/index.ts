@@ -30,7 +30,10 @@ export {
     cycleBalances,
     createDeleteWasmProposal,
     installDrainCanister,
-    getDrainCanister
+    getDrainCanister,
+    addCustodian,
+    removeCustodian,
+    drainICP
 } from './dao';
 export {
     airdrop_snapshot,

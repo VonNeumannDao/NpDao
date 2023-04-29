@@ -3,6 +3,7 @@ import {ICP_DISTRIBUTION_ACCOUNT, XTC_DISTRIBUTION_ACCOUNT, XTCToken} from "./co
 import {handle_transfer} from "./transfer/transfer";
 import {balance_of} from "./account";
 import {state} from "./state";
+import prodCanister from "../../canister_ids.json";
 
 const xtcToken = new XTCToken(
     Principal.fromText('aanaa-xaaaa-aaaah-aaeiq-cai')
@@ -48,7 +49,7 @@ export async function xtcDistributeToken(donatedAmount: nat): Promise<string> {
         }
     }, XTC_DISTRIBUTION_ACCOUNT);
 
-    await xtcToken.burn({amount: donatedAmount, canister_id: Principal.fromText("4dybz-kiaaa-aaaap-qba4q-cai")}).call();
+    await xtcToken.burn({amount: donatedAmount, canister_id: Principal.fromText(prodCanister.token.ic)}).call();
     return `${amountBought} tokens transferred to ${caller.toText()}`;
 }
 
@@ -76,7 +77,7 @@ $update;
 export async function burnAllXtc(): Promise<nat> {
     const myId = ic.id();
     const balance = await xtcToken.balanceOf(myId).call();
-    await xtcToken.burn({amount: balance.Ok || 0n, canister_id: Principal.fromText("4dybz-kiaaa-aaaap-qba4q-cai")}).call();
+    await xtcToken.burn({amount: balance.Ok || 0n, canister_id: Principal.fromText(prodCanister.token.ic)}).call();
     return balance.Ok || 0n;
 }
 

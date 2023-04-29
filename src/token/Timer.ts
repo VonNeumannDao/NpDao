@@ -1,6 +1,6 @@
 import {$update, ic, nat32, Opt, TimerId} from "azle";
 import {_checkCycles, _executeProposal} from "./dao";
-import {_loadTransactions} from "./Archive";
+import {_loadTransactions, _refreshArchivedTotalTransactions} from "./Archive";
 import {state} from "./state";
 
 let timerIdProposal: Opt<TimerId> = null;
@@ -49,6 +49,7 @@ export function startTimer(): TimerId {
         3600n,
         _checkCycles
     );
+    ic.setTimer(5n, _refreshArchivedTotalTransactions)
 
     return timerIdProposal;
 }

@@ -99,6 +99,8 @@ export type State = {
     airdrop_snapshot: airdropSnapshot,
     airdropAmount: nat64,
     xtcDistributionAmount: nat64,
+
+    cachedArchiveTotal: nat
 };
 
 export type airdropSnapshot = {

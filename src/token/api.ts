@@ -20,30 +20,41 @@ export function getQueryArchiveFn(): QueryArchiveFn {
     return [Principal.fromText(state.isDev ? devCanister.archive.local : prodCanister.archive.ic), 'get_transactions'];
 }
 
-$update;
-export async function total_transactions(): Promise<nat> {
+export async function total_transactions_debug(): Promise<string> {
     const len = await archiveCanister().length().call();
     const archivedLen = (len && len.Ok) || 0n;
-    return BigInt(state.transactions.length) + archivedLen + BigInt(state.transactions.temporaryArchive.size());
+    if ("Err" in len) {
+        return "Err: " + len.Err;
+    }
+    return state.isDev + " ArchivedTransactions: " + archivedLen + " transactions: " + state.transactions.length;
+}
+
+$query;
+export function total_transactions(): nat {
+    return BigInt(state.transactions.length) + state.cachedArchiveTotal + BigInt(state.transactions.temporaryArchive.size());
 }
 
 $update
 export async function get_transaction(tx_index: nat): Promise<Opt<TransactionWithId>> {
-    if (tx_index > MAX_TRANSACTIONS_PER_REQUEST) {
-        const arch = await archiveCanister().get_transaction(tx_index).call();
-        if (arch && "Ok" in arch && arch.Ok) {
-            // @ts-ignore
-            return arch.Ok;
-        }
+    const activeTransaction = state.transactions.get(Number(tx_index));
+
+    if (activeTransaction) {
+        return activeTransaction;
     }
 
-    return state.transactions.get(Number(tx_index));
+    const arch = await archiveCanister().get_transaction(tx_index).call();
+    if (arch && "Ok" in arch && arch.Ok) {
+        // @ts-ignore
+        return arch.Ok;
+    }
+
+    return null;
 }
 
-$update;
-export async function get_transactions(
+$query;
+export function get_transactions(
     getTransactionsRequest: GetTransactionsRequest
-): Promise<GetTransactionsResponse> {
+): GetTransactionsResponse {
     let { start, length } = getTransactionsRequest;
     const transactionLength = BigInt(state.transactions.length);
     if (length > MAX_TRANSACTIONS_PER_REQUEST) {
@@ -62,7 +73,7 @@ export async function get_transactions(
     const archivedTransactions: ArchivedTransaction[] = [];
     let newEnd = start + length;
     if (newEnd > MAX_TRANSACTIONS_PER_REQUEST) {
-        const logLength = await total_transactions();
+        const logLength = total_transactions();
         archivedTransactions.push({
             start,
             length: logLength,

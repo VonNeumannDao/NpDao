@@ -21,7 +21,7 @@ import {SwapHoriz} from "@mui/icons-material";
 import {_SERVICE as ArchiveService} from "../declarations/archive/archive.did";
 
 export default function TransactionTable() {
-    const [page, setPage] = useState(99);
+    const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [transactions, setTransactions] = useState<TransactionWithId[]>([]);
     const [transactionAmount, setTransactionAmount] = useState(0);

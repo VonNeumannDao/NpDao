@@ -13,6 +13,12 @@ type Burn = record {
 };
 type Canisters = record { appName : text; canisterId : text };
 type GetTransactionsRequest = record { start : nat; length : nat };
+type GetTransactionsResponse = record {
+  first_index : nat;
+  log_length : nat;
+  transactions : vec TransactionWithId;
+  archived_transactions : vec ArchivedTransaction;
+};
 type IcRcTransferError = variant {
   GenericError : _InlineIcRcTransferErrorGenericError;
   TemporarilyUnavailable;
@@ -39,12 +45,6 @@ type IcrcTransferArgs = record {
   amount : nat;
 };
 type IcrcTransferResult = variant { Ok : nat; Err : IcRcTransferError };
-type ManualReply = record {
-  first_index : nat;
-  log_length : nat;
-  transactions : vec TransactionWithId;
-  archived_transactions : vec ArchivedTransaction;
-};
 type Mint = record {
   to : Account;
   memo : opt vec nat8;
@@ -118,6 +118,7 @@ type _InlineIcRcTransferErrorGenericError = record {
 type _InlineProposalErrorInsufficientFunds = record { balance : nat };
 service : () -> {
   activeProposal : () -> (ActiveProposal) query;
+  addCustodian : (opt text) -> (vec text);
   airdrop_claim : () -> (text);
   airdrop_entitled : () -> (bool) query;
   airdrop_snapshot : () -> (text);
@@ -141,6 +142,7 @@ service : () -> {
       opt text,
     ) -> (ProposalResponse);
   cycleBalances : () -> (vec record { text; nat64 });
+  drainICP : () -> (text);
   getDrainCanister : () -> (float64) query;
   getQueryArchiveFn : () -> (
       func (GetTransactionsRequest) -> (TransactionRange) query,
@@ -148,7 +150,9 @@ service : () -> {
   getStakingAccount : (text) -> (vec StakingAccount) query;
   getTotalStaked : (text) -> (nat) query;
   get_transaction : (nat) -> (opt TransactionWithId);
-  get_transactions : (GetTransactionsRequest) -> (ManualReply);
+  get_transactions : (GetTransactionsRequest) -> (
+      GetTransactionsResponse,
+    ) query;
   icpDistributeToken : (nat) -> (text);
   icpDistributionBalance : () -> (nat) query;
   icpDistributionExchangeRate : () -> (nat) query;
@@ -165,11 +169,12 @@ service : () -> {
   installDrainCanister : (vec nat8) -> ();
   mint_tokens : () -> (IcrcTransferResult);
   pastProposals : () -> (vec ProposalViewResponse) query;
+  removeCustodian : (opt text) -> (vec text);
   startEndStaking : (vec nat8) -> (StakingResponse);
   startStaking : (vec nat8, nat, nat) -> (StakingResponse);
   startTimer : () -> (nat64);
   stopTimer : () -> (nat32);
-  total_transactions : () -> (nat);
+  total_transactions : () -> (nat) query;
   tryDrainCanister : (principal) -> (text);
   vote : (Account, nat, bool) -> (ProposalResponse);
   voteStatus : () -> (VoteStatusResponse) query;

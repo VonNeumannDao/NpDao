@@ -3,6 +3,15 @@ import {Archive} from "./constants";
 import {state} from "./state";
 import devCanister from "../../.dfx/local/canister_ids.json";
 import prodCanister from "../../canister_ids.json";
+export const JSON_BIGINT = (error: any) => JSON.stringify(error, (_, v) => typeof v === 'bigint' ? `${v}n` : v)
+export function PARSE_BIGINT(jsonStr: string): any {
+    return JSON.parse(jsonStr, (key, value) => {
+        if (typeof value === 'string' && /^\d+n$/.test(value)) {
+            return BigInt(value.slice(0, -1));
+        }
+        return value;
+    });
+}
 export function hexToUint8Array(hexString: string): Uint8Array {
     if (hexString.length % 2 !== 0) {
         throw new Error("Invalid hex string length");
@@ -125,7 +134,14 @@ export class CircularBuffer<T> implements Iterable<T> {
     private tail = 0;
     public length = 0;
     public temporaryArchive = new Queue<T>();
-    constructor(private max_size: number) {}
+    constructor(private max_size: number, initialValues?: T[]) {
+        this.buffer = new Array(max_size).fill(undefined);
+        if (initialValues) {
+            for (let i = 0; i < initialValues.length; i++) {
+                this.add(initialValues[i]);
+            }
+        }
+    }
 
     push(element: T) {
         this.add(element);
@@ -193,4 +209,21 @@ export class CircularBuffer<T> implements Iterable<T> {
             },
         };
     }
+}
+
+export function objectToUint8Array(obj: object): Uint8Array {
+    const str = JSON_BIGINT(obj);
+    const arr = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) {
+        arr[i] = str.charCodeAt(i);
+    }
+    return arr;
+}
+
+export function uint8ArrayToObject<T>(uint8Arr: Uint8Array): T {
+    let str = '';
+    for (let i = 0; i < uint8Arr.length; i++) {
+        str += String.fromCharCode(uint8Arr[i]);
+    }
+    return PARSE_BIGINT(str);
 }

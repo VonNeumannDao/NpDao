@@ -1,9 +1,12 @@
 import {TransactionWithId} from "./types";
 import {state} from "./state";
 import {archiveCanister, Queue} from "./utils";
-import {Archive} from "./constants";
-import {Principal} from "azle";
 
+
+export async function _refreshArchivedTotalTransactions(): Promise<void> {
+    const len = await archiveCanister().length().call();
+    state.cachedArchiveTotal = (len && len.Ok) || 0n;
+}
 export async function _loadTransactions(): Promise<void> {
     console.log("Loading transactions");
     const transactions: Queue<TransactionWithId> = state.transactions.temporaryArchive;
@@ -20,6 +23,7 @@ export async function _loadTransactions(): Promise<void> {
     // @ts-ignore
     if ("Ok" in response && "Ok" in response.Ok) {
         console.log(`Loaded ${numberLoaded} transactions`);
+        await _refreshArchivedTotalTransactions();
     } else {
         console.log("Failed to load transactions");
         state.transactions.temporaryArchive.items.push(...transactionsToTransfer);

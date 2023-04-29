@@ -35,7 +35,7 @@ export async function airdrop_snapshot(): Promise<string> {
         totalSupply: totalSupplyResult.Ok
     }
     timerIdSnapshot = ic.setTimerInterval(
-        30n,
+        10n,
         _snapshot_process
     );
 
@@ -64,31 +64,45 @@ export function airdrop_snapshot_status(): string {
 
 export async function _snapshot_process(): Promise<void> {
     const holdersResult = await tokenCanister.getHolders(start, limit).call();
-    if ("Err" in holdersResult) {
-        airdropError = holdersResult.Err  || "something failed or it complete";
-        ic.clearTimer(timerIdSnapshot);
-        timerIdSnapshot = 0n;
-        start = 0n;
-        circulatingSupply = getTotalValueHeld(state.airdrop_snapshot.holders);
-        state.airdrop_snapshot.dateTaken = ic.time();
-        return;
-    }
-
-    if (holdersResult.Ok.length === 0) {
-        ic.clearTimer(timerIdSnapshot);
-        timerIdSnapshot = 0n;
-        airdropStatus = "snapshot complete";
-        circulatingSupply = getTotalValueHeld(state.airdrop_snapshot.holders);
-        state.airdrop_snapshot.dateTaken = ic.time();
-        start = 0n;
-        return;
-    }
-    for (let okElement of holdersResult.Ok) {
-        if (!EXCEMPT_PRINCIPALS.includes(okElement[0].toText())) {
-            state.airdrop_snapshot.holders.set(okElement[0].toText(), okElement[1]);
+    try {
+        if ("Err" in holdersResult) {
+            airdropError = holdersResult.Err || "something failed or it complete";
+            ic.clearTimer(timerIdSnapshot);
+            timerIdSnapshot = 0n;
+            start = 0n;
+            circulatingSupply = getTotalValueHeld(state.airdrop_snapshot.holders);
+            state.airdrop_snapshot.dateTaken = ic.time();
+            return;
         }
+
+        if (holdersResult.Ok.length === 0) {
+            ic.clearTimer(timerIdSnapshot);
+            timerIdSnapshot = 0n;
+            airdropStatus = "snapshot complete";
+            circulatingSupply = getTotalValueHeld(state.airdrop_snapshot.holders);
+            state.airdrop_snapshot.dateTaken = ic.time();
+            start = 0n;
+            return;
+        }
+        for (let okElement of holdersResult.Ok) {
+            if (!EXCEMPT_PRINCIPALS.includes(okElement[0].toText())) {
+                state.airdrop_snapshot.holders.set(okElement[0].toText(), okElement[1]);
+            }
+        }
+        start += limit;
+    }catch (e) {
+        ic.clearTimer(timerIdSnapshot);
+        timerIdSnapshot = 0n;
+        airdropStatus = getErrorMessage(e);
+        ic.clearTimer(timerIdSnapshot);
+        circulatingSupply = getTotalValueHeld(state.airdrop_snapshot.holders);
+        state.airdrop_snapshot.dateTaken = ic.time();
+        start = 0n;
     }
-    start += limit;
+}
+function getErrorMessage(error: unknown) {
+    if (error instanceof Error) return error.message
+    return String(error)
 }
 
 $update;

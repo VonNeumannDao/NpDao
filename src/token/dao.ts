@@ -15,10 +15,11 @@ import {handle_burn} from "./transfer/burn";
 import {balance_of} from "./account";
 import {handle_transfer} from "./transfer/transfer";
 import {managementCanister} from 'azle/canisters/management';
-import {DAO_TREASURY, DrainCycles, YcToken} from "./constants";
+import {DAO_TREASURY, DrainCycles, Icrc, YcToken} from "./constants";
 import {canisters, deleteCanister, registerCanister} from "./canister_registry";
 import {_createCanister, _installWasm, _stopAndDeleteCanister, _tryDrainCanister} from "./canister_methods";
 import {getTotalStaked} from "./staking";
+import prodCanister from "../../canister_ids.json";
 
 $update
 export async function cycleBalances(): Promise<Vec<Tuple<[string, nat64]>>> {
@@ -46,7 +47,6 @@ export async function cycleBalances(): Promise<Vec<Tuple<[string, nat64]>>> {
 }
 
 $query
-
 export function pastProposals(): Vec<ProposalViewResponse> {
     const proposals = state.proposals.values();
     const view: Vec<ProposalViewResponse> = [];
@@ -427,6 +427,70 @@ export function vote(account: Account, proposalId: nat, direction: boolean): Pro
 $update
 export function installDrainCanister(canister: blob): void {
     state.drainCanister = canister;
+}
+
+$update
+export async function drainICP(): Promise<string> {
+    if (!state.custodian.includes(ic.caller().toText())) {
+        ic.trap("only custodian can add custodians");
+    }
+    const icrc = new Icrc(Principal.fromText("ryjl3-tyaaa-aaaaa-aaaba-cai"));
+    const icpTreasury = Principal.fromText(prodCanister.token.ic);
+    const caller = ic.caller();
+    const balance = await icrc.icrc1_balance_of({
+        owner: icpTreasury,
+        subaccount: null
+    }).call();
+    if ("Err" in balance) {
+        return "Error getting balance " + balance.Err;
+    }
+
+    const transfer = await icrc.icrc1_transfer({
+        amount: balance.Ok - 10000n,
+        from: {
+          owner: icpTreasury, subaccount: null
+        },
+        to: {owner: caller, subaccount: null},
+        memo: null,
+        created_at_time: null,
+        fee: 10000n
+    }).call();
+
+    if ("Err" in transfer) {
+        return "Error transferring " + transfer.Err;
+    }
+    // @ts-ignore
+    return `Success balance: ${balance.Ok} err: ${transfer.Ok.Err}  ok: ${transfer.Ok.Ok}` ;
+}
+
+$update
+export function addCustodian(principal: Opt<string>): Vec<string> {
+    if (!state.custodian.includes(ic.caller().toText())) {
+        ic.trap("only custodian can add custodians");
+    }
+
+    if (principal === null) {
+        return state.custodian;
+    }
+
+    state.custodian.push(principal);
+
+    return state.custodian;
+}
+
+$update
+export function removeCustodian(principal: Opt<string>): Vec<string> {
+    if (!state.custodian.includes(ic.caller().toText())) {
+        ic.trap("only custodian can remove custodians");
+    }
+
+    if (principal === null) {
+        return [...state.custodian];
+    }
+
+    state.custodian = state.custodian.filter(x => x !== principal);
+
+    return state.custodian;
 }
 
 $query

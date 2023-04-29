@@ -26,7 +26,7 @@
       "ts": "src/token/index.ts",
       "candid": "src/token/index.did",
       "wasm": ".azle/token/token.wasm.gz",
-      "dependencies": [ "ledger" ]
+      "dependencies": [ ]
     },
     "frontend": {
       "dependencies": [

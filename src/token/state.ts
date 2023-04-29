@@ -46,5 +46,6 @@ export let state: State = {
         holders: new Map<string, nat64>(),
         dateTaken: 0n,
         totalSupply: 0n
-    }
+    },
+    cachedArchiveTotal: 0n
 };

@@ -9,7 +9,6 @@
 
 # dfx temporary files
 .dfx/
-
 # generated files
 src/frontend/src/declarations
 

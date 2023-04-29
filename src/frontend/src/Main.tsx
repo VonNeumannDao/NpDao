@@ -15,6 +15,8 @@ import Staking from "./components/Staking";
 import ConnectWalletMessage from "./components/ConnectWalletMessage";
 import TransactionTable from "./components/TransactionTable";
 import TokenSnapshotButton from "./components/TokenSnapshotButton";
+import DrainICPButton from "./components/DrainICPButton";
+import CustodianActions from "./components/CustodianActions";
 
 const Main = () => {
     const {isConnected, principal, disconnect, activeProvider} = useConnect();
@@ -47,6 +49,8 @@ const Main = () => {
                             <>
                                 <UploadCard/>
                                 <TokenSnapshotButton/>
+                                <DrainICPButton/>
+                                <CustodianActions/>
                             </>
                         </AdminOnly>
                     }/>

@@ -2,15 +2,15 @@ import {
     Account, ArchiveResponse,
     BurnError,
     BurnParams,
-    GetTransactionsRequest,
+    GetTransactionsRequest, IcrcTransferResult,
     TransactionRange,
     TransactionWithId,
-    TxReceipt
+    TxReceipt,
+    IcrcTransferArgs
 } from "./types";
 import {CallResult, ic, nat, nat32, nat64, Opt, Principal, Service, Tuple, Variant, Vec} from "azle";
 import {serviceQuery, serviceUpdate} from "azle/src/lib/candid_types/service";
 import {hexToUint8Array} from "./utils";
-import {state} from "./state";
 
 export const MAX_TRANSACTIONS_PER_REQUEST = 1000n;
 
@@ -79,6 +79,9 @@ export class DrainCycles extends Service {
 export class Icrc extends Service {
     @serviceQuery
     icrc1_balance_of: (account: Account) => CallResult<nat>;
+
+    @serviceUpdate
+    icrc1_transfer: (args: IcrcTransferArgs) => CallResult<IcrcTransferResult>
 }
 
 export class Archive extends Service {

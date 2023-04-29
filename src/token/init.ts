@@ -1,10 +1,17 @@
-import {$init, $postUpgrade, $preUpgrade, ic, Opt, Principal} from 'azle';
+import {$init, $postUpgrade, $preUpgrade, ic, Opt, Vec} from 'azle';
 import {state} from './state';
 import {handle_mint} from './transfer/mint';
-import {is_subaccount_valid, stringify} from './transfer/validate';
+import {is_subaccount_valid} from './transfer/validate';
 import prodCanister from "../../canister_ids.json";
 
-import {Account, InitialAccountBalance, IcrcTransferArgs, TransactionWithId} from './types';
+import {
+    Account,
+    InitialAccountBalance,
+    IcrcTransferArgs,
+    TransactionWithId,
+    AccountsRecord,
+    StakingAccount
+} from './types';
 import {
     AIRDROP_ACCOUNT, DAO_TREASURY,
     MAX_TRANSACTIONS_PER_REQUEST,
@@ -19,6 +26,8 @@ import {
     stableTransactions
 } from "./stable_memory";
 import {startTimer} from "./Timer";
+import {CircularBuffer} from "./utils";
+import {_refreshArchivedTotalTransactions} from "./Archive";
 
 $preUpgrade;
 export function preUpgrade(): void {
@@ -27,47 +36,48 @@ export function preUpgrade(): void {
     if (state.drainCanister) {
         stableMemory.insert("drainCanister", state.drainCanister);
     }
+    const acnts: Vec<AccountsRecord> = [];
     for (let ownerKey in state.accounts) {
 
         for (let accountKey in state.accounts?.[ownerKey]) {
             const balance: bigint | undefined = state.accounts?.[ownerKey]?.[accountKey];
-            stableAccounts.insert(ownerKey + accountKey, {
+            acnts.push({
                 ownerKey: ownerKey,
                 accountKey: accountKey,
                 balance: balance || 0n
-            });
+            })
         }
     }
+    stableAccounts.insert(0, acnts);
+
+
     for (let item of state.transactions.temporaryArchive.items) {
         stableQueuedTransactions.insert(item.id.toString(10), item);
     }
-
-    for (let i = 0; i < state.transactions.length; i++) {
-        const transaction: TransactionWithId = state.transactions.get(i);
-        stableTransactions.insert(i, transaction);
-    }
-
+    const serializableTransactions = [...state.transactions];
+    stableTransactions.insert(0, serializableTransactions);
+    const srlzProposals = [];
     for (let [key, val] of state.proposals.entries()) {
         if(val.ended) {
             val.wasm = null;
-            const votesToSave = Object.values(val.votes);
-            console.log(val.id.toString(10));
-            stableProposals.insert(val.id.toString(10), val);
+            srlzProposals.push(val);
         }
     }
+    stableProposals.insert(0, srlzProposals);
 
-    let index = 0;
+    const stakingAccounts: StakingAccount[] = [];
     if (state.stakingAccountsState) {
         Object.keys(state.stakingAccountsState).forEach((key) => {
             if (key) {
                 // @ts-ignore
                 state.stakingAccountsState[key].forEach((value) => {
-                    stableStakingAccounts.insert(index, value);
-                    index++;
+                    stakingAccounts.push(value);
                 });
             }
         });
     }
+    stableStakingAccounts.insert(0, stakingAccounts);
+
 }
 
 $postUpgrade;
@@ -76,13 +86,16 @@ export function postUpgrade(): void {
     state.proposalCount = BigInt(stableIds.get("proposalCount") || 0);
     state.total_supply = BigInt(stableIds.get("totalSupply") || 0);
     state.drainCanister = stableMemory.get("drainCanister");
-    for (let accounts of stableAccounts.values()) {
-        if (accounts != null && accounts.ownerKey != null && accounts.accountKey != null) {
-            if (state.accounts[accounts.ownerKey] == null) {
-                state.accounts[accounts.ownerKey] = {};
+    const accountObj = stableAccounts.get(0);
+    if (accountObj) {
+        for (let accounts of accountObj) {
+            if (accounts != null && accounts.ownerKey != null && accounts.accountKey != null) {
+                if (state.accounts[accounts.ownerKey] == null) {
+                    state.accounts[accounts.ownerKey] = {};
+                }
+                // @ts-ignore
+                state.accounts[accounts.ownerKey][accounts.accountKey] = accounts.balance || 0n;
             }
-            // @ts-ignore
-            state.accounts[accounts.ownerKey][accounts.accountKey] = accounts.balance || 0n;
         }
     }
 
@@ -92,14 +105,11 @@ export function postUpgrade(): void {
         state.transactions.temporaryArchive.items.push(transaction);
     }
 
-    for (let i = 0; i< stableTransactions.len(); i ++) {
-        const transaction: Opt<TransactionWithId> = stableTransactions.get(i);
-        if(transaction) {
-            state.transactions.push(transaction);
-        }
-    }
+    const trx = stableTransactions.get(0) || [];
+    state.transactions = new CircularBuffer<TransactionWithId>(trx.length, trx)
 
-    for (let value of stableProposals.values()) {
+    const votes = stableProposals.get(0) || [];
+    for (let value of votes) {
         const proposal = {
             ...value,
             votes: {}
@@ -121,8 +131,8 @@ export function postUpgrade(): void {
     if(!state.stakingAccountsState) {
         state.stakingAccountsState = {};
     }
-
-    stableStakingAccounts.values().forEach((stakingAccount) => {
+    const stakingAccounts = stableStakingAccounts.get(0) || [];
+    stakingAccounts.forEach((stakingAccount) => {
         if (stakingAccount.principal) {
             // @ts-ignore
             let stakingAccountsStateList = state.stakingAccountsState[stakingAccount.principal];
@@ -218,9 +228,5 @@ function initialize_account_balance(
         to: initial_account_balance.account
     };
 
-    const mint_result = handle_mint(args, state.minting_account);
-
-    if ('Err' in mint_result) {
-        ic.trap(stringify(mint_result.Err));
-    }
+    handle_mint(args, state.minting_account);
 }
