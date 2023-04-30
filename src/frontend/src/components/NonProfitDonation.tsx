@@ -37,7 +37,7 @@ const NonProfitDonation: React.FC = () => {
     const [exchangeRate, setExchangeRate] = useState<BigInt>(0n);
     const [exchangeRateDisplay, setExchangeRateDisplay] = useState<string>("0");
 
-    const {setBalanceVal} = useAppContext();
+    const {reloadBalance, reloadDaoBalances} = useAppContext();
 
     const [_tokenActor] = useCanister('token');
     const tokenActor = _tokenActor as unknown as _SERVICE;
@@ -82,9 +82,11 @@ const NonProfitDonation: React.FC = () => {
         const decimals = await dip20Actor.decimals();
         await dip20Actor.approve(Principal.fromText(tokenCanister), convertToBigInt(amount, decimals));
         const result = await tokenActor.xtcDistributeToken(convertToBigInt(amount, decimals));
-        setIsLoading(false);
+        console.log(result);
         setAmount("");
-        await fetchBalances();
+        await Promise.all([fetchBalances(), reloadBalance(), init(), reloadDaoBalances()])
+        setAgreementChecked(false);
+        setIsLoading(false);
     };
 
     async function fetchBalances() {

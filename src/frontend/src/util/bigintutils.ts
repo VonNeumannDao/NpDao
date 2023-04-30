@@ -16,9 +16,10 @@ export function convertToBigInt(numString: string, decimals?: number): bigint {
     const dec = decimals || 8;
     const [left, right] = numString.split('.');
     const wholePart = BigInt(left);
-    const decimalPart = right ? BigInt(right) : 0n;
+    const decimalPart = right ? BigInt(right.padEnd(dec, '0').substring(0, dec)) : 0n;
     return wholePart * BigInt(10 ** dec) + decimalPart;
 }
+
 
 export function divideByTrillion(num: bigint): string {
     const trillion = 1000000000000n;

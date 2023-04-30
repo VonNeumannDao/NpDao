@@ -15,6 +15,10 @@ interface AppContextType {
     reloadBalance?: () => Promise<void>;
 
     reloadActiveProposal?: () => Promise<void>;
+
+    setReloadDaoBalances?: (reload: () => Promise<void>) => void;
+
+    reloadDaoBalances?: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType>({
@@ -26,6 +30,7 @@ const AppProvider: React.FC = (param: { children }) => {
     const [balance, setBalance] = useState<bigint>(0n);
     const [activeProposal, setActiveProposal] = useState<ProposalViewResponse>();
     const [balancePretty, setBalancePretty] = useState<string>("0");
+    const [reloadDaoBalancesInner, setReloadDaoBalances] = useState<() => Promise<void>>()
     const [_tokenActor] = useCanister('token');
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const {principal} = useConnect();
@@ -68,6 +73,12 @@ const AppProvider: React.FC = (param: { children }) => {
         setActiveProposal(activeProposal["Ok"]);
     }
 
+    const reloadDaoBalances = async () => {
+        if (reloadDaoBalancesInner && typeof reloadDaoBalancesInner === 'function') {
+            await reloadDaoBalancesInner();
+        }
+    }
+
     const state: AppContextType = {
         balance,
         balancePretty,
@@ -75,7 +86,9 @@ const AppProvider: React.FC = (param: { children }) => {
         reloadBalance,
         activeProposal,
         setActiveProposal,
-        reloadActiveProposal
+        reloadActiveProposal,
+        reloadDaoBalances,
+        setReloadDaoBalances
     };
 
     return (

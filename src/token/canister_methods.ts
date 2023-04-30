@@ -9,7 +9,7 @@ export async function _createCanister(proposal: Partial<Proposal>) {
         .create_canister({
             settings: null
         })
-        .cycles(1_500_000_000_000n)
+        .cycles(3_000_000_000_000n)
         .call();
     if (createCanisterResultCallResult.Err) {
         proposal.error = {

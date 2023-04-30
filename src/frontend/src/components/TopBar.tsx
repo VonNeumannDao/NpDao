@@ -12,6 +12,7 @@ import AdminOnly from "./AdminOnly";
 import {Link} from "react-router-dom";
 import {ArrowDropDown} from "@mui/icons-material";
 import AirdropButton from "./AirdropButton";
+import DeployerOnly from "./DeployerOnly";
 
 export default function TopBar() {
     const [_tokenActor] = useCanister('token');
@@ -104,19 +105,19 @@ export default function TopBar() {
                                 open={Boolean(proposalAnchorEl)}
                                 onClose={handleProposalClose}
                             >
-                                <AdminOnly>
+                                <DeployerOnly>
                                     <ContentModal disabled={disabledIfProposal()} trigger={"Wasm Proposal"}>
                                         <WasmProposal/>
                                     </ContentModal>
-                                </AdminOnly>
+                                </DeployerOnly>
                                 <ContentModal disabled={disabledIfProposal()} trigger={"Treasury Proposal"}>
                                     <TreasuryProposal/>
                                 </ContentModal>
-                                <AdminOnly>
+                                <DeployerOnly>
                                     <ContentModal disabled={disabledIfProposal()} trigger={"Delete Wasm Proposal"}>
                                         <DeleteWasmProposal/>
                                     </ContentModal>
-                                </AdminOnly>
+                                </DeployerOnly>
                             </Menu>
                             <AdminOnly>
                                 <MintTokenButton/>
@@ -124,7 +125,6 @@ export default function TopBar() {
                             <AirdropButton />
                             <ConnectButton />
                             <ConnectDialog />
-
                         </Box>
                     </Box>
                 </Toolbar>

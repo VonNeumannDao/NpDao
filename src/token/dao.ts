@@ -509,13 +509,13 @@ export function removeCustodian(principal: Opt<string>): Vec<string> {
 
     return state.custodian;
 }
-
+$query
 // Get the list of deployers
 export function getDeployers(): Vec<string> {
     return state.deployers;
 }
 
-// Add a new deployer to the list
+$update
 export function addDeployer(principal: Opt<string>): Vec<string> {
     if (!state.custodian.includes(ic.caller().toText())) {
         ic.trap("Only custodian can add new deployers");
@@ -530,7 +530,7 @@ export function addDeployer(principal: Opt<string>): Vec<string> {
     return state.deployers;
 }
 
-// Remove a deployer from the list
+$update
 export function removeDeployer(principal: Opt<string>): Vec<string> {
     if (!state.custodian.includes(ic.caller().toText())) {
         ic.trap("Only custodian can remove deployers");

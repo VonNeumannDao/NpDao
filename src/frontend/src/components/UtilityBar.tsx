@@ -12,6 +12,7 @@ import config from "../../../../cig-config.json";
 import BalanceCard from "./BalanceCard";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import CryptoWallet from "./CryptoWallet";
+import {useAppContext} from "./AppContext";
 
 
 const UtilityBar = () => {
@@ -26,9 +27,11 @@ const UtilityBar = () => {
     const [tokenBalance, setTokenBalance] = useState(0n);
     const [canisterTokenBalance, setCanisterTokenBalance] = useState<[string, bigint][]>([]);
     const {principal} = useConnect();
+    const {setReloadDaoBalances} = useAppContext();
 
     useEffect(() => {
         init().then();
+        setReloadDaoBalances(init);
     }, [principal]);
 
     async function init() {

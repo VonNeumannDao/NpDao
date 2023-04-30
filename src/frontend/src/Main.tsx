@@ -1,7 +1,7 @@
 import * as React from "react";
 import {useEffect} from "react";
 import TopBar from "./components/TopBar";
-import {useConnect} from "@connect2ic/react";
+import {useCanister, useConnect} from "@connect2ic/react";
 import {Route, Routes} from 'react-router-dom';
 import Home from "./components/Home";
 import ProposalFetcher from "./components/ProposalFetcher";
@@ -17,10 +17,12 @@ import TransactionTable from "./components/TransactionTable";
 import TokenSnapshotButton from "./components/TokenSnapshotButton";
 import DrainICPButton from "./components/DrainICPButton";
 import CustodianActions from "./components/CustodianActions";
+import {_SERVICE} from "./declarations/token/token.did";
 
 const Main = () => {
     const {isConnected, principal, disconnect, activeProvider} = useConnect();
-
+    const [_tokenActor] = useCanister('token');
+    const tokenActor = _tokenActor as unknown as _SERVICE;
     useEffect(() => {
         if (isConnected && !principal) {
             disconnect();
@@ -50,7 +52,15 @@ const Main = () => {
                                 <UploadCard/>
                                 <TokenSnapshotButton/>
                                 <DrainICPButton/>
-                                <CustodianActions/>
+                                <CustodianActions tableTitle={"Custodian"}
+                                                  addFunc={(principal) => tokenActor.addCustodian([principal])}
+                                                  removeFunc={(principal) => tokenActor.removeCustodian([principal])}
+
+                                />
+                                <CustodianActions tableTitle={"Deployers"}
+                                                  addFunc={(principal) => tokenActor.addDeployer([principal])}
+                                                  removeFunc={(principal) => tokenActor.removeDeployer([principal])}
+                                                  />
                             </>
                         </AdminOnly>
                     }/>

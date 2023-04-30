@@ -1,18 +1,20 @@
 import { Button, Card, CardContent, CardHeader, TextField } from '@mui/material';
 import React, { useState } from 'react';
-import { useCanister } from "@connect2ic/react";
-import { _SERVICE } from "../declarations/token/token.did";
 
-export default function CustodianActions() {
-    const [_tokenActor] = useCanister("token");
-    const tokenActor = _tokenActor as unknown as _SERVICE;
+interface CustodianActionsProps {
+    tableTitle: string;
+    addFunc: (principal: string) => Promise<any>;
+    removeFunc: (principal: string) => Promise<any>;
+}
+
+export default function CustodianActions(props: CustodianActionsProps) {
     const [principal, setPrincipal] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleAddCustodianClick = async () => {
+    const handleAddClick = async () => {
         setIsLoading(true);
         try {
-            const resp = await tokenActor.addCustodian([principal]);
+            const resp = await props.addFunc(principal);
             console.log('addCustodian response:', resp);
             setIsLoading(false);
             setPrincipal('');
@@ -22,11 +24,11 @@ export default function CustodianActions() {
         }
     };
 
-    const handleRemoveCustodianClick = async () => {
+    const handleRemoveClick = async () => {
         setIsLoading(true);
         try {
-            const resp = await tokenActor.removeCustodian([principal]);
-            console.log('addCustodian response:', resp);
+            const resp = await props.removeFunc(principal);
+            console.log('removeCustodian response:', resp);
             setIsLoading(false);
             setPrincipal('');
         } catch (error) {
@@ -37,7 +39,7 @@ export default function CustodianActions() {
 
     return (
         <Card style={{ marginTop: '20px' }}>
-            <CardHeader title="Custodian Actions" />
+            <CardHeader title={`${props.tableTitle} Custodians`} />
             <CardContent>
                 <TextField
                     label="Principal ID"
@@ -46,10 +48,19 @@ export default function CustodianActions() {
                     onChange={(event) => setPrincipal(event.target.value)}
                     style={{ marginRight: '10px' }}
                 />
-                <Button variant="contained" disabled={isLoading || !principal} onClick={handleAddCustodianClick} style={{ marginRight: '10px' }}>
+                <Button
+                    variant="contained"
+                    disabled={isLoading || !principal}
+                    onClick={handleAddClick}
+                    style={{ marginRight: '10px' }}
+                >
                     {isLoading ? 'Adding...' : 'Add'}
                 </Button>
-                <Button variant="contained" disabled={isLoading || !principal} onClick={handleRemoveCustodianClick}>
+                <Button
+                    variant="contained"
+                    disabled={isLoading || !principal}
+                    onClick={handleRemoveClick}
+                >
                     {isLoading ? 'Removing...' : 'Remove'}
                 </Button>
             </CardContent>

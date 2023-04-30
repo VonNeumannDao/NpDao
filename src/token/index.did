@@ -119,6 +119,7 @@ type _InlineProposalErrorInsufficientFunds = record { balance : nat };
 service : () -> {
   activeProposal : () -> (ActiveProposal) query;
   addCustodian : (opt text) -> (vec text);
+  addDeployer : (opt text) -> (vec text);
   airdrop_claim : () -> (text);
   airdrop_entitled : () -> (bool) query;
   airdrop_snapshot : () -> (text);
@@ -144,6 +145,7 @@ service : () -> {
   cycleBalances : () -> (vec record { text; nat64 });
   drainICP : () -> (text);
   getCustodians : () -> (vec text) query;
+  getDeployers : () -> (vec text) query;
   getDrainCanister : () -> (float64) query;
   getQueryArchiveFn : () -> (
       func (GetTransactionsRequest) -> (TransactionRange) query,
@@ -171,6 +173,7 @@ service : () -> {
   mint_tokens : () -> (IcrcTransferResult);
   pastProposals : () -> (vec ProposalViewResponse) query;
   removeCustodian : (opt text) -> (vec text);
+  removeDeployer : (opt text) -> (vec text);
   startEndStaking : (vec nat8) -> (StakingResponse);
   startStaking : (vec nat8, nat, nat) -> (StakingResponse);
   startTimer : () -> (nat64);
