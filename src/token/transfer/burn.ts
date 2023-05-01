@@ -15,12 +15,19 @@ export function handle_burn(args: IcrcTransferArgs, from: Account): IcrcTransfer
             memo: args.memo,
             created_at_time: null,
             from: {
-                subaccount: args.from.subaccount,
+                subaccount: args.from_subaccount,
                 owner: ic.caller()
             }
         },
         mint: null,
-        transfer: args,
+        transfer: {
+            from: from,
+            to: args.to,
+            amount: args.amount,
+            fee: args.fee,
+            memo: args.memo,
+            created_at_time: ic.time()
+        },
         timestamp: ic.time()
     };
 

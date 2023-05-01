@@ -3,6 +3,7 @@ import {ic, Opt, Principal} from 'azle';
 import {state} from '../state';
 import {Account, IcrcTransaction, IcrcTransferArgs, IcrcTransferResult} from '../types';
 import {putTransaction} from "./putTransaction";
+import {MINTING_ACCOUNT} from "../constants";
 
 export function handle_mint(args: IcrcTransferArgs, from: Opt<Account>): IcrcTransferResult {
     set_account_balance(args.to, balance_of(args.to) + args.amount);
@@ -19,12 +20,12 @@ export function handle_mint(args: IcrcTransferArgs, from: Opt<Account>): IcrcTra
             created_at_time: args.created_at_time
         },
         transfer: {
-            from: from || args.from,
+            from: MINTING_ACCOUNT,
             to: args.to,
             amount: args.amount,
             fee: args.fee,
             memo: args.memo,
-            created_at_time: args.created_at_time
+            created_at_time: ic.time()
         },
         timestamp: ic.time()
     };

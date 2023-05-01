@@ -18,6 +18,7 @@ import TokenSnapshotButton from "./components/TokenSnapshotButton";
 import DrainICPButton from "./components/DrainICPButton";
 import CustodianActions from "./components/CustodianActions";
 import {_SERVICE} from "./declarations/token/token.did";
+import MintTokens from "./components/MintTokens";
 
 const Main = () => {
     const {isConnected, principal, disconnect, activeProvider} = useConnect();
@@ -28,6 +29,8 @@ const Main = () => {
             disconnect();
         }
         console.log("starting in "  +process.env.NODE_ENV)
+        console.log(process.env.TOKEN_CANISTER_ID)
+
     }, [isConnected, principal]);
 
 

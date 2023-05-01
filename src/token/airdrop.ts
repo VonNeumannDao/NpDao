@@ -142,7 +142,7 @@ export async function airdrop_claim(): Promise<string> {
             return "already claimed";
         }
         handle_transfer({
-            from: AIRDROP_ACCOUNT,
+            from_subaccount: AIRDROP_ACCOUNT.subaccount,
             to: {
                 owner: ic.caller(),
                 subaccount: null

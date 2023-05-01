@@ -1,6 +1,5 @@
 import {blob, nat, Principal} from "azle";
 import {Archive} from "./constants";
-import {state} from "./state";
 import devCanister from "../../.dfx/local/canister_ids.json";
 import prodCanister from "../../canister_ids.json";
 export const JSON_BIGINT = (error: any) => JSON.stringify(error, (_, v) => typeof v === 'bigint' ? `${v}n` : v)

@@ -27,11 +27,9 @@ const UtilityBar = () => {
     const [tokenBalance, setTokenBalance] = useState(0n);
     const [canisterTokenBalance, setCanisterTokenBalance] = useState<[string, bigint][]>([]);
     const {principal} = useConnect();
-    const {setReloadDaoBalances} = useAppContext();
 
     useEffect(() => {
         init().then();
-        setReloadDaoBalances(init);
     }, [principal]);
 
     async function init() {
@@ -106,7 +104,7 @@ const UtilityBar = () => {
 
                 <Paper sx={{display: "flex", flexWrap: "wrap"}}>
                     <Box flexGrow={2}>
-                        <Box sx={{display: "flex", flexWrap: "wrap", padding: "16px", marginBottom: '16px', minHeight: "202px", minWidth: "400px"}}>
+                        <Box sx={{display: "flex", flexWrap: "wrap", padding: "16px", marginBottom: '16px'}}>
                             <Box textAlign="center" sx={{width: "100%"}}>
                                 <Typography variant="h5" component="h2" textAlign={"center"}>
                                     DAO Balances
@@ -117,7 +115,7 @@ const UtilityBar = () => {
                             {!loading && <>
                                 <Grid container spacing={1} justifyContent="center" wrap="wrap">
                                     {cards.map((card, index) => (
-                                        <Grid item key={index} xs={4}>
+                                        <Grid item key={index} md={4} sm={2}>
                                             <BalanceCard {...card} />
                                         </Grid>
                                     ))}

@@ -4,11 +4,10 @@ import {StakingAccount, StakingClaimResponse, StakingResponse} from "./types";
 import {durationToSeconds, stringToUint8, uint8ArrayToHexString, uint8ToString} from "./utils";
 import {handle_transfer} from "./transfer/transfer";
 import {is_subaccount_valid} from "./transfer/validate";
-import {get_transactions, icrc1_transfer} from "./api";
+import {get_transactions} from "./api";
 
 
 $query
-
 export function getTotalStaked(principal: string): nat {
     const stakingAccounts = getStakingAccount(principal).filter(x => !x.claimed);
 
@@ -153,10 +152,7 @@ export function claimStaking(subaccount: blob): StakingClaimResponse {
         amount: claim,
         created_at_time: ic.time(),
         fee: null,
-        from: {
-            owner: id,
-            subaccount
-        },
+        from_subaccount: subaccount,
         memo: stringToUint8("stakingClaim"),
         to: {
             owner: caller,

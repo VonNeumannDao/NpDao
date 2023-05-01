@@ -116,7 +116,7 @@ export function icrc1_metadata(): Vec<Metadatum> {
 
 $query;
 
-export function icrc1_minting_account(): Opt<Account> {
+export function icrc1_minting_account(): Account {
     return state.minting_account;
 }
 

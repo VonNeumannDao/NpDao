@@ -78,10 +78,7 @@ const Staking = () => {
             },
             fee: [],
             memo: [stringToUint8(memo)],
-            from: {
-                owner: Principal.fromText(principal),
-                subaccount: []
-            },
+            from_subaccount: [],
             created_at_time: [],
             amount: amount,
         });
@@ -151,6 +148,9 @@ const Staking = () => {
                         Additionally, members who participate in the DAO's decision-making process will receive a small
                         amount of newly minted tokens as a reward for their involvement in the governance
                         process. </Typography>
+                    <Typography variant="subtitle1" sx={{mt: 2}}>
+                        Total Staked:
+                    </Typography>
                     <Box sx={{display: "flex", flexDirection: "row", flexGrow: 1}}>
                         <TextField
                             label={`Enter the amount of ${tokenName} to stake`}

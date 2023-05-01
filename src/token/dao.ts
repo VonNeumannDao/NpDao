@@ -65,7 +65,8 @@ export function pastProposals(): Vec<ProposalViewResponse> {
             amount: proposal.amount,
             receiver: proposal.receiver,
             error: proposal.error,
-            voters: proposal.voters
+            voters: proposal.voters,
+            proposalCost: proposal.proposalCost,
         });
     }
 
@@ -93,7 +94,8 @@ export function activeProposal(): ActiveProposal {
         ended: proposal.ended,
         amount: proposal.amount,
         receiver: proposal.receiver,
-        error: proposal.error
+        error: proposal.error,
+        proposalCost: proposal.proposalCost,
     }
 
     return {
@@ -162,7 +164,7 @@ export function createDeleteWasmProposal(account: Account,
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
-        from: account,
+        from_subaccount: account.subaccount,
         memo: null,
         to: DAO_TREASURY
     };
@@ -195,7 +197,8 @@ export function createDeleteWasmProposal(account: Account,
         canister: Principal.fromText(canister),
         args: null,
         appName: null,
-        deployer: null
+        deployer: null,
+        proposalCost: null
     };
     state.proposalCount++;
     state.proposal = proposal;
@@ -263,7 +266,7 @@ export async function createWasmProposal(account: Account,
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
-        from: account,
+        from_subaccount: account.subaccount,
         memo: null,
         to: DAO_TREASURY
     };
@@ -296,7 +299,8 @@ export async function createWasmProposal(account: Account,
         canister: canister ? Principal.fromText(canister) : null,
         args,
         appName,
-        deployer: null
+        deployer: null,
+        proposalCost: null
     };
     state.proposalCount++;
     state.proposal = proposal;
@@ -305,8 +309,76 @@ export async function createWasmProposal(account: Account,
     return {Ok: proposal.id};
 }
 
-$update;
+$update
+export function createChangePriceProposal(account: Account,
+                                          description: string,
+                                          title: string,
+                                          proposalCost: nat): ProposalResponse {
+    if (account.owner.toText() !== ic.caller().toText()) {
+        return {
+            Err: {
+                AccessDenied: "cant create a proposal for another account"
+            }
+        }
+    }
+    console.log("deployer", "after caller check");
 
+    if (state.proposal !== null) {
+        return {
+            Err: {ExistingProposal: null}
+        }
+    }
+
+    const transferArgs: IcrcTransferArgs = {
+        amount: state.proposalCost,
+        created_at_time: null,
+        fee: null,
+        from_subaccount: account.subaccount,
+        memo: null,
+        to: DAO_TREASURY
+    };
+    const balance = balance_of(account)
+    if (balance < state.proposalCost) {
+        return {
+            Err: {
+                InsufficientFunds: {balance}
+            }
+        }
+    }
+
+    handle_burn(transferArgs, account);
+    const endTime = ic.time() + BigInt(state.proposalDuration * 1e9);
+    const proposal: Proposal = {
+        voters: [],
+        id: state.proposalCount,
+        title,
+        proposer: account,
+        description,
+        executed: false,
+        votes: {},
+        proposalType: {changeProposalPrice: null},
+        endTime,
+        amount: null,
+        receiver: null,
+        error: null,
+        ended: false,
+        wasm: null,
+        canister: null,
+        args: null,
+        appName: null,
+        deployer: null,
+        proposalCost
+    };
+    state.proposalCount++;
+
+    state.proposal = proposal;
+    state.proposals.set(proposal.id, proposal);
+
+    return {Ok: proposal.id};
+
+}
+
+$update;
 export function createDeployerProposal(account: Account,
                                        description: string,
                                        title: string,
@@ -319,6 +391,7 @@ export function createDeployerProposal(account: Account,
             }
         }
     }
+    console.log("deployer", "after caller check");
 
     if (state.proposal !== null) {
         return {
@@ -326,11 +399,17 @@ export function createDeployerProposal(account: Account,
         }
     }
 
+    if (state.deployers.includes(deployer) && !add) {
+        return {
+            Err: {DeployerDoesNotExists: null}
+        }
+    }
+
     const transferArgs: IcrcTransferArgs = {
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
-        from: account,
+        from_subaccount: account.subaccount,
         memo: null,
         to: DAO_TREASURY
     };
@@ -363,7 +442,8 @@ export function createDeployerProposal(account: Account,
         canister: null,
         args: null,
         appName: null,
-        deployer: deployer
+        deployer: deployer,
+        proposalCost: null
     };
     state.proposalCount++;
 
@@ -399,7 +479,7 @@ export function createTreasuryProposal(account: Account,
         amount: state.proposalCost,
         created_at_time: null,
         fee: null,
-        from: account,
+        from_subaccount: account.subaccount,
         memo: null,
         to: DAO_TREASURY
     };
@@ -433,7 +513,8 @@ export function createTreasuryProposal(account: Account,
         canister: null,
         args: null,
         appName: null,
-        deployer: null
+        deployer: null,
+        proposalCost: null
     };
     state.proposalCount++;
 
@@ -536,9 +617,7 @@ export async function drainICP(): Promise<string> {
 
     const transfer = await icrc.icrc1_transfer({
         amount: balance.Ok - 10000n,
-        from: {
-            owner: icpTreasury, subaccount: null
-        },
+        from_subaccount: null,
         to: {owner: caller, subaccount: null},
         memo: null,
         created_at_time: null,
@@ -714,7 +793,7 @@ export async function _executeProposal(): Promise<void> {
                 amount: proposal.amount as bigint,
                 created_at_time: null,
                 fee: null,
-                from: DAO_TREASURY,
+                from_subaccount: DAO_TREASURY.subaccount,
                 memo: null,
                 to: proposal.receiver as Account
             };
@@ -766,6 +845,13 @@ export async function _executeProposal(): Promise<void> {
                 state.proposals.set(proposal?.id, proposal);
                 return;
             }
+        } else if ("addDeployerAction" in type){
+            addDeployer(proposal.deployer);
+        } else if ("removeDeployerAction" in type){
+            removeDeployer(proposal.deployer);
+        } else if("changeProposalPrice" in type){
+            if (proposal.proposalCost)
+            state.proposalCost = proposal.proposalCost;
         }
     }
     proposal.ended = true;

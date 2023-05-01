@@ -39,6 +39,8 @@ export {
     addDeployer,
     getDeployers,
     removeDeployer,
+    createDeployerProposal,
+    createChangePriceProposal
 } from './dao';
 export {
     airdrop_snapshot,

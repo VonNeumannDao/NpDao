@@ -1,5 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {Avatar, Box, Button, Card, CardContent, CardHeader, Grid, InputAdornment, Link, TextField} from '@mui/material';
+import {
+    Avatar,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Grid,
+    InputAdornment,
+    Link,
+    TextField,
+    useMediaQuery,
+    useTheme
+} from '@mui/material';
 import {Send as SendIcon, Wallet} from '@mui/icons-material';
 import config from "../../../../cig-config.json";
 import {useAppContext} from "./AppContext";
@@ -9,6 +22,7 @@ import {bigIntToDecimal, convertToBigInt} from "../util/bigintutils";
 import {_SERVICE} from "../declarations/token/token.did";
 import {Link as RouterLink} from 'react-router-dom';
 import {LoadingButton} from "@mui/lab";
+import AirdropButton from "./AirdropButton";
 
 type CryptoWalletProps = {};
 
@@ -22,6 +36,9 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
     const [loading, setLoading] = useState(false);
     const [_tokenActor] = useCanister("token");
     const tokenActor = _tokenActor as unknown as _SERVICE;
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
     const {setBalanceVal, balancePretty, balance} = useAppContext();
     const {principal, isConnected} = useConnect();
     useEffect(() => {
@@ -74,17 +91,14 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
             },
             fee: [],
             memo: [],
-            from: {
-                owner: Principal.fromText(principal),
-                subaccount: []
-            },
+            from_subaccount: [],
             created_at_time: [],
             amount: convertToBigInt(coinTransferAmount),
         });
         console.log(failed);
         const newBalance = await tokenActor.icrc1_balance_of({
-                owner: Principal.fromText(principal),
-                subaccount: []
+            owner: Principal.fromText(principal),
+            subaccount: []
         });
         setToValue("");
         setCoinTransferAmount("");
@@ -101,95 +115,116 @@ const CryptoWallet: React.FC<CryptoWalletProps> = () => {
             margin: 'auto'
         }}>
             <Box sx={{width: '100%', marginBottom: '16px'}}>
-                    <Grid item xs={12} md={12}>
-                        <Card sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'left',
-                            alignItems: 'left',
-                            marginBottom: '5px'
-                        }}>
-                            <CardHeader
-                                titleTypographyProps={{variant: 'h6'}}
-                                color={'secondary'}
-                                subheader={principal}
-                                avatar={
-                                    <Avatar>
-                                        <Wallet/>
-                                    </Avatar>
-                                }
-                                title={`Balance: ${balancePretty} ${config.symbol}`}
-                            />
-                            <CardContent sx={{
-
+                <Grid item xs={12} md={12}>
+                    <Card sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'left',
+                        alignItems: 'left',
+                        marginBottom: '5px'
+                    }}>
+                        <CardHeader
+                            titleTypographyProps={{variant: 'h6'}}
+                            color={'secondary'}
+                            subheader={principal}
+                            avatar={
+                                <Avatar>
+                                    <Wallet/>
+                                </Avatar>
+                            }
+                            title={`Balance: ${balancePretty} ${config.symbol}`}
+                        />
+                        <CardContent sx={{}}>
+                            <Box sx={{
+                                display: "flex",
+                                flexDirection: "row",
+                                flexGrow: 1
                             }}>
-                                <Box sx={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    flexGrow: 1
-                                }}>
-
-                                    <TextField
-                                        label="To"
-                                        fullWidth
-                                        placeholder="2vxsx-fae"
-                                        helperText="Principal to transfer to"
-                                        value={toValue}
-                                        onChange={handleToValueChange}
-                                        error={!!toError}
-                                        sx={{marginBottom: "8px", marginRight: "8px"}}
-                                    />
-
-                                    <TextField
-                                        label="Transfer Amount"
-                                        value={coinTransferAmount}
-                                        onChange={handleCoinTransferAmountChange}
-                                        fullWidth
-                                        type="number"
-                                        InputProps={{
-                                            inputProps: {
-                                                step: 0.00000001,
-                                                min: 0,
-                                            },
-                                            endAdornment: <InputAdornment
-                                                position="end">{config.symbol}</InputAdornment>,
-                                        }}
-                                        error={!!coinTransferAmountError}
-                                        helperText={coinTransferAmountError || `Balance: ${balancePretty} ${config.symbol}`}
-                                        sx={{marginBottom: "8px", marginRight: "8px"}}
-                                    />
-                                    <LoadingButton
-                                        variant="contained"
-                                        size={"small"}
-                                        loading={loading}
-                                        onClick={handleCoinTransferButton}
-                                        disabled={!isConnected}
-                                        sx={{marginRight: '8px', height: '56px'}}
-                                    >
-                                        <SendIcon/>
-                                    </LoadingButton>
-                                    <Button
-                                        size={"small"}
-                                        sx={{height: '56px'}}
-                                        variant="outlined" onClick={handleMaxButton}>
-                                        Max
-                                    </Button>
-                                </Box>
                                 <Box
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: isMobile ? "column" : "row",
+                                        flexGrow: 1,
+                                    }}
+                                >
+
+
+                                    <Box sx={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        flexGrow: 1
+                                    }}>
+                                        <TextField
+                                            label="To"
+                                            fullWidth
+                                            placeholder="2vxsx-fae"
+                                            helperText="Principal to transfer to"
+                                            value={toValue}
+                                            onChange={handleToValueChange}
+                                            error={!!toError}
+                                            sx={{marginBottom: "8px", marginRight: "8px"}}
+                                        />
+                                    </Box>
+
+                                    <Box sx={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        flexGrow: 1
+                                    }}>
+                                        <TextField
+                                            label="Transfer Amount"
+                                            value={coinTransferAmount}
+                                            onChange={handleCoinTransferAmountChange}
+                                            fullWidth
+                                            type="number"
+                                            InputProps={{
+                                                inputProps: {
+                                                    step: 0.00000001,
+                                                    min: 0,
+                                                },
+                                                endAdornment: <InputAdornment
+                                                    position="end">{config.symbol}</InputAdornment>,
+                                            }}
+                                            error={!!coinTransferAmountError}
+                                            helperText={coinTransferAmountError || `Balance: ${balancePretty} ${config.symbol}`}
+                                            sx={{marginBottom: "8px", marginRight: "8px"}}
+                                        />
+                                        <LoadingButton
+                                            variant="contained"
+                                            size={"small"}
+                                            loading={loading}
+                                            onClick={handleCoinTransferButton}
+                                            disabled={!isConnected}
+                                            sx={{marginRight: '8px', height: '56px'}}
+                                        >
+                                            <SendIcon/>
+                                        </LoadingButton>
+                                        <Button
+                                            size={"small"}
+                                            sx={{height: '56px'}}
+                                            variant="outlined" onClick={handleMaxButton}>
+                                            Max
+                                        </Button>
+                                    </Box>
+                                </Box>
+
+                            </Box>
+                            <Box
                                 sx={{
 
                                     display: "flex",
                                     flexDirection: "row",
                                     flexGrow: 1
                                 }}
-                                >
-                                    <Link component={RouterLink} to="/staking">
-                                        View Staking
-                                    </Link>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
+                            >
+                                <Link component={RouterLink} to="/staking">
+                                    View Staking
+                                </Link>
+                                <AirdropButton/>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
             </Box>
         </Box>
     );

@@ -2,9 +2,12 @@ import React, {useEffect, useState} from 'react';
 import {
     Avatar,
     Card,
-    CardContent, CardHeader,
+    CardContent,
+    CardHeader,
     CircularProgress,
-    Paper,
+    List,
+    ListItem,
+    ListItemText,
     Table,
     TableBody,
     TableCell,
@@ -13,6 +16,8 @@ import {
     TablePagination,
     TableRow,
     Typography,
+    useMediaQuery,
+    useTheme,
 } from '@mui/material';
 import {_SERVICE as TokenService, TransactionWithId} from "../declarations/token/token.did";
 import {bigIntToDecimalPrettyString} from "../util/bigintutils";
@@ -28,7 +33,8 @@ export default function TransactionTable() {
     const [loading, setLoading] = useState(false);
     const [_tokenActor] = useCanister("token");
     const [_archiveActor] = useCanister("archive");
-
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const tokenActor = _tokenActor as unknown as TokenService;
     const archieActor = _archiveActor as unknown as ArchiveService;
     useEffect(() => {
@@ -45,7 +51,10 @@ export default function TransactionTable() {
                 transactions = trx.transactions;
             } else {
                 transactions = (await tokenActor.get_transactions({start, length})).transactions;
-                let secondaryTransactions = (await archieActor.get_transactions({start: 0n, length: length - BigInt(transactions.length)})).transactions;
+                let secondaryTransactions = (await archieActor.get_transactions({
+                    start: 0n,
+                    length: length - BigInt(transactions.length)
+                })).transactions;
                 transactions.push(...secondaryTransactions);
             }
 
@@ -68,28 +77,46 @@ export default function TransactionTable() {
         setPage(0);
     };
 
+    function truncateString(str) {
+        if (isMobile && str.length > 8) {
+            return "..." + str.slice(-8);
+        } else {
+            return str;
+        }
+    }
+
     return (
-        <Card sx={{margin: '20px'}}>
+        <Card sx={{marginTop: '20px'}}>
             <CardHeader
-                titleTypographyProps={{ variant: 'h4' }}
+                titleTypographyProps={{variant: 'h4'}}
                 color={'secondary'}
                 avatar={
                     <Avatar>
-                        <SwapHoriz />
+                        <SwapHoriz/>
                     </Avatar>
                 }
                 title="Transaction History"
             />
             <CardContent>
-                <TableContainer component={Paper} sx={{height: "100%"}}>
+                <TableContainer sx={{height: "100%", margin: 0}}>
                     <Table stickyHeader>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Block</TableCell>
-                                <TableCell>Date</TableCell>
-                                <TableCell>From</TableCell>
-                                <TableCell>To</TableCell>
-                                <TableCell>Amount</TableCell>
+                                {isMobile ?
+                                    <>
+                                        <TableCell>Block</TableCell>
+                                        <TableCell>Data</TableCell>
+                                        <TableCell>Amount</TableCell>
+                                    </>
+                                    :
+                                    <>
+                                        <TableCell>Block</TableCell>
+                                        <TableCell>Date</TableCell>
+                                        <TableCell>From</TableCell>
+                                        <TableCell>To</TableCell>
+                                        <TableCell>Amount</TableCell>
+                                    </>}
+
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -104,19 +131,58 @@ export default function TransactionTable() {
                                 .map((transaction, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{transaction.id.toString(10)}</TableCell>
-                                        <TableCell>
-                                            {new Date(Number(transaction.transaction.timestamp) / 1000000).toLocaleDateString(undefined, {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                                hour: 'numeric',
-                                                minute: 'numeric',
-                                                second: 'numeric',
-                                            })}
-                                        </TableCell>
-                                        <TableCell>{transaction.transaction.transfer.length > 0 ? transaction.transaction.transfer[0].from.owner.toText() : ""}</TableCell>
-                                        <TableCell>{transaction.transaction.transfer.length > 0 ? transaction.transaction.transfer[0].to.owner.toText() : ""}</TableCell>
-                                        <TableCell>{transaction.transaction.transfer.length > 0 ? bigIntToDecimalPrettyString(transaction.transaction.transfer[0].amount) : ""}</TableCell>
+                                        {isMobile ?
+                                            <>
+                                                <TableCell>
+                                                    <List>
+                                                        <ListItem
+                                                        >
+                                                            <ListItemText
+                                                                primary={"Date"}
+                                                                secondary={new Date(Number(transaction.transaction.timestamp) / 1000000).toLocaleDateString(undefined, {
+                                                                    year: 'numeric',
+                                                                    month: 'numeric',
+                                                                    day: 'numeric',
+                                                                })}
+                                                            />
+                                                        </ListItem>
+                                                        <ListItem>
+                                                            <ListItemText
+                                                                primary={"From"}
+                                                                secondary={transaction.transaction.transfer.length > 0 ? truncateString(transaction.transaction.transfer[0].from.owner.toText()) : ""}
+                                                            />
+                                                        </ListItem>
+                                                        <ListItem>
+                                                            <ListItemText
+                                                                primary={"to"}
+                                                                secondary={transaction.transaction.transfer.length > 0 ? truncateString(transaction.transaction.transfer[0].to.owner.toText()) : ""}
+                                                            />
+                                                        </ListItem>
+                                                    </List>
+                                                </TableCell>
+                                                <TableCell>{transaction.transaction.transfer.length > 0 ? bigIntToDecimalPrettyString(transaction.transaction.transfer[0].amount) : ""}</TableCell>
+
+                                            </>
+
+
+                                            :
+
+                                            <>
+                                                <TableCell>
+                                                    {new Date(Number(transaction.transaction.timestamp) / 1000000).toLocaleDateString(undefined, {
+                                                        year: 'numeric',
+                                                        month: 'numeric',
+                                                        day: 'numeric',
+                                                        hour: 'numeric',
+                                                        minute: 'numeric',
+                                                        second: 'numeric',
+                                                    })}
+                                                </TableCell>
+                                                <TableCell>{transaction.transaction.transfer.length > 0 ? truncateString(transaction.transaction.transfer[0].from.owner.toText()) : ""}</TableCell>
+                                                <TableCell>{transaction.transaction.transfer.length > 0 ? truncateString(transaction.transaction.transfer[0].to.owner.toText()) : ""}</TableCell>
+                                                <TableCell>{transaction.transaction.transfer.length > 0 ? bigIntToDecimalPrettyString(transaction.transaction.transfer[0].amount) : ""}</TableCell>
+                                            </>
+                                        }
                                     </TableRow>
                                 ))}
 

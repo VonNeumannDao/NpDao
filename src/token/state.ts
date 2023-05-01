@@ -2,7 +2,7 @@ import {AirdropHolder, IcrcTransaction, Proposal, State, TransactionWithId} from
 import {nat64} from "azle";
 import config from "../../cig-config.json"
 import {CircularBuffer} from "./utils";
-import {MAX_TRANSACTIONS_PER_REQUEST} from "./constants";
+import {MAX_TRANSACTIONS_PER_REQUEST, MINTING_ACCOUNT} from "./constants";
 
 export let state: State = {
     accounts: {},
@@ -15,9 +15,10 @@ export let state: State = {
         ['icrc1:decimals', {Nat: BigInt(config.decimal)}],
         ['icrc1:fee', {Nat: BigInt(config.fee)}],
         ['icrc1:name', {Text: config.name}],
-        ['icrc1:symbol', {Text: config.symbol}]
+        ['icrc1:symbol', {Text: config.symbol}],
+        ['icrc1:logo', {Text: "https://dev.icnonprofit.app/token.webp"}]
     ],
-    minting_account: null,
+    minting_account: MINTING_ACCOUNT,
     name: config.name,
     permitted_drift_nanos: 3_000_000_000n,
     supported_standards: [

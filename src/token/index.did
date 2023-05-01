@@ -35,13 +35,21 @@ type IcrcTransaction = record {
   kind : text;
   mint : opt Mint;
   timestamp : nat64;
-  transfer : opt IcrcTransferArgs;
+  transfer : opt IcrcTransfer;
 };
-type IcrcTransferArgs = record {
+type IcrcTransfer = record {
   to : Account;
   fee : opt nat;
   from : Account;
   memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type IcrcTransferArgs = record {
+  to : Account;
+  fee : opt nat;
+  memo : opt vec nat8;
+  from_subaccount : opt vec nat8;
   created_at_time : opt nat64;
   amount : nat;
 };
@@ -53,6 +61,7 @@ type Mint = record {
   amount : nat;
 };
 type ProposalError = variant {
+  DeployerDoesNotExists;
   AccessDenied : text;
   ProposalNotFound;
   AlreadyExecuted;
@@ -80,6 +89,7 @@ type ProposalViewResponse = record {
   endTime : nat64;
   description : text;
   voters : vec Voter;
+  proposalCost : opt nat;
   ended : bool;
   error : opt ProposalError;
   proposalType : ProposalType;
@@ -133,6 +143,7 @@ service : () -> {
   canisters : () -> (vec Canisters) query;
   claimStaking : (vec nat8) -> (StakingClaimResponse);
   createAndAddCanister : () -> (text);
+  createChangePriceProposal : (Account, text, text, nat) -> (ProposalResponse);
   createDeleteWasmProposal : (Account, text, text, text) -> (ProposalResponse);
   createDeployerProposal : (Account, text, text, text, bool) -> (
       ProposalResponse,
@@ -170,7 +181,7 @@ service : () -> {
   icrc1_decimals : () -> (nat8) query;
   icrc1_fee : () -> (nat) query;
   icrc1_metadata : () -> (vec record { text; Value }) query;
-  icrc1_minting_account : () -> (opt Account) query;
+  icrc1_minting_account : () -> (Account) query;
   icrc1_name : () -> (text) query;
   icrc1_supported_standards : () -> (vec SupportedStandard) query;
   icrc1_symbol : () -> (text) query;

@@ -77,7 +77,7 @@ export type State = {
     fee: nat;
     isDev: boolean;
     metadata: Vec<Metadatum>;
-    minting_account: Opt<Account>;
+    minting_account: Account;
     name: string;
     custodian: Vec<string>,
 
@@ -127,7 +127,7 @@ export type IcrcTransaction = Record<{
     kind: string;
     mint: Opt<Mint>;
     burn: Opt<Burn>;
-    transfer: Opt<IcrcTransferArgs>;
+    transfer: Opt<IcrcTransfer>;
     timestamp: nat64;
 }>;
 
@@ -165,13 +165,52 @@ export type ProposalType = Variant<{
     changeProposalPrice: null;
 }>
 
+// "Call was rejected:
+// Request ID: a15631efde99adf9d8c8611e3a87853871b7d2903647410050cefb01fead2c5f
+// Reject code: 
+// Reject text: Canister lfqyb-gaaaa-aaaap-qbdba-cai trapped explicitly: failed to decode call arguments: Custom(Fail to decode argument 0 from table5 to record {
+//     to : record { owner : principal; subaccount : opt vec nat8 };
+//     fee : opt nat;
+//     from : record { owner : principal; subaccount : opt vec nat8 };
+//     memo : opt vec nat8;
+//     created_at_time : opt nat64;
+//     amount : nat;
+// }
+//
+// Caused by:
+//     0: input: 4449444c066d7b6e006c02b3b0dac30368ad86ca8305016e7d6e786c06fbca0102c6fcb60203ba89e5c20401a2de94eb060182f3f3910c04d8a38ca80d7d0105011d1c686d40a3eade71d38ca16adbe4a65443342da58ab9ed94a9abd9e102000100_0100000080c8afa025
+// table: type table0 = vec nat8
+// type table1 = opt table0
+// type table2 = record { 947_296_307 : principal; 1_349_681_965 : table1 }
+// type table3 = opt nat
+// type table4 = opt nat64
+// type table5 = record {
+//     25_979 : table2;
+//     5_094_982 : table3;
+//     1_213_809_850 : table1;
+//     1_835_347_746 : table1;
+//     3_258_775_938 : table4;
+//     3_573_748_184 : nat;
+// }
+// wire_type: nat, expect_type: record { owner : principal; subaccount : opt vec nat8 }, field_name: Named("from")
+// 1: Subtyping error: field from is not optional field)
+
 export type IcrcTransferArgs = Record<{
     amount: nat;
-    from: Account;
+    from_subaccount: Opt<blob>;
     to: Account;
     memo: Opt<blob>;
     created_at_time: Opt<nat64>;
     fee: Opt<nat>;
+}>;
+
+export type IcrcTransfer = Record<{
+    from : Account;
+    to : Account;
+    amount : nat;
+    fee : Opt<nat>;
+    memo : Opt<blob>;
+    created_at_time: Opt<nat64>;
 }>;
 
 export type IcRcTransferError = Variant<{
@@ -207,6 +246,7 @@ export type ProposalError = Variant<{
     AlreadyExecuted: null;
     DuplicateVote: null;
     other: string;
+    DeployerDoesNotExists: null;
 }>
 
 export type IcrcTransferResult = Variant<{
@@ -244,6 +284,7 @@ export type SerializableProposal = Record<{
     appName: Opt<string>;
     voters: Vec<Voter>;
     deployer: Opt<string>;
+    proposalCost: Opt<nat>;
 }>
 
 export type Voter = Record<{
@@ -271,6 +312,7 @@ export type Proposal = {
     canister: Opt<Principal>
     ended: boolean;
     deployer: Opt<string>;
+    proposalCost: Opt<nat>;
 
 };
 
@@ -305,6 +347,7 @@ export type ProposalViewResponse = Record<{
     amount: Opt<nat64>;
     error: Opt<ProposalError>;
     voters: Vec<Voter>;
+    proposalCost: Opt<nat>;
 }>
 
 export type ActiveProposal = Variant<{

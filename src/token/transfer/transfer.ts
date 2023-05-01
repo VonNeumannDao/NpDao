@@ -26,7 +26,14 @@ export function handle_transfer(args: IcrcTransferArgs, from: Account): IcrcTran
         kind: "Transfer",
         burn: null,
         mint: null,
-        transfer: args,
+        transfer: {
+            from: from,
+            to: args.to,
+            amount: args.amount,
+            fee: args.fee,
+            memo: args.memo,
+            created_at_time: ic.time()
+        },
         timestamp: ic.time()
     };
 

@@ -8,15 +8,12 @@ import {useAppContext} from "./AppContext";
 const MintTokenButton = () => {
     const {principal} = useConnect();
     const {setBalanceVal, balancePretty} = useAppContext();
-
-
     const [loading, setLoading] = useState(false);
     const [_tokenActor] = useCanister('token');
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const handleClick = async () => {
         setLoading(true);
         const minting = await tokenActor.mint_tokens();
-        console.log(minting);
         const balance = await tokenActor.icrc1_balance_of({
             owner: Principal.fromText(principal),
             subaccount: []

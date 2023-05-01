@@ -11,9 +11,9 @@ type IcrcTransaction = record {
   kind : text;
   mint : opt Mint;
   timestamp : nat64;
-  transfer : opt IcrcTransferArgs;
+  transfer : opt IcrcTransfer;
 };
-type IcrcTransferArgs = record {
+type IcrcTransfer = record {
   to : Account;
   fee : opt nat;
   from : Account;

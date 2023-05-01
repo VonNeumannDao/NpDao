@@ -25,7 +25,7 @@ export async function mint_tokens(): Promise<IcrcTransferResult> {
 
     if (from_is_minting_account) {
         const transferArgs: IcrcTransferArgs = {
-            from,
+            from_subaccount: from.subaccount,
             to: toAccount,
             amount: 10000000000n,
             fee: null,
@@ -52,7 +52,7 @@ $update;
 export function icrc1_transfer(args: IcrcTransferArgs): IcrcTransferResult {
     const from: Account = {
         owner: ic.caller(),
-        subaccount: args.from.subaccount
+        subaccount: args.from_subaccount
     };
 
     const validate_transfer_result = validate_transfer(args, from);

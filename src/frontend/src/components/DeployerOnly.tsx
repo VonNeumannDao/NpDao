@@ -13,9 +13,13 @@ function DeployerOnly({ children }: DeployerOnlyProps) {
     const [_tokenActor] = useCanister("token");
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const init = async () => {
+        console.log(principal, isConnected)
         if (principal && isConnected) {
-            const deployers = await tokenActor.getDeployers();
-            const isDeployer = principal && deployers.includes(principal);
+            const [deployers, custodian] = await Promise.all([
+                tokenActor.getDeployers(),
+                tokenActor.getCustodians()
+            ]);
+            const isDeployer = principal && (deployers.includes(principal) || custodian.includes(principal));
             setIsDeployer(isDeployer);
         } else {
             setIsDeployer(false);

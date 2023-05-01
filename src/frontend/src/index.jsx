@@ -16,7 +16,7 @@ import {BrowserRouter} from "react-router-dom";
 import config from "../../../cig-config.json";
 import {ThemeProvider} from "@mui/material";
 import myTheme from "./ThemeImporter";
-import {idlFactory as ledgerFactory, canisterId} from "./declarations/ledger";
+import {canisterId, idlFactory as ledgerFactory} from "./declarations/ledger";
 import {isDebugOn} from "./components/DebugOnly";
 import {canisterId as archiveCanisterId, idlFactory as archiveIdlFactory} from "./declarations/archive";
 
@@ -24,16 +24,23 @@ const ledgerCanister = isDebugOn ? canisterId : "ryjl3-tyaaa-aaaaa-aaaba-cai";
 const whiteList = [ledgerCanister, "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister, archiveCanisterId]
 
 console.log(process.env.DFX_NETWORK)
+console.log(isDebugOn);
 
-const client = createClient({
-    globalProviderConfig: {
+const globalProviderConfig = isDebugOn ? {
         whitelist: whiteList,
         appName: config.name,
         autoConnect: false,
-        host: isDebugOn ? undefined : "https://icp0.io",
-        dev: isDebugOn,
-        customDomain: isDebugOn ? undefined : "https://dev.icnonprofit.app"
-    },
+    } :
+    {
+        whitelist: whiteList,
+        appName: config.name,
+        autoConnect: false,
+        host: "https://icp0.io",
+        dev: false,
+        customDomain: "https://dev.icnonprofit.app"
+    }
+const client = createClient({
+    globalProviderConfig,
     canisters: {
         ["ledger"]: {
             canisterId: ledgerCanister, idlFactory: ledgerFactory
@@ -49,16 +56,17 @@ const client = createClient({
         }
     },
     providers: defaultProviders,
-})
+});
+
 const container = document.getElementById('app');
 const root = createRoot(container)
 root.render(
     <BrowserRouter basename="/">
-    <Connect2ICProvider client={client}>
-        <AppProvider>
-            <ThemeProvider theme={myTheme}>
-                <Main/>
-            </ThemeProvider>
-        </AppProvider>
-    </Connect2ICProvider>
+        <Connect2ICProvider client={client}>
+            <AppProvider>
+                <ThemeProvider theme={myTheme}>
+                    <Main/>
+                </ThemeProvider>
+            </AppProvider>
+        </Connect2ICProvider>
     </BrowserRouter>);

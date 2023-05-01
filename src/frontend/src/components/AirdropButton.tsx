@@ -1,4 +1,4 @@
-import { Button, Snackbar } from '@mui/material';
+import {Button, Link, Snackbar} from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/token/token.did";
@@ -39,15 +39,14 @@ export default function AirdropButton() {
     if (isEntitled === true) {
         return (
             <>
-                <Button
+                <Link
+                    component="button"
                     sx={{ marginLeft: 2 }}
-                    variant="contained"
-                    color="warning"
                     disabled={isClaiming}
                     onClick={handleClaimAirdrop}
                 >
                     {isClaiming ? 'Claiming airdrop...' : 'Claim airdrop'}
-                </Button>
+                </Link>
                 <Snackbar
                     open={isSnackbarOpen}
                     autoHideDuration={3000}

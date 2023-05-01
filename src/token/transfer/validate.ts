@@ -21,7 +21,7 @@ export function validate_transfer(
         };
     }
 
-    const from_subaccount_is_valid = is_subaccount_valid(args.from.subaccount);
+    const from_subaccount_is_valid = is_subaccount_valid(args.from_subaccount);
 
     if (!from_subaccount_is_valid) {
         return {

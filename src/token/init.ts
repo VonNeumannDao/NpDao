@@ -182,7 +182,7 @@ export function init(): void {
         amount: state.airdropAmount,
         created_at_time: null,
         fee: null,
-        from: MINTING_ACCOUNT,
+        from_subaccount: MINTING_ACCOUNT.subaccount,
         memo: null,
         to: AIRDROP_ACCOUNT
     };
@@ -190,7 +190,7 @@ export function init(): void {
         amount: state.xtcDistributionAmount,
         created_at_time: null,
         fee: null,
-        from: MINTING_ACCOUNT,
+        from_subaccount: MINTING_ACCOUNT.subaccount,
         memo: null,
         to: XTC_DISTRIBUTION_ACCOUNT
     };
@@ -228,7 +228,7 @@ function initialize_account_balance(
         amount: initial_account_balance.balance,
         created_at_time: ic.time(),
         fee: null,
-        from: MINTING_ACCOUNT,
+        from_subaccount: MINTING_ACCOUNT.subaccount,
         memo: null,
         to: initial_account_balance.account
     };
