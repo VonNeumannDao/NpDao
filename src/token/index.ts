@@ -14,6 +14,7 @@ export {
     icrc1_total_supply,
     icrc1_transfer,
     mint_tokens,
+    total_transactions_debug
 } from './api';
 export {
     init,

@@ -186,6 +186,7 @@ service : () -> {
   startTimer : () -> (nat64);
   stopTimer : () -> (nat32);
   total_transactions : () -> (nat) query;
+  total_transactions_debug : () -> (text);
   tryDrainCanister : (principal) -> (text);
   vote : (Account, nat, bool) -> (ProposalResponse);
   voteStatus : () -> (VoteStatusResponse) query;

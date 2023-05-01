@@ -19,7 +19,7 @@ $query;
 export function getQueryArchiveFn(): QueryArchiveFn {
     return [Principal.fromText(state.isDev ? devCanister.archive.local : prodCanister.archive.ic), 'get_transactions'];
 }
-
+$update
 export async function total_transactions_debug(): Promise<string> {
     const len = await archiveCanister(ic.id().toText()).length().call();
     const archivedLen = (len && len.Ok) || 0n;

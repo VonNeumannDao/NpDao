@@ -111,7 +111,7 @@ export function postUpgrade(): void {
     }
 
     const trx = stableTransactions.get(0) || [];
-    state.transactions = new CircularBuffer<TransactionWithId>(trx.length, trx)
+    state.transactions = new CircularBuffer<TransactionWithId>(Number(MAX_TRANSACTIONS_PER_REQUEST), trx)
 
     const votes = stableProposals.get(0) || [];
     for (let value of votes) {

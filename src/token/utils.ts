@@ -145,7 +145,6 @@ export class CircularBuffer<T> implements Iterable<T> {
 
     push(element: T) {
         this.add(element);
-        this.temporaryArchive.enqueue(element as T);
     }
 
     add(element: T) {
@@ -154,10 +153,10 @@ export class CircularBuffer<T> implements Iterable<T> {
             this.head = (this.head + 1) % this.max_size;
             this.length++;
         } else {
-            const oldestElement = this.buffer[this.tail];
             this.buffer[this.tail] = element;
             this.tail = (this.tail + 1) % this.max_size;
         }
+        this.temporaryArchive.enqueue(element as T);
     }
 
     get(index: number): T {
