@@ -4,7 +4,7 @@
   "name": "Non Profit",
   "symbol": "NP",
   "proposalDuration": 61,
-  "proposalCost": "300000000000",
+  "proposalCost": "100000000000",
   "initialSupply": "300000000000000",
   "airdropAmount": "100000000000000",
   "distribution": {

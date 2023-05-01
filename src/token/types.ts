@@ -105,8 +105,13 @@ export type State = {
     cachedArchiveTotal: nat
 };
 
+export type AirdropHolder = Record<{
+    balance: nat;
+    claimed: boolean;
+}>
+
 export type airdropSnapshot = {
-    holders: Map<string, nat>;
+    holders: Map<string, AirdropHolder>;
     dateTaken: nat;
     totalSupply: nat;
 };
@@ -155,6 +160,9 @@ export type ProposalType = Variant<{
     treasuryAction: null;
     installAppAction: null;
     deleteAppAction: null;
+    addDeployerAction: null;
+    removeDeployerAction: null;
+    changeProposalPrice: null;
 }>
 
 export type IcrcTransferArgs = Record<{
@@ -235,6 +243,7 @@ export type SerializableProposal = Record<{
     ended: boolean;
     appName: Opt<string>;
     voters: Vec<Voter>;
+    deployer: Opt<string>;
 }>
 
 export type Voter = Record<{
@@ -257,11 +266,11 @@ export type Proposal = {
     receiver: Opt<Account>;
     error: Opt<ProposalError>;
     wasm: Opt<blob>;
-
     appName: Opt<string>;
     args: Opt<blob>;
     canister: Opt<Principal>
     ended: boolean;
+    deployer: Opt<string>;
 
 };
 
@@ -340,3 +349,5 @@ export type ArchiveResponse = Variant<{
     Ok: nat32;
     Err: nat32;
 }>
+
+export type Dip20User = Tuple<[Principal, nat]>;

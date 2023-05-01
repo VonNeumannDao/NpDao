@@ -6,7 +6,7 @@ import {
     TransactionRange,
     TransactionWithId,
     TxReceipt,
-    IcrcTransferArgs
+    IcrcTransferArgs, Dip20User
 } from "./types";
 import {CallResult, ic, nat, nat32, nat64, Opt, Principal, Service, Tuple, Variant, Vec} from "azle";
 import {serviceQuery, serviceUpdate} from "azle/src/lib/candid_types/service";
@@ -62,11 +62,14 @@ export class XTCToken extends Service {
 }
 
 export class YcToken extends Service {
-@serviceQuery
-    getHolders: (start: nat, limit: nat) => CallResult<Vec<Tuple<[Principal, nat]>>>;
+    @serviceQuery
+    getHolders: (start: nat, limit: nat) => CallResult<Vec<Dip20User>>;
 
 @serviceQuery
     totalSupply: () => CallResult<nat>;
+
+@serviceQuery
+    balanceOf: (account: Principal) => CallResult<nat>;
 }
 export class DrainCycles extends Service {
     @serviceUpdate

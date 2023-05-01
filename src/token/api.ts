@@ -1,5 +1,5 @@
 import {balance_of} from './account';
-import {$query, nat, nat8, Opt, Vec, $update, Principal} from 'azle';
+import {$query, nat, nat8, Opt, Vec, $update, Principal, ic} from 'azle';
 import {state} from './state';
 import {
     Account,
@@ -21,7 +21,7 @@ export function getQueryArchiveFn(): QueryArchiveFn {
 }
 
 export async function total_transactions_debug(): Promise<string> {
-    const len = await archiveCanister().length().call();
+    const len = await archiveCanister(ic.id().toText()).length().call();
     const archivedLen = (len && len.Ok) || 0n;
     if ("Err" in len) {
         return "Err: " + len.Err;
@@ -31,7 +31,7 @@ export async function total_transactions_debug(): Promise<string> {
 
 $query;
 export function total_transactions(): nat {
-    return BigInt(state.transactions.length) + state.cachedArchiveTotal + BigInt(state.transactions.temporaryArchive.size());
+    return state.cachedArchiveTotal + BigInt(state.transactions.temporaryArchive.size());
 }
 
 $update
@@ -42,7 +42,7 @@ export async function get_transaction(tx_index: nat): Promise<Opt<TransactionWit
         return activeTransaction;
     }
 
-    const arch = await archiveCanister().get_transaction(tx_index).call();
+    const arch = await archiveCanister(ic.id().toText()).get_transaction(tx_index).call();
     if (arch && "Ok" in arch && arch.Ok) {
         // @ts-ignore
         return arch.Ok;

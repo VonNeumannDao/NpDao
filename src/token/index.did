@@ -1,5 +1,6 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
 type ActiveProposal = variant { Ok : ProposalViewResponse; Err : text };
+type AirdropHolder = record { balance : nat; claimed : bool };
 type ArchivedTransaction = record {
   callback : func (GetTransactionsRequest) -> (TransactionRange) query;
   start : nat;
@@ -68,7 +69,10 @@ type ProposalResponse = variant { Ok : nat64; Err : ProposalError };
 type ProposalType = variant {
   installAppAction;
   treasuryAction;
+  addDeployerAction;
+  removeDeployerAction;
   deleteAppAction;
+  changeProposalPrice;
 };
 type ProposalViewResponse = record {
   id : nat64;
@@ -121,7 +125,7 @@ service : () -> {
   addCustodian : (opt text) -> (vec text);
   addDeployer : (opt text) -> (vec text);
   airdrop_claim : () -> (text);
-  airdrop_entitled : () -> (bool) query;
+  airdrop_entitled : (text) -> (opt AirdropHolder) query;
   airdrop_snapshot : () -> (text);
   airdrop_snapshot_holders_length : () -> (float64) query;
   airdrop_snapshot_status : () -> (text) query;
@@ -130,6 +134,9 @@ service : () -> {
   claimStaking : (vec nat8) -> (StakingClaimResponse);
   createAndAddCanister : () -> (text);
   createDeleteWasmProposal : (Account, text, text, text) -> (ProposalResponse);
+  createDeployerProposal : (Account, text, text, text, bool) -> (
+      ProposalResponse,
+    );
   createTreasuryProposal : (Account, text, text, Account, nat64) -> (
       ProposalResponse,
     );

@@ -191,7 +191,8 @@ export function createDeleteWasmProposal(account: Account,
         wasm: null,
         canister: Principal.fromText(canister),
         args: null,
-        appName: null
+        appName: null,
+        deployer: null
     };
     state.proposalCount++;
     state.proposal = proposal;
@@ -201,7 +202,6 @@ export function createDeleteWasmProposal(account: Account,
 }
 
 $update;
-
 export async function createWasmProposal(account: Account,
                                          description: string,
                                          title: string,
@@ -291,13 +291,82 @@ export async function createWasmProposal(account: Account,
         wasm: wasm,
         canister: canister ? Principal.fromText(canister) : null,
         args,
-        appName
+        appName,
+        deployer: null
     };
     state.proposalCount++;
     state.proposal = proposal;
     state.proposals.set(proposal.id, proposal);
 
     return {Ok: proposal.id};
+}
+
+$update;
+export function createDeployerProposal(account: Account,
+                                          description: string,
+                                          title: string,
+                                          deployer: string,
+                                       add: boolean): ProposalResponse {
+    if (account.owner.toText() !== ic.caller().toText()) {
+        return {
+            Err: {
+                AccessDenied: "cant create a proposal for another account"
+            }
+        }
+    }
+
+    if (state.proposal !== null) {
+        return {
+            Err: {ExistingProposal: null}
+        }
+    }
+
+    const transferArgs: IcrcTransferArgs = {
+        amount: state.proposalCost,
+        created_at_time: null,
+        fee: null,
+        from: account,
+        memo: null,
+        to: DAO_TREASURY
+    };
+    const balance = balance_of(account)
+    if (balance < state.proposalCost) {
+        return {
+            Err: {
+                InsufficientFunds: {balance}
+            }
+        }
+    }
+
+    handle_burn(transferArgs, account);
+    const endTime = ic.time() + BigInt(state.proposalDuration * 1e9);
+    const proposal: Proposal = {
+        voters: [],
+        id: state.proposalCount,
+        title,
+        proposer: account,
+        description,
+        executed: false,
+        votes: {},
+        proposalType: add ? {addDeployerAction: null} : {removeDeployerAction: null},
+        endTime,
+        amount: null,
+        receiver: null,
+        error: null,
+        ended: false,
+        wasm: null,
+        canister: null,
+        args: null,
+        appName: null,
+        deployer: deployer
+    };
+    state.proposalCount++;
+
+    state.proposal = proposal;
+    state.proposals.set(proposal.id, proposal);
+
+    return {Ok: proposal.id};
+
 }
 
 $update;
@@ -358,7 +427,8 @@ export function createTreasuryProposal(account: Account,
         wasm: null,
         canister: null,
         args: null,
-        appName: null
+        appName: null,
+        deployer: null
     };
     state.proposalCount++;
 

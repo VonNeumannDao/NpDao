@@ -1,6 +1,6 @@
 import { Button, Snackbar } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import {useCanister} from "@connect2ic/react";
+import {useCanister, useConnect} from "@connect2ic/react";
 import {_SERVICE} from "../declarations/token/token.did";
 import {useAppContext} from "./AppContext";
 
@@ -9,30 +9,38 @@ export default function AirdropButton() {
     const [isClaiming, setIsClaiming] = useState<boolean>(false);
     const [isSnackbarOpen, setIsSnackbarOpen] = useState<boolean>(false);
     const {reloadBalance} = useAppContext();
+    const {principal} = useConnect();
+
 
     const [_tokenActor] = useCanister("token");
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const handleClaimAirdrop = async () => {
         setIsClaiming(true);
-        await tokenActor.airdrop_claim();
+        const claim = await tokenActor.airdrop_claim();
+        console.log(claim);
         await reloadBalance();
+        setIsEntitled(false);
         setIsClaiming(false);
         setIsSnackbarOpen(true);
     };
 
     useEffect(() => {
         const checkEntitlement = async () => {
-            const entitled = await tokenActor.airdrop_entitled();
-            setIsEntitled(entitled);
+            const entitled = await tokenActor.airdrop_entitled(principal);
+            console.log(entitled);
+            setIsEntitled(entitled.length > 0 && entitled[0].claimed === false);
         };
 
-        checkEntitlement();
-    }, []);
+        if (principal) {
+            checkEntitlement();
+        }
+    }, [principal]);
 
     if (isEntitled === true) {
         return (
             <>
                 <Button
+                    sx={{ marginLeft: 2 }}
                     variant="contained"
                     color="warning"
                     disabled={isClaiming}

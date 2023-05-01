@@ -10,7 +10,7 @@ import {
     IcrcTransferArgs,
     TransactionWithId,
     AccountsRecord,
-    StakingAccount
+    StakingAccount, AirdropHolder
 } from './types';
 import {
     AIRDROP_ACCOUNT, DAO_TREASURY,
@@ -19,7 +19,7 @@ import {
     XTC_DISTRIBUTION_ACCOUNT
 } from "./constants";
 import {
-    stableAccounts,
+    stableAccounts, stableAirdropHolders,
     stableIds, stableMemory,
     stableProposals, stableQueuedTransactions,
     stableStakingAccounts,
@@ -76,6 +76,12 @@ export function preUpgrade(): void {
         });
     }
     stableStakingAccounts.insert(0, stakingAccounts);
+    for (let [key, value] of state.airdrop_snapshot.holders) {
+        stableAirdropHolders.insert(key, value);
+    }
+    stableIds.insert("airdropTotalSupply", state.airdrop_snapshot.totalSupply.toString(10));
+    stableIds.insert("airdropDateTaken", state.airdrop_snapshot.dateTaken.toString(10));
+
 
 }
 
@@ -143,6 +149,17 @@ export function postUpgrade(): void {
             state.stakingAccountsState[stakingAccount.principal] = stakingAccountsStateList;
         }
     });
+
+    const holderMap = new Map<string, AirdropHolder>();
+    for (let item of stableAirdropHolders.items()) {
+        holderMap.set(item[0], item[1]);
+    }
+
+    state.airdrop_snapshot = {
+        holders: holderMap,
+        totalSupply: BigInt(stableIds.get("airdropTotalSupply") || 0),
+        dateTaken: BigInt(stableIds.get("airdropDateTaken") || 0)
+    }
 
     startTimer();
 }

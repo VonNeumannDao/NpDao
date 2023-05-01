@@ -100,8 +100,8 @@ export function durationToSeconds(duration: number): nat {
     return BigInt(duration * 1e9);
 }
 
-export function archiveCanister() {
-    return new Archive(Principal.fromText(state.isDev ? devCanister.archive.local : prodCanister.archive.ic));
+export function archiveCanister(canisterId: string) {
+    return new Archive(Principal.fromText(prodCanister.token.ic !== canisterId ? devCanister.archive.local : prodCanister.archive.ic));
 }
 
 export class Queue<T> {
@@ -145,6 +145,7 @@ export class CircularBuffer<T> implements Iterable<T> {
 
     push(element: T) {
         this.add(element);
+        this.temporaryArchive.enqueue(element as T);
     }
 
     add(element: T) {
@@ -156,7 +157,6 @@ export class CircularBuffer<T> implements Iterable<T> {
             const oldestElement = this.buffer[this.tail];
             this.buffer[this.tail] = element;
             this.tail = (this.tail + 1) % this.max_size;
-            this.temporaryArchive.enqueue(oldestElement as T);
         }
     }
 

@@ -1,4 +1,4 @@
-import {IcrcTransaction, Proposal, State, TransactionWithId} from './types';
+import {AirdropHolder, IcrcTransaction, Proposal, State, TransactionWithId} from './types';
 import {nat64} from "azle";
 import config from "../../cig-config.json"
 import {CircularBuffer} from "./utils";
@@ -44,7 +44,7 @@ export let state: State = {
     custodian: config.custodian,
     deployers: config.deployers,
     airdrop_snapshot: {
-        holders: new Map<string, nat64>(),
+        holders: new Map<string, AirdropHolder>(),
         dateTaken: 0n,
         totalSupply: 0n
     },

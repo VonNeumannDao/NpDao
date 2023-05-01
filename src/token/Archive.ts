@@ -1,10 +1,9 @@
 import {TransactionWithId} from "./types";
 import {state} from "./state";
 import {archiveCanister, Queue} from "./utils";
-
-
+import {ic} from 'azle';
 export async function _refreshArchivedTotalTransactions(): Promise<void> {
-    const len = await archiveCanister().length().call();
+    const len = await archiveCanister(ic.id().toText()).length().call();
     state.cachedArchiveTotal = (len && len.Ok) || 0n;
 }
 export async function _loadTransactions(): Promise<void> {
@@ -19,7 +18,7 @@ export async function _loadTransactions(): Promise<void> {
             numberLoaded++;
         }
     }
-    const response = await archiveCanister().archive(transactionsToTransfer).call();
+    const response = await archiveCanister(ic.id().toText()).archive(transactionsToTransfer).call();
     // @ts-ignore
     if ("Ok" in response && "Ok" in response.Ok) {
         console.log(`Loaded ${numberLoaded} transactions`);
