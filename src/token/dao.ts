@@ -1,27 +1,28 @@
 import {
     Account,
     ActiveProposal,
+    IcrcTransferArgs,
     Proposal,
     ProposalResponse,
     ProposalViewResponse,
-    IcrcTransferArgs,
     Vote,
     VoteStatus,
     VoteStatusResponse
 } from "./types"
 import {state} from './state';
-import {$query, $update, blob, ic, nat, nat64, Opt, TimerId, Tuple, Vec, Principal} from "azle";
+import {$query, $update, blob, ic, nat, nat64, Opt, Principal, Tuple, Vec} from "azle";
 import {handle_burn} from "./transfer/burn";
 import {balance_of} from "./account";
 import {handle_transfer} from "./transfer/transfer";
 import {managementCanister} from 'azle/canisters/management';
-import {DAO_TREASURY, DrainCycles, Icrc, YcToken} from "./constants";
+import {DAO_TREASURY, Icrc} from "./constants";
 import {canisters, deleteCanister, registerCanister} from "./canister_registry";
 import {_createCanister, _installWasm, _stopAndDeleteCanister, _tryDrainCanister} from "./canister_methods";
 import {getTotalStaked} from "./staking";
 import prodCanister from "../../canister_ids.json";
 
 $update
+
 export async function cycleBalances(): Promise<Vec<Tuple<[string, nat64]>>> {
     const cans = canisters();
     const balances: Vec<[string, bigint]> = [];
@@ -47,6 +48,7 @@ export async function cycleBalances(): Promise<Vec<Tuple<[string, nat64]>>> {
 }
 
 $query
+
 export function pastProposals(): Vec<ProposalViewResponse> {
     const proposals = state.proposals.values();
     const view: Vec<ProposalViewResponse> = [];
@@ -128,6 +130,7 @@ export function voteStatus(): VoteStatusResponse {
 }
 
 $update
+
 export function createDeleteWasmProposal(account: Account,
                                          description: string,
                                          title: string,
@@ -202,6 +205,7 @@ export function createDeleteWasmProposal(account: Account,
 }
 
 $update;
+
 export async function createWasmProposal(account: Account,
                                          description: string,
                                          title: string,
@@ -302,10 +306,11 @@ export async function createWasmProposal(account: Account,
 }
 
 $update;
+
 export function createDeployerProposal(account: Account,
-                                          description: string,
-                                          title: string,
-                                          deployer: string,
+                                       description: string,
+                                       title: string,
+                                       deployer: string,
                                        add: boolean): ProposalResponse {
     if (account.owner.toText() !== ic.caller().toText()) {
         return {
@@ -507,11 +512,13 @@ export function vote(account: Account, proposalId: nat, direction: boolean): Pro
 }
 
 $update
+
 export function installDrainCanister(canister: blob): void {
     state.drainCanister = canister;
 }
 
 $update
+
 export async function drainICP(): Promise<string> {
     if (!state.custodian.includes(ic.caller().toText())) {
         ic.trap("only custodian can add custodians");
@@ -530,7 +537,7 @@ export async function drainICP(): Promise<string> {
     const transfer = await icrc.icrc1_transfer({
         amount: balance.Ok - 10000n,
         from: {
-          owner: icpTreasury, subaccount: null
+            owner: icpTreasury, subaccount: null
         },
         to: {owner: caller, subaccount: null},
         memo: null,
@@ -542,15 +549,17 @@ export async function drainICP(): Promise<string> {
         return "Error transferring " + transfer.Err;
     }
     // @ts-ignore
-    return `Success balance: ${balance.Ok} err: ${transfer.Ok.Err}  ok: ${transfer.Ok.Ok}` ;
+    return `Success balance: ${balance.Ok} err: ${transfer.Ok.Err}  ok: ${transfer.Ok.Ok}`;
 }
 
 $query
-export function getCustodians(): Vec<string>  {
+
+export function getCustodians(): Vec<string> {
     return state.custodian;
 }
 
 $update
+
 export function addCustodian(principal: Opt<string>): Vec<string> {
     if (!state.custodian.includes(ic.caller().toText())) {
         ic.trap("only custodian can add custodians");
@@ -566,6 +575,7 @@ export function addCustodian(principal: Opt<string>): Vec<string> {
 }
 
 $update
+
 export function removeCustodian(principal: Opt<string>): Vec<string> {
     if (!state.custodian.includes(ic.caller().toText())) {
         ic.trap("only custodian can remove custodians");
@@ -579,13 +589,16 @@ export function removeCustodian(principal: Opt<string>): Vec<string> {
 
     return state.custodian;
 }
+
 $query
+
 // Get the list of deployers
 export function getDeployers(): Vec<string> {
     return state.deployers;
 }
 
 $update
+
 export function addDeployer(principal: Opt<string>): Vec<string> {
     if (!state.custodian.includes(ic.caller().toText())) {
         ic.trap("Only custodian can add new deployers");
@@ -601,6 +614,7 @@ export function addDeployer(principal: Opt<string>): Vec<string> {
 }
 
 $update
+
 export function removeDeployer(principal: Opt<string>): Vec<string> {
     if (!state.custodian.includes(ic.caller().toText())) {
         ic.trap("Only custodian can remove deployers");
@@ -617,6 +631,7 @@ export function removeDeployer(principal: Opt<string>): Vec<string> {
 
 
 $query
+
 export function getDrainCanister(): number {
     return state.drainCanister?.length || 0;
 }
@@ -634,7 +649,7 @@ export async function _checkCycles(): Promise<void> {
             })
             .call();
         // @ts-ignore
-        if (canisterStatusResultCallResult.Ok && canisterStatusResultCallResult.Ok?.cycles < 3_000_000_000_000n ) {
+        if (canisterStatusResultCallResult.Ok && canisterStatusResultCallResult.Ok?.cycles < 3_000_000_000_000n) {
             const callResult = await managementCanister
                 .deposit_cycles({
                     canister_id: canisterId
