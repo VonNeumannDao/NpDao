@@ -37,6 +37,7 @@ export function _rewardTick(): void {
             if (!stakingAccount.endStakeDate) {
                 stakingAccount.total = stakingAccount.amount + (stakingAccount.reward || 0n);
                 stakingAccount.reward = calculateRewardsPerMinute(stakingAccount.total, state.rewardsPercent);
+                stakingAccount.total = stakingAccount.amount + stakingAccount.reward;
                 console.log(stakingAccount.amount, stakingAccount.reward);
             }
         });
@@ -55,7 +56,7 @@ function calculateRewardsPerMinute(stakedAmount: bigint, apyPercent: number): bi
 }
 
 $update
-export function startStaking(subaccount: blob, amount: nat, blockNumber: nat): StakingResponse {
+export function startStaking(subaccount: blob, amount: nat, blockNumber: nat, stakeId: string): StakingResponse {
     const caller = ic.caller();
     const id = ic.id();
     console.log("caller", caller.toText());
@@ -122,7 +123,8 @@ export function startStaking(subaccount: blob, amount: nat, blockNumber: nat): S
         amount,
         reward: 0n,
         claimed: false,
-        total: amount
+        total: amount,
+        stakeId
     };
     state.stakingAccountsState.get(caller.toText())?.push(stake);
     return {Ok: stake};
@@ -130,7 +132,7 @@ export function startStaking(subaccount: blob, amount: nat, blockNumber: nat): S
 
 $update
 
-export function startEndStaking(subaccount: blob): StakingResponse {
+export function startEndStaking(stakeId: string): StakingResponse {
     const caller = ic.caller();
     if (!state.stakingAccountsState) {
         return {Err: "No staking accounts created"};
@@ -142,12 +144,8 @@ export function startEndStaking(subaccount: blob): StakingResponse {
         return {Err: "No staking accounts found"};
     }
 
-    if (!is_subaccount_valid(subaccount)) {
-        return {Err: "Subaccount must be 32 bytes in length"};
-    }
-
     // @ts-ignore
-    const singleStakingAccount = stakingAccount.find((stake) => stake.accountId === uint8ArrayToHexString(subaccount));
+    const singleStakingAccount = stakingAccount.find((stake) => stake.stakeId === stakeId);
 
     if (!singleStakingAccount) {
         return {Err: "No staking account found"};
@@ -159,7 +157,7 @@ export function startEndStaking(subaccount: blob): StakingResponse {
 
 $update
 
-export function claimStaking(index: number): StakingClaimResponse {
+export function claimStaking(stakeId: string): StakingClaimResponse {
     const caller = ic.caller();
     const id = ic.id();
     if (!state.stakingAccountsState) {
@@ -170,7 +168,7 @@ export function claimStaking(index: number): StakingClaimResponse {
         return {Err: "No staking accounts found"};
     }
     // @ts-ignore
-    const singleStakingAccount = stakingAccount[index]
+    const singleStakingAccount = stakingAccount.find((stake) => stake.stakeId === stakeId);
 
     if (!singleStakingAccount) {
         return {Err: "No staking account found"};

@@ -103,6 +103,7 @@ type StakingAccount = record {
   "principal" : text;
   total : nat;
   accountId : text;
+  stakeId : text;
   claimed : bool;
   endStakeDate : opt nat;
   startStakeDate : nat;
@@ -142,7 +143,7 @@ service : () -> {
   airdrop_snapshot_status : () -> (text) query;
   burnAllXtc : () -> (nat);
   canisters : () -> (vec Canisters) query;
-  claimStaking : (float64) -> (StakingClaimResponse);
+  claimStaking : (text) -> (StakingClaimResponse);
   createAndAddCanister : () -> (text);
   createChangePriceProposal : (Account, text, text, nat) -> (ProposalResponse);
   createDeleteWasmProposal : (Account, text, text, text) -> (ProposalResponse);
@@ -193,8 +194,8 @@ service : () -> {
   pastProposals : () -> (vec ProposalViewResponse) query;
   removeCustodian : (opt text) -> (vec text);
   removeDeployer : (opt text) -> (vec text);
-  startEndStaking : (vec nat8) -> (StakingResponse);
-  startStaking : (vec nat8, nat, nat) -> (StakingResponse);
+  startEndStaking : (text) -> (StakingResponse);
+  startStaking : (vec nat8, nat, nat, text) -> (StakingResponse);
   startTimer : () -> (nat64);
   stopTimer : () -> (nat32);
   total_transactions : () -> (nat) query;

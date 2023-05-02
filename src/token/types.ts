@@ -32,6 +32,7 @@ export type StakingResponse = Variant<{
 export type StakingAccount = Record<{
     principal: string;
     accountId: string;
+    stakeId: string;
     startStakeDate: nat;
     endStakeDate: Opt<nat>;
     total: nat;

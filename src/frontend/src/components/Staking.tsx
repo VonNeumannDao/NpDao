@@ -69,7 +69,8 @@ const Staking = () => {
         const stakingAccounts = await tokenActor.getStakingAccount(principal);
 
         const amount = convertToBigInt(stakingAmount);
-        const account = stringToAccount(stakingAccounts.length.toString() + principal);
+        const stakeId = generateUUID();
+        const account = stringToAccount(stakeId);
         const memo = "Stake";
         const response = await tokenActor.icrc1_transfer({
             to: {
@@ -87,25 +88,25 @@ const Staking = () => {
             setLoading(false);
             return;
         }
-        const startStaking = await tokenActor.startStaking(account, amount, response.Ok);
+        const startStaking = await tokenActor.startStaking(account, amount, response.Ok, stakeId);
         console.log(startStaking);
         await init();
         await reloadBalance();
         setLoading(false);
     };
 
-    const handleUnstake = async (accountId: string) => {
+    const handleUnstake = async (stakeId: string) => {
         setLoadingUnstake(true);
-        const startUnstaking = await tokenActor.startEndStaking(hexStringToUint8Array(accountId));
+        const startUnstaking = await tokenActor.startEndStaking(stakeId);
         console.log(startUnstaking);
         await init();
         await reloadBalance();
         setLoadingUnstake(false);
     };
 
-    const withdraw = async (index: number) => {
+    const withdraw = async (stakeId: string) => {
         setLoadingWithdraw(true);
-        const withdr = await tokenActor.claimStaking(index);
+        const withdr = await tokenActor.claimStaking(stakeId);
         console.log(withdr);
         await init();
         await reloadBalance();
@@ -198,14 +199,14 @@ const Staking = () => {
                                             <TableCell>
                                                 {new Date(Number(record.endStakeDate[0]) / 1000000) <= new Date() ?
                                                     <LoadingButton loading={loadingWithdraw} variant="outlined"
-                                                                   onClick={() => withdraw(index)}>
+                                                                   onClick={() => withdraw(record.stakeId)}>
                                                         Claim
                                                     </LoadingButton>
                                                     :
                                                     <LoadingButton loading={loadingUnstake}
                                                                    disabled={record.endStakeDate.length > 0}
                                                                    variant="outlined"
-                                                                   onClick={() => handleUnstake(record.accountId)}>
+                                                                   onClick={() => handleUnstake(record.stakeId)}>
                                                         Unstake
                                                     </LoadingButton>
                                                 }
