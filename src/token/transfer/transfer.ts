@@ -7,6 +7,10 @@ import {putTransaction} from "./putTransaction";
 
 export function handle_transfer(args: IcrcTransferArgs, from: Account): IcrcTransferResult {
     const fee = args.fee ?? state.fee;
+    const balanceOfFrom = balance_of(from);
+    if (balanceOfFrom < args.amount + fee) {
+        ic.trap(`insufficient funds ${balanceOfFrom}  ${args.amount + fee}`);
+    }
 
     set_account_balance(from, balance_of(from) - args.amount - fee);
     set_account_balance(args.to, balance_of(args.to) + args.amount);

@@ -1,5 +1,5 @@
-import {AirdropHolder, IcrcTransaction, Proposal, State, TransactionWithId} from './types';
-import {nat64} from "azle";
+import {AirdropHolder, Proposal, StakingAccount, State, TransactionWithId} from './types';
+import {nat64, Vec} from "azle";
 import config from "../../cig-config.json"
 import {CircularBuffer} from "./utils";
 import {MAX_TRANSACTIONS_PER_REQUEST, MINTING_ACCOUNT} from "./constants";
@@ -41,7 +41,8 @@ export let state: State = {
     xtcDistributionExchangeRate: BigInt(config.distribution.xtc.exchangeRate),
     icpDistributionExchangeRate: BigInt(config.distribution.icp.exchangeRate),
     stakeDuration: config.stake.duration,
-    stakingAccountsState: null,
+    stakingAccountsState: new Map<string, Vec<StakingAccount>>(),
+    rewardsPercent: config.stake.rewardsPercent,
     custodian: config.custodian,
     deployers: config.deployers,
     airdrop_snapshot: {

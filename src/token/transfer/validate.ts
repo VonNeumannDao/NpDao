@@ -98,7 +98,7 @@ export function validate_transfer(
         };
     }
 
-    const from_is_minting_account = is_minting_account(from.owner);
+    const from_is_minting_account = is_minting_account(from);
 
     if (from_is_minting_account && (args.fee ?? 0n) !== 0n) {
         return {
@@ -110,7 +110,7 @@ export function validate_transfer(
         };
     }
 
-    const to_is_minting_account = is_minting_account(args.to.owner);
+    const to_is_minting_account = is_minting_account(args.to);
 
     if (to_is_minting_account) {
         if ((args.fee ?? 0n) !== 0n) {

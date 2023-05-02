@@ -2,11 +2,13 @@ import {$query, $update, blob, ic, nat, Vec} from "azle";
 import {state} from "./state";
 import {StakingAccount, StakingClaimResponse, StakingResponse} from "./types";
 import {durationToSeconds, stringToUint8, uint8ArrayToHexString, uint8ToString} from "./utils";
-import {handle_transfer} from "./transfer/transfer";
 import {is_subaccount_valid} from "./transfer/validate";
 import {get_transactions} from "./api";
+import {MINTING_ACCOUNT} from "./constants";
+import {handle_mint} from "./transfer/mint";
+import {handle_burn} from "./transfer/burn";
 
-
+export const STAKING_REWARDS_TICK_FREQUENCY = 60;
 $query
 export function getTotalStaked(principal: string): nat {
     const stakingAccounts = getStakingAccount(principal).filter(x => !x.claimed);
@@ -24,11 +26,35 @@ export function getStakingAccount(principal: string): Vec<StakingAccount> {
     if (!state.stakingAccountsState) {
         return [];
     }
-    return state.stakingAccountsState[principal] || [];
+    return state.stakingAccountsState.get(principal) || [];
+}
+
+export function _rewardTick(): void {
+    console.log("this is happening", state.stakingAccountsState?.size);
+    if (state.stakingAccountsState)
+    state.stakingAccountsState.forEach((stakingAccounts) => {
+        stakingAccounts.forEach((stakingAccount) => {
+            if (!stakingAccount.endStakeDate) {
+                stakingAccount.total = stakingAccount.amount + (stakingAccount.reward || 0n);
+                stakingAccount.reward = calculateRewardsPerMinute(stakingAccount.total, state.rewardsPercent);
+                console.log(stakingAccount.amount, stakingAccount.reward);
+            }
+        });
+    });
+}
+function calculateRewardsPerMinute(stakedAmount: bigint, apyPercent: number): bigint {
+    const minutesPerYear = 525600;
+    const scaleFactor = BigInt(10 ** 18);
+
+    const apyDecimal = 1 + (apyPercent / 100);
+    const apyRatePerMinute = Math.pow(apyDecimal, 1 / minutesPerYear) - 1;
+
+    const apyRatePerMinuteBigInt = BigInt(Math.floor(apyRatePerMinute * Number(scaleFactor)));
+
+    return stakedAmount * apyRatePerMinuteBigInt / scaleFactor;
 }
 
 $update
-
 export function startStaking(subaccount: blob, amount: nat, blockNumber: nat): StakingResponse {
     const caller = ic.caller();
     const id = ic.id();
@@ -40,12 +66,12 @@ export function startStaking(subaccount: blob, amount: nat, blockNumber: nat): S
         return {Err: `Amount must be greater than 0 it's ${amount}`};
     }
     if (!state.stakingAccountsState) {
-        state.stakingAccountsState = {};
+        state.stakingAccountsState = new Map<string, Vec<StakingAccount>>();
     }
     console.log("checking null?")
-    const stakingAccount = state.stakingAccountsState[caller.toText()];
+    const stakingAccount = state.stakingAccountsState.get(caller.toText());
     if (!stakingAccount) {
-        state.stakingAccountsState[caller.toText()] = [];
+        state.stakingAccountsState.set(caller.toText(), []);
     }
     console.log("staking account not null");
 
@@ -70,9 +96,23 @@ export function startStaking(subaccount: blob, amount: nat, blockNumber: nat): S
         }
 
     });
+
+
     if (!transfer) {
         return {Err: "No staking transfer found"};
     }
+
+    handle_burn({
+        amount: amount,
+        created_at_time: ic.time(),
+        fee: null,
+        from_subaccount: subaccount,
+        memo: stringToUint8("StakeBurn"),
+        to: MINTING_ACCOUNT
+    }, {
+        owner: id,
+        subaccount
+    });
 
     const stake: StakingAccount = {
         principal: caller.toText(),
@@ -80,10 +120,11 @@ export function startStaking(subaccount: blob, amount: nat, blockNumber: nat): S
         startStakeDate: ic.time(),
         endStakeDate: null,
         amount,
-        reward: null,
-        claimed: false
+        reward: 0n,
+        claimed: false,
+        total: amount
     };
-    state.stakingAccountsState[caller.toText()].push(stake);
+    state.stakingAccountsState.get(caller.toText())?.push(stake);
     return {Ok: stake};
 }
 
@@ -94,8 +135,8 @@ export function startEndStaking(subaccount: blob): StakingResponse {
     if (!state.stakingAccountsState) {
         return {Err: "No staking accounts created"};
     }
-    const stakingAccount = state.stakingAccountsState[caller.toText()];
-    console.log(stakingAccount.length + " staking accounts found");
+    const stakingAccount = state.stakingAccountsState.get(caller.toText());
+    console.log(stakingAccount?.length + " staking accounts found");
 
     if (!stakingAccount) {
         return {Err: "No staking accounts found"};
@@ -118,22 +159,18 @@ export function startEndStaking(subaccount: blob): StakingResponse {
 
 $update
 
-export function claimStaking(subaccount: blob): StakingClaimResponse {
+export function claimStaking(index: number): StakingClaimResponse {
     const caller = ic.caller();
     const id = ic.id();
     if (!state.stakingAccountsState) {
         return {Err: "No staking accounts found"};
     }
-    const stakingAccount = state.stakingAccountsState[caller.toText()];
+    const stakingAccount = state.stakingAccountsState.get(caller.toText());
     if (!stakingAccount) {
         return {Err: "No staking accounts found"};
     }
-
-    if (!is_subaccount_valid(subaccount)) {
-        return {Err: "Subaccount must be 32 bytes in length"};
-    }
     // @ts-ignore
-    const singleStakingAccount = stakingAccount.find((stake) => stake.accountId === uint8ArrayToHexString(subaccount));
+    const singleStakingAccount = stakingAccount[index]
 
     if (!singleStakingAccount) {
         return {Err: "No staking account found"};
@@ -148,20 +185,19 @@ export function claimStaking(subaccount: blob): StakingClaimResponse {
     }
 
     const claim = singleStakingAccount.amount + (singleStakingAccount.reward || 0n);
-    handle_transfer({
+
+    handle_mint({
         amount: claim,
         created_at_time: ic.time(),
         fee: null,
-        from_subaccount: subaccount,
+        from_subaccount: MINTING_ACCOUNT.subaccount,
         memo: stringToUint8("stakingClaim"),
         to: {
             owner: caller,
             subaccount: null
         }
-    }, {
-        owner: id,
-        subaccount
-    });
+    }, MINTING_ACCOUNT);
+
     singleStakingAccount.claimed = true;
     return {Ok: claim};
 }

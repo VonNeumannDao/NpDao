@@ -4,6 +4,7 @@ import {state} from '../state';
 import {Account, IcrcTransaction, IcrcTransferArgs, IcrcTransferResult} from '../types';
 import {putTransaction} from "./putTransaction";
 import {MINTING_ACCOUNT} from "../constants";
+import {uint8ArrayToHexString} from "../utils";
 
 export function handle_mint(args: IcrcTransferArgs, from: Opt<Account>): IcrcTransferResult {
     set_account_balance(args.to, balance_of(args.to) + args.amount);
@@ -37,6 +38,8 @@ export function handle_mint(args: IcrcTransferArgs, from: Opt<Account>): IcrcTra
     };
 }
 
-export function is_minting_account(owner: Principal): boolean {
-    return owner.toText() === state.minting_account?.owner.toText();
+export function is_minting_account(account: Account): boolean {
+    const principalsMatch = account.owner.toText() === state.minting_account?.owner.toText();
+    const subaccountsMatch = uint8ArrayToHexString(account.subaccount) === uint8ArrayToHexString(state.minting_account?.subaccount);
+    return principalsMatch && subaccountsMatch;
 }

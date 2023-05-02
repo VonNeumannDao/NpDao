@@ -101,6 +101,7 @@ type ProposalViewResponse = record {
 type StakingAccount = record {
   reward : opt nat;
   "principal" : text;
+  total : nat;
   accountId : text;
   claimed : bool;
   endStakeDate : opt nat;
@@ -141,7 +142,7 @@ service : () -> {
   airdrop_snapshot_status : () -> (text) query;
   burnAllXtc : () -> (nat);
   canisters : () -> (vec Canisters) query;
-  claimStaking : (vec nat8) -> (StakingClaimResponse);
+  claimStaking : (float64) -> (StakingClaimResponse);
   createAndAddCanister : () -> (text);
   createChangePriceProposal : (Account, text, text, nat) -> (ProposalResponse);
   createDeleteWasmProposal : (Account, text, text, text) -> (ProposalResponse);

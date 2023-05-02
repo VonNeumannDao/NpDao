@@ -34,6 +34,7 @@ export type StakingAccount = Record<{
     accountId: string;
     startStakeDate: nat;
     endStakeDate: Opt<nat>;
+    total: nat;
     amount: nat;
     reward: Opt<nat>;
     claimed: boolean;
@@ -70,9 +71,7 @@ export type State = {
             | undefined;
     };
 
-    stakingAccountsState: Opt<{
-        [key: string]: Vec<StakingAccount>
-    }>
+    stakingAccountsState: Opt<Map<string, Vec<StakingAccount>>>;
     decimals: nat8;
     fee: nat;
     isDev: boolean;
@@ -96,6 +95,7 @@ export type State = {
     proposalCount: nat64,
     proposalDuration: nat32,
     stakeDuration: nat32,
+    rewardsPercent: nat32,
     proposalCost: nat64,
     initial_supply: nat64,
     airdrop_snapshot: airdropSnapshot,

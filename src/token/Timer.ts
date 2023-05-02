@@ -2,10 +2,12 @@ import {$update, ic, nat32, Opt, TimerId} from "azle";
 import {_checkCycles, _executeProposal} from "./dao";
 import {_loadTransactions, _refreshArchivedTotalTransactions} from "./Archive";
 import {state} from "./state";
+import {_rewardTick, STAKING_REWARDS_TICK_FREQUENCY} from "./staking";
 
 let timerIdProposal: Opt<TimerId> = null;
 let timerIdCycle: Opt<TimerId> = null;
 let timerIdArchive: Opt<TimerId> = null;
+let timerIdStakingRewards: Opt<TimerId> = null;
 
 $update;
 export function stopTimer(): nat32 {
@@ -49,6 +51,9 @@ export function startTimer(): TimerId {
         3600n,
         _checkCycles
     );
+
+    timerIdStakingRewards = ic.setTimerInterval(BigInt(STAKING_REWARDS_TICK_FREQUENCY), _rewardTick);
+
     ic.setTimer(60n, _refreshArchivedTotalTransactions);
 
     return timerIdProposal;

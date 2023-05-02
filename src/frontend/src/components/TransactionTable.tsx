@@ -111,6 +111,7 @@ export default function TransactionTable() {
                                     :
                                     <>
                                         <TableCell>Block</TableCell>
+                                        <TableCell>Kind</TableCell>
                                         <TableCell>Date</TableCell>
                                         <TableCell>From</TableCell>
                                         <TableCell>To</TableCell>
@@ -158,6 +159,12 @@ export default function TransactionTable() {
                                                                 secondary={transaction.transaction.transfer.length > 0 ? truncateString(transaction.transaction.transfer[0].to.owner.toText()) : ""}
                                                             />
                                                         </ListItem>
+                                                        <ListItem>
+                                                            <ListItemText
+                                                                primary={"Kind"}
+                                                                secondary={transaction.transaction.kind}
+                                                            />
+                                                        </ListItem>
                                                     </List>
                                                 </TableCell>
                                                 <TableCell>{transaction.transaction.transfer.length > 0 ? bigIntToDecimalPrettyString(transaction.transaction.transfer[0].amount) : ""}</TableCell>
@@ -168,6 +175,7 @@ export default function TransactionTable() {
                                             :
 
                                             <>
+                                                <TableCell>{transaction.transaction.kind}</TableCell>
                                                 <TableCell>
                                                     {new Date(Number(transaction.transaction.timestamp) / 1000000).toLocaleDateString(undefined, {
                                                         year: 'numeric',

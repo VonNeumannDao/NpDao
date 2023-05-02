@@ -70,7 +70,7 @@ const Staking = () => {
 
         const amount = convertToBigInt(stakingAmount);
         const account = stringToAccount(stakingAccounts.length.toString() + principal);
-        const memo = "stake_" + generateUUID();
+        const memo = "Stake";
         const response = await tokenActor.icrc1_transfer({
             to: {
                 owner: Principal.fromText(tokenCanister),
@@ -103,9 +103,9 @@ const Staking = () => {
         setLoadingUnstake(false);
     };
 
-    const withdraw = async (accountId: string) => {
+    const withdraw = async (index: number) => {
         setLoadingWithdraw(true);
-        const withdr = await tokenActor.claimStaking(hexStringToUint8Array(accountId));
+        const withdr = await tokenActor.claimStaking(index);
         console.log(withdr);
         await init();
         await reloadBalance();
@@ -139,15 +139,20 @@ const Staking = () => {
                     }
                 />
                 <CardContent>
-                    <Typography variant="body1" sx={{mt: 2}}>
-                        By staking NP tokens, members commit to locking them up for a minimum of 30 days. During this
-                        time, the tokens cannot be claimed until the unstake process is initiated. Once the unstake
-                        button is clicked, it takes 30 days for the tokens to become available for withdrawal. This
-                        ensures that voters have a long-term interest in the success of the project and are committed to
-                        its growth, while still allowing for flexibility in case of changing circumstances.
-                        Additionally, members who participate in the DAO's decision-making process will receive a small
-                        amount of newly minted tokens as a reward for their involvement in the governance
-                        process. </Typography>
+                    <code>
+                        <Typography variant="body1" sx={{ mt: 2 }}>
+                            Staking your NP tokens in our DAO provides you with a number of benefits. First, your tokens are locked up for a defined period of time, helping to incentivize long-term commitment and investment in the project. During this period, you cannot withdraw your tokens, but you'll be rewarded with a fixed APY auto-compounding reward for staking them. This reward is automatically added to your balance, helping you to maximize your earnings over time.
+                        </Typography>
+
+                        <Typography variant="body1" sx={{ mt: 2 }}>
+                            Second, for every token staked, you'll receive one voting power for the DAO's governance process. This means that you'll have a say in the future direction of the project and can help to shape its growth and development.
+                        </Typography>
+
+                        <Typography variant="body1" sx={{ mt: 2 }}>
+                            Overall, staking your NP tokens in our DAO is a great way to participate in the growth and success of the project. By locking up your tokens and participating in the governance process, you'll be helping to create a decentralized and democratic community that's committed to building a better future together.
+                        </Typography>
+                    </code>
+
                     <Typography variant="subtitle1" sx={{mt: 2}}>
                         Total Staked:
                     </Typography>
@@ -172,6 +177,8 @@ const Staking = () => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Balance</TableCell>
+                                        <TableCell>Rewards</TableCell>
+                                        <TableCell>Total</TableCell>
                                         <TableCell>Time Staked</TableCell>
                                         <TableCell>Time to Unstake</TableCell>
                                         <TableCell>Actions</TableCell>
@@ -181,6 +188,8 @@ const Staking = () => {
                                     {stakingRecords.filter(x => !x.claimed).map((record, index) => (
                                         <TableRow key={index}>
                                             <TableCell>{bigIntToDecimalPrettyString(record.amount)}</TableCell>
+                                            <TableCell>{record.reward.length > 0 ? bigIntToDecimalPrettyString(record.reward[0]) : "0"}</TableCell>
+                                            <TableCell>{bigIntToDecimalPrettyString(record.total)}</TableCell>
                                             <TableCell>{formatTime(record.startStakeDate)}</TableCell>
                                             <TableCell>{record.endStakeDate.length > 0 ?
                                                 <CountdownTimer onComplete={reload} date={new Date(Number(record.endStakeDate[0] / 1000000n))}/>
@@ -189,7 +198,7 @@ const Staking = () => {
                                             <TableCell>
                                                 {new Date(Number(record.endStakeDate[0]) / 1000000) <= new Date() ?
                                                     <LoadingButton loading={loadingWithdraw} variant="outlined"
-                                                                   onClick={() => withdraw(record.accountId)}>
+                                                                   onClick={() => withdraw(index)}>
                                                         Claim
                                                     </LoadingButton>
                                                     :

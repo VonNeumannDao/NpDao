@@ -66,13 +66,8 @@ export function preUpgrade(): void {
 
     const stakingAccounts: StakingAccount[] = [];
     if (state.stakingAccountsState) {
-        Object.keys(state.stakingAccountsState).forEach((key) => {
-            if (key) {
-                // @ts-ignore
-                state.stakingAccountsState[key].forEach((value) => {
-                    stakingAccounts.push(value);
-                });
-            }
+        state.stakingAccountsState.forEach((value, key) => {
+            stakingAccounts.push(...value);
         });
     }
     stableStakingAccounts.insert(0, stakingAccounts);
@@ -132,21 +127,17 @@ export function postUpgrade(): void {
         }
         state.proposals.set(value.id, proposal);
     }
-
-    if(!state.stakingAccountsState) {
-        state.stakingAccountsState = {};
-    }
     const stakingAccounts = stableStakingAccounts.get(0) || [];
     stakingAccounts.forEach((stakingAccount) => {
         if (stakingAccount.principal) {
             // @ts-ignore
-            let stakingAccountsStateList = state.stakingAccountsState[stakingAccount.principal];
+            let stakingAccountsStateList = state.stakingAccountsState.get(stakingAccount.principal);
             if (!stakingAccountsStateList) {
                 stakingAccountsStateList = [];
             }
             stakingAccountsStateList.push(stakingAccount);
             // @ts-ignore
-            state.stakingAccountsState[stakingAccount.principal] = stakingAccountsStateList;
+            state.stakingAccountsState.set(stakingAccount.principal, stakingAccountsStateList);
         }
     });
 
@@ -202,7 +193,7 @@ export function init(): void {
     startTimer();
 }
 
-function validate_minting_account(minting_account: Opt<Account>): Opt<Account> {
+function validate_minting_account(minting_account: Account): Account {
     if (
         minting_account !== null &&
         !is_subaccount_valid(minting_account.subaccount)

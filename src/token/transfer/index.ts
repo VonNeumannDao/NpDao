@@ -21,7 +21,7 @@ export async function mint_tokens(): Promise<IcrcTransferResult> {
         subaccount: null
     };
 
-    const from_is_minting_account = is_minting_account(from.owner);
+    const from_is_minting_account = is_minting_account(from);
 
     if (from_is_minting_account) {
         const transferArgs: IcrcTransferArgs = {
@@ -64,8 +64,8 @@ export function icrc1_transfer(args: IcrcTransferArgs): IcrcTransferResult {
             };
     }
 
-    const from_is_minting_account = is_minting_account(from.owner);
-    const to_is_minting_account = is_minting_account(args.to.owner);
+    const from_is_minting_account = is_minting_account(from);
+    const to_is_minting_account = is_minting_account(args.to);
 
     if (from_is_minting_account) {
         return handle_mint(args, from);

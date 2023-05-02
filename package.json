@@ -12,10 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@dfinity/principal": "^0.15.6",
     "azle": "^0.15.0",
     "encode-utf8": "^2.0.0"
-  },
-  "subPackages": [
-    "src/frontend"
-  ]
+  }
 }

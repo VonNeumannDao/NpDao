@@ -1,4 +1,4 @@
-import {blob, nat, Principal} from "azle";
+import {blob, nat, Opt, Principal} from "azle";
 import {Archive} from "./constants";
 import devCanister from "../../.dfx/local/canister_ids.json";
 import prodCanister from "../../canister_ids.json";
@@ -33,8 +33,12 @@ export function hexStringToUint8Array(hexString: string): number[] {
     return Array.from(uint8Array);
 }
 
-export function uint8ArrayToHexString(uint8Array: Uint8Array): string {
+export function uint8ArrayToHexString(uint8Array: Opt<Uint8Array>): string {
     let hexString = '';
+    if (!uint8Array) {
+        return hexString;
+    }
+
     for (let i = 0; i < uint8Array.length; i++) {
         hexString += uint8Array[i].toString(16).padStart(2, '0');
     }

@@ -18,7 +18,8 @@
     }
   },
   "stake": {
-    "duration": 10
+    "duration": 10,
+    "rewardsPercent" : 1000000
   },
   "deployers" : [],
   "custodian" : ["hvqau-ni36f-xg5xf-b2woa-m72po-3ebjk-2slud-oqilk-fonmr-huvso-gqe",
