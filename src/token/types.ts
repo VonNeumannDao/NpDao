@@ -75,7 +75,7 @@ export type State = {
     stakingAccountsState: Opt<Map<string, Vec<StakingAccount>>>;
     decimals: nat8;
     fee: nat;
-    isDev: boolean;
+    env: "dev" | "prod" | "stage";
     metadata: Vec<Metadatum>;
     minting_account: Account;
     name: string;
@@ -92,7 +92,7 @@ export type State = {
     transactions: CircularBuffer<TransactionWithId>;
     transaction_window_nanos: nat64;
     proposals: Map<nat64, Proposal>,
-    proposal: Opt<Proposal>,
+    activeProposals: Vec<Proposal>,
     proposalCount: nat64,
     proposalDuration: nat32,
     stakeDuration: nat32,

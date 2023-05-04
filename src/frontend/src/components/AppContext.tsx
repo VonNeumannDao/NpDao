@@ -8,9 +8,9 @@ interface AppContextType {
     balance: bigint;
     balancePretty: string;
 
-    activeProposal?: ProposalViewResponse;
+    activeProposals?: ProposalViewResponse[];
 
-    setActiveProposal?: (activeProposal: ProposalViewResponse) => void;
+    setActiveProposals?: (activeProposal: ProposalViewResponse[]) => void;
     setBalanceVal?: (balance: bigint) => void;
     reloadBalance?: () => Promise<void>;
 
@@ -28,7 +28,7 @@ const AppContext = createContext<AppContextType>({
 
 const AppProvider: React.FC = (param: { children }) => {
     const [balance, setBalance] = useState<bigint>(0n);
-    const [activeProposal, setActiveProposal] = useState<ProposalViewResponse>();
+    const [activeProposals, setActiveProposals] = useState<ProposalViewResponse[]>();
     const [balancePretty, setBalancePretty] = useState<string>("0");
     const [reloadDaoBalancesInner, setReloadDaoBalances] = useState<() => Promise<void>>()
     const [_tokenActor] = useCanister('token');
@@ -42,15 +42,15 @@ const AppProvider: React.FC = (param: { children }) => {
 
     async function init() {
         try {
-            const [balance, activeProposal] = await Promise.all([
+            const [balance, activeProposals] = await Promise.all([
                 tokenActor.icrc1_balance_of({
                     owner: Principal.fromText(principal),
                     subaccount: []
                 }),
-                tokenActor.activeProposal()
+                tokenActor.activeProposals()
             ]);
             setBalanceVal(balance);
-            setActiveProposal(activeProposal["Ok"]);
+            setActiveProposals(activeProposals);
         } catch (error) {
             console.error(error);
         }
@@ -69,8 +69,8 @@ const AppProvider: React.FC = (param: { children }) => {
     };
 
     const reloadActiveProposal = async () => {
-        const activeProposal = await tokenActor.activeProposal();
-        setActiveProposal(activeProposal["Ok"]);
+        const activeProposal = await tokenActor.activeProposals();
+        setActiveProposals(activeProposal);
     }
 
     const reloadDaoBalances = async () => {
@@ -84,8 +84,8 @@ const AppProvider: React.FC = (param: { children }) => {
         balancePretty,
         setBalanceVal,
         reloadBalance,
-        activeProposal,
-        setActiveProposal,
+        activeProposals,
+        setActiveProposals,
         reloadActiveProposal,
         reloadDaoBalances,
         setReloadDaoBalances

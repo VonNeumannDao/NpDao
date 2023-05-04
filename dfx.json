@@ -7,7 +7,8 @@
       "remote": {
         "candid": "ledger.public.did",
         "id": {
-          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+          "staging": "ryjl3-tyaaa-aaaaa-aaaba-cai"
         }
       }
     },
@@ -26,6 +27,15 @@
       "ts": "src/token/index.ts",
       "candid": "src/token/index.did",
       "wasm": ".azle/token/token.wasm.gz",
+      "dependencies": [ ]
+    },
+    "multisig": {
+      "type": "custom",
+      "build": "npx azle multisig",
+      "root": "src/multisig",
+      "ts": "src/multisig/index.ts",
+      "candid": "src/multisig/index.did",
+      "wasm": ".azle/multisig/multisig.wasm.gz",
       "dependencies": [ ]
     },
     "frontend": {
@@ -49,6 +59,14 @@
     "build": {
       "args": "",
       "packtool": ""
+    }
+  },
+  "networks": {
+    "staging": {
+      "providers": [
+        "https://icp0.io"
+      ],
+      "type": "persistent"
     }
   },
   "version": 1

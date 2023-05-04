@@ -1,7 +1,7 @@
 import {Box, Grid, LinearProgress, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import {useCanister, useConnect} from "@connect2ic/react";
-import {_SERVICE, VoteStatus} from "../declarations/token/token.did";
+import {_SERVICE, ProposalViewResponse, VoteStatus} from "../declarations/token/token.did";
 import {useAppContext} from "./AppContext";
 import {Principal} from "@dfinity/principal";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -16,36 +16,42 @@ function Voting({proposalId}: VotingProps) {
     const [votingPower, setVotingPower] = useState(0n);
     const [loadingButton, setLoadingButton] = useState(false);
     const [disableVoting, setDisableVoting] = useState(false);
+    const [activeProposal, setActiveProposal] = useState(null);
+
     const [_tokenActor] = useCanister("token");
     const tokenActor = _tokenActor as unknown as _SERVICE;
     const [voteStatus, setVoteStatus] = useState<VoteStatus>();
-    const {setBalanceVal, balancePretty, balance, activeProposal} = useAppContext();
+    const {balancePretty, activeProposals} = useAppContext();
+
     const {principal} = useConnect();
     const {reloadActiveProposal} = useAppContext();
 
     useEffect(() => {
         init().then();
-    }, [balancePretty, principal]);
+    }, [balancePretty, principal, activeProposals]);
 
-    function voteCheck() {
-        const voted = activeProposal.voters.find(x => x.voter === principal);
-        console.log(voted);
+    function voteCheck(activeProposal: ProposalViewResponse) {
+        const voted = activeProposal && activeProposal.voters ? activeProposal.voters.find(x => x.voter === principal) : null;
+        console.log(activeProposal)
         if (voted) {
             setDisableVoting(true);
+        } else {
+            setDisableVoting(false);
         }
 
     }
 
     async function init() {
-        const voteStatus = await tokenActor.voteStatus();
+        const ap = activeProposals ? activeProposals.find(x => x.id.toString(10) === proposalId.toString(10)) : null;
+        setActiveProposal(ap);
+        const voteStatus = await tokenActor.voteStatus(proposalId);
         const totalStaked = await tokenActor.getTotalStaked(principal);
         setVotingPower(totalStaked);
         setVoteStatus(voteStatus["Ok"]);
         const vs = voteStatus["Ok"] as VoteStatus;
         setYesVotesPercent(percentCalc(vs.voteYes, vs.voteYes + vs.voteNo));
         setNoVotesPercent(percentCalc(vs.voteNo, vs.voteYes + vs.voteNo));
-        await reloadActiveProposal();
-        voteCheck();
+        voteCheck(ap);
     }
 
     function percentCalc(voteCount: bigint, totalVotes: bigint): number {
@@ -63,7 +69,7 @@ function Voting({proposalId}: VotingProps) {
             owner: Principal.fromText(principal),
             subaccount: []
         }, proposalId, voteDirection);
-
+        console.log(result);
         await init();
         setDisableVoting(true);
         setLoadingButton(false);

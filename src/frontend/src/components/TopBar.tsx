@@ -39,20 +39,6 @@ export default function TopBar() {
         setProposalAnchorEl(null);
     };
 
-    useEffect(() => {
-        init().then();
-    }, [principal]);
-
-    async function init() {
-        try {
-            const activeProposal = await tokenActor.activeProposal();
-            setActiveProposal(!!activeProposal["Ok"]);
-        } catch (e) {
-            console.log(e);
-        }
-
-    }
-
     const StyledLink = styled(Link)`
       color: inherit;
       text-decoration: none;
@@ -66,7 +52,7 @@ export default function TopBar() {
     `;
 
     function disabledIfProposal() {
-        return !isConnected || activeProposal || !principal;
+        return !isConnected || !principal;
     }
 
     return (

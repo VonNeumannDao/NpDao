@@ -1,5 +1,6 @@
 import React from "react";
 import {
+    Alert,
     Button,
     Card,
     CardContent, Checkbox,
@@ -13,7 +14,23 @@ import {
 import config from "../../../../cig-config.json";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-export default function DonateXTC(props: { exchangeRate: BigInt, value: string, onChange: (event: React.ChangeEvent<HTMLInputElement>) => void, exchangeRateDisplay: string, loading: boolean, onClick: () => void, open: boolean, onClose: () => void, checked: boolean, onChange1: (event: React.ChangeEvent<HTMLInputElement>) => void, onClick1: () => Promise<void> }) {
+export default function DonateXTC(props:
+{
+    exchangeRate: BigInt,
+    errorMessage: string | null,
+    value: string,
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
+    exchangeRateDisplay: string,
+    loading: boolean,
+    onClick: () => void,
+    open: boolean,
+    onClose: () => void,
+    checked: boolean,
+    onChange1: (event: React.ChangeEvent<HTMLInputElement>) => void,
+    onClick1: () => Promise<void>
+}
+
+) {
     return <Card variant="outlined" sx={{marginTop: 2}}>
         <CardContent>
             <Typography variant="h5" align="center" gutterBottom style={{marginTop: "16px", marginBottom: "32px"}}>
@@ -45,6 +62,9 @@ export default function DonateXTC(props: { exchangeRate: BigInt, value: string, 
             <Typography variant="h6" sx={{mb: 1}}>
                 Exchange Rate: 1 XTC = {props.exchangeRate.toString(10)} {config.symbol}
             </Typography>
+            {props.errorMessage && props.errorMessage.length >0 &&
+            <Alert severity="error">{props.errorMessage}</Alert>
+            }
             <TextField
                 fullWidth
                 label="Amount"

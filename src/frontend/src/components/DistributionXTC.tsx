@@ -27,7 +27,7 @@ import config from "../../../../cig-config.json";
 import DonateXTC from "./DonateXTC";
 import DonateICP from "./DonateICP";
 
-const NonProfitDonation: React.FC = () => {
+const DistributionXTC: React.FC = () => {
     const [amount, setAmount] = useState<string>("");
     const [open, setOpen] = useState<boolean>(false);
     const [agreementChecked, setAgreementChecked] = useState<boolean>(false);
@@ -35,6 +35,7 @@ const NonProfitDonation: React.FC = () => {
     const [isBalancedLoading, setIsBalancesLoading] = useState<boolean>(false);
     const [balances, setBalances] = useState<Balance[]>([]);
     const [exchangeRate, setExchangeRate] = useState<BigInt>(0n);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [exchangeRateDisplay, setExchangeRateDisplay] = useState<string>("0");
 
     const {reloadBalance, reloadDaoBalances} = useAppContext();
@@ -82,7 +83,12 @@ const NonProfitDonation: React.FC = () => {
         const decimals = await dip20Actor.decimals();
         await dip20Actor.approve(Principal.fromText(tokenCanister), convertToBigInt(amount, decimals));
         const result = await tokenActor.xtcDistributeToken(convertToBigInt(amount, decimals));
-        console.log(result);
+        if ("Err" in result) {
+            setErrorMessage(result.Err);
+            setAmount("");
+            setIsLoading(false);
+            return;
+        }
         setAmount("");
         await Promise.all([fetchBalances(), reloadBalance(), init(), reloadDaoBalances()])
         setAgreementChecked(false);
@@ -117,6 +123,7 @@ const NonProfitDonation: React.FC = () => {
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12}>
                     <DonateXTC
+                        errorMessage={errorMessage}
                         exchangeRate={exchangeRate}
                         value={amount}
                         onChange={handleAmountChange}
@@ -130,13 +137,10 @@ const NonProfitDonation: React.FC = () => {
                         onClick1={handleConfirmDonate}
                     />
                 </Grid>
-                {/*<Grid item xs={12} sm={6}>*/}
-                {/*    <DonateICP />*/}
-                {/*</Grid>*/}
             </Grid>
         </Box>
 
     );
 }
 
-export default NonProfitDonation;
+export default DistributionXTC;

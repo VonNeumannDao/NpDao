@@ -158,8 +158,11 @@ export function postUpgrade(): void {
 $init;
 export function init(): void {
     console.log('this runs the init', state.initial_supply);
-    if (prodCanister.token.ic === ic.id().toText()) {
-        state.isDev = false;
+    const canisterId = ic.id.toString();
+    if (prodCanister.token.ic === canisterId) {
+        state.env = "prod";
+    } else if (prodCanister.token.staging === canisterId) {
+        state.env = "stage";
     }
 
     state.minting_account = validate_minting_account(MINTING_ACCOUNT);

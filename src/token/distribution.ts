@@ -1,9 +1,8 @@
-import {$query, $update, ic, nat, Principal} from "azle";
+import {$query, $update, ic, nat, Principal, Record, Variant} from "azle";
 import {ICP_DISTRIBUTION_ACCOUNT, XTC_DISTRIBUTION_ACCOUNT, XTCToken} from "./constants";
 import {handle_transfer} from "./transfer/transfer";
 import {balance_of} from "./account";
 import {state} from "./state";
-import prodCanister from "../../canister_ids.json";
 
 const xtcToken = new XTCToken(
     Principal.fromText('aanaa-xaaaa-aaaah-aaeiq-cai')
@@ -23,25 +22,33 @@ export async function icpDistributeToken(donatedAmount: nat): Promise<string> {
 
 
 $update;
-export async function xtcDistributeToken(donatedAmount: nat): Promise<string> {
+export async function xtcDistributeToken(donatedAmount: nat): Promise<Variant<{
+    Ok: string;
+    Err: string;
+}>> {
     const caller = ic.caller();
     const myId = ic.id();
     const balance = balance_of(XTC_DISTRIBUTION_ACCOUNT);
     const amountBought = (donatedAmount * state.xtcDistributionExchangeRate) / 10000n ;
     if (balance < amountBought) {
-        return "not enough balance";
+        return {Err: "Not enough XTC in distribution" };
+    }
+    const xtcBalance = await xtcToken.balanceOf(caller).call();
+    const balanceOf = xtcBalance.Ok || 0n;
+    if ("Err" in xtcBalance || balanceOf < donatedAmount) {
+        return {Err:  "Not enough xtc in your wallet"};
     }
 
     const transfer = await xtcToken.transferFrom(caller, myId, donatedAmount).call();
 
     if ("Err" in transfer) {
-        return `error occurred while transferring tokens: ${transfer.Err}`;
+        return {Err: `Error occurred while transferring tokens: ${transfer.Err}`};
     }
     handle_transfer({
         amount: amountBought,
         created_at_time: null,
         fee: null,
-        from: XTC_DISTRIBUTION_ACCOUNT,
+        from_subaccount: XTC_DISTRIBUTION_ACCOUNT.subaccount,
         memo: null,
         to: {
             owner: caller,
@@ -49,8 +56,8 @@ export async function xtcDistributeToken(donatedAmount: nat): Promise<string> {
         }
     }, XTC_DISTRIBUTION_ACCOUNT);
 
-    await xtcToken.burn({amount: donatedAmount, canister_id: Principal.fromText(prodCanister.token.ic)}).call();
-    return `${amountBought} tokens transferred to ${caller.toText()}`;
+    const result = await xtcToken.burn({amount: donatedAmount, canister_id: myId}).call();
+    return {Ok: `${amountBought} tokens transferred to ${caller.toText()} and ${result.Ok?.Ok || 0n} tokens burned to ${myId.toText()} from ${donatedAmount} donated xtc`};
 }
 
 $query
@@ -77,7 +84,7 @@ $update;
 export async function burnAllXtc(): Promise<nat> {
     const myId = ic.id();
     const balance = await xtcToken.balanceOf(myId).call();
-    await xtcToken.burn({amount: balance.Ok || 0n, canister_id: Principal.fromText(prodCanister.token.ic)}).call();
+    await xtcToken.burn({amount: balance.Ok || 0n, canister_id: myId}).call();
     return balance.Ok || 0n;
 }
 

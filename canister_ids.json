@@ -1,11 +1,14 @@
 {
   "archive": {
-    "ic": "llsvj-5qaaa-aaaap-qbdaa-cai"
+    "ic": "kg4rh-syaaa-aaaap-qbdhq-cai",
+    "staging": "llsvj-5qaaa-aaaap-qbdaa-cai"
   },
   "frontend": {
-    "ic": "lmtt5-qiaaa-aaaap-qbdaq-cai"
+    "ic": "i3b7p-bqaaa-aaaap-qbdia-cai",
+    "staging": "lmtt5-qiaaa-aaaap-qbdaq-cai"
   },
   "token": {
-    "ic": "lfqyb-gaaaa-aaaap-qbdba-cai"
+    "ic": "iscut-xyaaa-aaaap-qbdjq-cai",
+    "staging": "lfqyb-gaaaa-aaaap-qbdba-cai"
   }
 }

@@ -4,7 +4,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const RemarkHTML = import("remark-html");
-
+const generate = require('generate-file-webpack-plugin');
+let NETWORK = "";
 function initCanisterEnv() {
     let localCanisters, prodCanisters;
     try {
@@ -25,19 +26,16 @@ function initCanisterEnv() {
     const network =
         process.env.DFX_NETWORK ||
         (process.env.NODE_ENV === "production" ? "ic" : "local");
-
     const canisterConfig = network === "local" ? localCanisters : prodCanisters;
-
-    const canisers = Object.entries(canisterConfig).reduce((prev, current) => {
+    const env = Object.entries(canisterConfig).reduce((prev, current) => {
         const [canisterName, canisterDetails] = current;
         console.log(canisterName, canisterDetails);
         prev[canisterName.toUpperCase() + "_CANISTER_ID"] =
             canisterDetails[network];
         return prev;
     }, {});
-
-    canisers.DFX_NETWORK = network;
-    return canisers;
+    NETWORK = network;
+    return env;
 }
 
 const canisterEnvVariables = initCanisterEnv();
@@ -102,11 +100,16 @@ module.exports = {
         ]
     },
     plugins: [
+        generate({
+            file: path.join(__dirname, "assets", ".well-known", "ic-domains"),
+            content: NETWORK === 'ic' ? 'icnonprofit.app' : 'dev.icnonprofit.app'
+        }),
         new HtmlWebpackPlugin({
             template: path.join(__dirname, frontend_entry),
             cache: false,
         }),
         new webpack.EnvironmentPlugin({
+            DFX_NETWORK: NETWORK === "local" ? "local" : "ic",
             NODE_ENV: "development",
             ...canisterEnvVariables,
         }),

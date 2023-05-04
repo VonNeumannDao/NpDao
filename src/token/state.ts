@@ -6,7 +6,7 @@ import {MAX_TRANSACTIONS_PER_REQUEST, MINTING_ACCOUNT} from "./constants";
 
 export let state: State = {
     accounts: {},
-    isDev: true,
+    env: "dev",
     initial_supply: BigInt(config.initialSupply),
     decimals: config.decimal,
     fee: BigInt(config.fee),
@@ -16,7 +16,7 @@ export let state: State = {
         ['icrc1:fee', {Nat: BigInt(config.fee)}],
         ['icrc1:name', {Text: config.name}],
         ['icrc1:symbol', {Text: config.symbol}],
-        ['icrc1:logo', {Text: "https://dev.icnonprofit.app/token.webp"}]
+        ['icrc1:logo', {Text: config.logo}]
     ],
     minting_account: MINTING_ACCOUNT,
     name: config.name,
@@ -34,7 +34,7 @@ export let state: State = {
     proposals: new Map<nat64, Proposal>(),
     proposalCount: 0n,
     proposalDuration: config.proposalDuration,
-    proposal: null,
+    activeProposals: [],
     proposalCost: BigInt(config.proposalCost),
     airdropAmount: BigInt(config.airdropAmount),
     xtcDistributionAmount: BigInt(config.distribution.xtc.amount),

@@ -1,4 +1,4 @@
-import {blob, nat, Opt, Principal} from "azle";
+import {blob, ic, nat, Opt, Principal} from "azle";
 import {Archive} from "./constants";
 import devCanister from "../../.dfx/local/canister_ids.json";
 import prodCanister from "../../canister_ids.json";
@@ -104,7 +104,18 @@ export function durationToSeconds(duration: number): nat {
 }
 
 export function archiveCanister(canisterId: string) {
-    return new Archive(Principal.fromText(prodCanister.token.ic !== canisterId ? devCanister.archive.local : prodCanister.archive.ic));
+    let archiveCanisterId;
+    switch (canisterId) {
+        case (prodCanister.token.ic):
+            archiveCanisterId = prodCanister.archive.ic;
+            break;
+        case (prodCanister.token.staging):
+            archiveCanisterId = prodCanister.archive.staging;
+            break;
+        default:
+            archiveCanisterId = devCanister.archive.local;
+    }
+    return new Archive(Principal.fromText(archiveCanisterId));
 }
 
 export class Queue<T> {

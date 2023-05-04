@@ -23,9 +23,6 @@ import {canisterId as archiveCanisterId, idlFactory as archiveIdlFactory} from "
 const ledgerCanister = isDebugOn ? canisterId : "ryjl3-tyaaa-aaaaa-aaaba-cai";
 const whiteList = [ledgerCanister, "aanaa-xaaaa-aaaah-aaeiq-cai", tokenCanister, archiveCanisterId]
 
-console.log(process.env.DFX_NETWORK)
-console.log(isDebugOn);
-
 const globalProviderConfig = isDebugOn ? {
         whitelist: whiteList,
         appName: config.name,

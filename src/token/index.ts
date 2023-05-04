@@ -40,7 +40,9 @@ export {
     getDeployers,
     removeDeployer,
     createDeployerProposal,
-    createChangePriceProposal
+    createChangePriceProposal,
+    activeProposals,
+    voteStatuses
 } from './dao';
 export {
     airdrop_snapshot,

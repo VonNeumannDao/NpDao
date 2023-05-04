@@ -17,6 +17,6 @@ node_modules/
 dist/
 .azle
 .history
-
+.well-known
 argFile.txt
 HACK_BECAUSE_OF_ALLOW_JS

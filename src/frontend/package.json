@@ -24,6 +24,7 @@
     "buffer": "6.0.3",
     "copy-webpack-plugin": "^11.0.0",
     "events": "3.3.0",
+    "generate-file-webpack-plugin": "^1.0.1",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "5.5.0",
     "markdown-loader": "^8.0.0",

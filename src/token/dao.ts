@@ -75,13 +75,14 @@ export function pastProposals(): Vec<ProposalViewResponse> {
 
 $query
 
-export function activeProposal(): ActiveProposal {
-    if (!state.proposal) {
+export function activeProposal(proposalId: nat64): ActiveProposal {
+    const proposal = state.activeProposals.find((p) => p.id === proposalId);
+    if (!proposal) {
         return {
-            Err: "No active proposal"
+            Err: "No active proposal by this id"
         }
     }
-    const proposal = state.proposal;
+
     const view: ProposalViewResponse = {
         voters: proposal.voters,
         id: proposal.id,
@@ -105,10 +106,70 @@ export function activeProposal(): ActiveProposal {
 
 $query
 
-export function voteStatus(): VoteStatusResponse {
-    if (!state.proposal) {
+export function activeProposals(): Vec<ProposalViewResponse> {
+    const activeProposals: Vec<ProposalViewResponse> = [];
+
+    for (let proposal of state.activeProposals) {
+        const view: ProposalViewResponse = {
+            voters: proposal.voters,
+            id: proposal.id,
+            proposer: proposal.proposer,
+            title: proposal.title,
+            description: proposal.description,
+            endTime: proposal.endTime,
+            proposalType: proposal.proposalType,
+            executed: proposal.executed,
+            ended: proposal.ended,
+            amount: proposal.amount,
+            receiver: proposal.receiver,
+            error: proposal.error,
+            proposalCost: proposal.proposalCost,
+        }
+        activeProposals.push(view);
+    }
+    return activeProposals;
+}
+
+$query
+export function voteStatuses(): Vec<VoteStatus> {
+
+    const voteStatueses: VoteStatus[] = [];
+    for (let proposal of state.activeProposals) {
+        const voteStatus: VoteStatus = {
+            voteNo: 0n,
+            voteYes: 0n,
+            myVoteYes: 0n,
+            myVoteNo: 0n
+        };
+
+        for (let entry of Object.values(proposal.votes)) {
+            voteStatus.voteNo += entry.voteNo;
+            voteStatus.voteYes += entry.voteYes;
+        }
+        const myVotes = proposal.votes[ic.caller().toText()];
+        if (myVotes) {
+            voteStatus.myVoteYes = myVotes.voteYes;
+            voteStatus.myVoteNo = myVotes.voteNo;
+        }
+        voteStatueses.push(voteStatus);
+    }
+
+    return voteStatueses;
+}
+$query
+
+export function voteStatus(proposalId: nat64): VoteStatusResponse {
+    if (!state.activeProposals) {
         return {
             Err: "No active proposal"
+        }
+    }
+
+    const proposal = state.activeProposals.find(x => x.id === proposalId);
+
+    if (!proposal) {
+        return {
+            Err: "No active proposal by id"
         }
     }
 
@@ -119,11 +180,11 @@ export function voteStatus(): VoteStatusResponse {
         myVoteNo: 0n
     };
 
-    for (let entry of Object.values(state.proposal.votes)) {
+    for (let entry of Object.values(proposal.votes)) {
         voteStatus.voteNo += entry.voteNo;
         voteStatus.voteYes += entry.voteYes;
     }
-    const myVotes = state.proposal.votes[ic.caller().toText()];
+    const myVotes = proposal.votes[ic.caller().toText()];
     if (myVotes) {
         voteStatus.myVoteYes = myVotes.voteYes;
         voteStatus.myVoteNo = myVotes.voteNo;
@@ -155,11 +216,6 @@ export function createDeleteWasmProposal(account: Account,
         }
     }
 
-    if (state.proposal !== null) {
-        return {
-            Err: {ExistingProposal: null}
-        }
-    }
     const transferArgs: IcrcTransferArgs = {
         amount: state.proposalCost,
         created_at_time: null,
@@ -201,7 +257,7 @@ export function createDeleteWasmProposal(account: Account,
         proposalCost: null
     };
     state.proposalCount++;
-    state.proposal = proposal;
+    state.activeProposals.push(proposal);
     state.proposals.set(proposal.id, proposal);
 
     return {Ok: proposal.id};
@@ -257,11 +313,6 @@ export async function createWasmProposal(account: Account,
         }
     }
 
-    if (state.proposal !== null) {
-        return {
-            Err: {ExistingProposal: null}
-        }
-    }
     const transferArgs: IcrcTransferArgs = {
         amount: state.proposalCost,
         created_at_time: null,
@@ -303,7 +354,7 @@ export async function createWasmProposal(account: Account,
         proposalCost: null
     };
     state.proposalCount++;
-    state.proposal = proposal;
+    state.activeProposals.push(proposal);
     state.proposals.set(proposal.id, proposal);
 
     return {Ok: proposal.id};
@@ -322,12 +373,6 @@ export function createChangePriceProposal(account: Account,
         }
     }
     console.log("deployer", "after caller check");
-
-    if (state.proposal !== null) {
-        return {
-            Err: {ExistingProposal: null}
-        }
-    }
 
     const transferArgs: IcrcTransferArgs = {
         amount: state.proposalCost,
@@ -371,7 +416,7 @@ export function createChangePriceProposal(account: Account,
     };
     state.proposalCount++;
 
-    state.proposal = proposal;
+    state.activeProposals.push(proposal);
     state.proposals.set(proposal.id, proposal);
 
     return {Ok: proposal.id};
@@ -392,12 +437,6 @@ export function createDeployerProposal(account: Account,
         }
     }
     console.log("deployer", "after caller check");
-
-    if (state.proposal !== null) {
-        return {
-            Err: {ExistingProposal: null}
-        }
-    }
 
     if (state.deployers.includes(deployer) && !add) {
         return {
@@ -447,7 +486,7 @@ export function createDeployerProposal(account: Account,
     };
     state.proposalCount++;
 
-    state.proposal = proposal;
+    state.activeProposals.push(proposal);
     state.proposals.set(proposal.id, proposal);
 
     return {Ok: proposal.id};
@@ -466,12 +505,6 @@ export function createTreasuryProposal(account: Account,
             Err: {
                 AccessDenied: "cant create a proposal for another account"
             }
-        }
-    }
-
-    if (state.proposal !== null) {
-        return {
-            Err: {ExistingProposal: null}
         }
     }
 
@@ -518,7 +551,7 @@ export function createTreasuryProposal(account: Account,
     };
     state.proposalCount++;
 
-    state.proposal = proposal;
+    state.activeProposals.push(proposal);
     state.proposals.set(proposal.id, proposal);
 
     return {Ok: proposal.id};
@@ -605,12 +638,8 @@ export async function drainICP(): Promise<string> {
         ic.trap("only custodian can add custodians");
     }
     const icrc = new Icrc(Principal.fromText("ryjl3-tyaaa-aaaaa-aaaba-cai"));
-    const icpTreasury = Principal.fromText(prodCanister.token.ic);
     const caller = ic.caller();
-    const balance = await icrc.icrc1_balance_of({
-        owner: icpTreasury,
-        subaccount: null
-    }).call();
+    const balance = await icrc.icrc1_balance_of(DAO_TREASURY).call();
     if ("Err" in balance) {
         return "Error getting balance " + balance.Err;
     }
@@ -749,112 +778,111 @@ export async function _checkCycles(): Promise<void> {
 
 
 export async function _executeProposal(): Promise<void> {
+    const proposalToRemove: nat64[] = [];
+    for (let proposal of state.activeProposals) {
 
-    const proposal = state.proposal;
-    if (!proposal) {
-        ic.trap("proposal none existent");
-        return;
-    }
-
-    if (proposal.endTime >= ic.time()) {
-        proposal.error = {
-            VotingOngoing: null
-        }
-        state.proposals.set(proposal?.id, proposal);
-        ic.trap("Voting Ongoing");
-        return;
-    }
-
-    if (proposal.executed) {
-        proposal.error = {
-            AlreadyExecuted: null
-        }
-        state.proposals.set(proposal?.id, proposal);
-        state.proposal = null;
-        ic.trap("Already Executed");
-        return;
-    }
-    // Check if the proposal has enough votes to pass.
-    // You can set your own threshold.
-    let totalVotesYes = BigInt(0);
-    let totalVotesNo = BigInt(0);
-    for (const vote of Object.values(proposal.votes)) {
-        totalVotesYes += vote.voteYes;
-        totalVotesNo += vote.voteNo;
-    }
-
-    proposal.executed = totalVotesNo < totalVotesYes;
-    if (proposal.executed) {
-
-        const type = proposal.proposalType;
-        console.log("running, ", Object.keys(type)[0])
-        if ("treasuryAction" in type) {
-            const transferArgs: IcrcTransferArgs = {
-                amount: proposal.amount as bigint,
-                created_at_time: null,
-                fee: null,
-                from_subaccount: DAO_TREASURY.subaccount,
-                memo: null,
-                to: proposal.receiver as Account
-            };
-            handle_transfer(transferArgs, DAO_TREASURY);
-            console.log("transfer succeeded");
-        } else if ("installAppAction" in type) {
-            let canisterId = proposal.canister as Principal;
-            console.log("installing app action");
-
-            if (!canisterId) {
-                const createCanisterResultCallResult = await _createCanister(proposal);
-                if ("Ok" in createCanisterResultCallResult) {
-                    canisterId = (createCanisterResultCallResult.Ok?.canister_id) as Principal;
-                }
+        if (proposal.endTime >= ic.time()) {
+            proposal.error = {
+                VotingOngoing: null
             }
-            if (canisterId) {
+            state.proposals.set(proposal?.id, proposal);
+            ic.trap("Voting Ongoing");
+            return;
+        }
 
-                const wasm = await _installWasm(canisterId, proposal);
-                if ("Ok" in wasm) {
-                    registerCanister(proposal.appName || "", canisterId.toText());
-                    state.proposals.set(proposal.id, proposal as Proposal);
-                    console.log("wasm installed");
-                } else {
+        if (proposal.executed) {
+            proposal.error = {
+                AlreadyExecuted: null
+            }
+            state.proposals.set(proposal?.id, proposal);
+            proposalToRemove.push(proposal.id);
+            ic.trap("Already Executed");
+            return;
+        }
+        // Check if the proposal has enough votes to pass.
+        // You can set your own threshold.
+        let totalVotesYes = BigInt(0);
+        let totalVotesNo = BigInt(0);
+        for (const vote of Object.values(proposal.votes)) {
+            totalVotesYes += vote.voteYes;
+            totalVotesNo += vote.voteNo;
+        }
+
+        proposal.executed = totalVotesNo < totalVotesYes;
+        if (proposal.executed) {
+
+            const type = proposal.proposalType;
+            console.log("running, ", Object.keys(type)[0])
+            if ("treasuryAction" in type) {
+                const transferArgs: IcrcTransferArgs = {
+                    amount: proposal.amount as bigint,
+                    created_at_time: null,
+                    fee: null,
+                    from_subaccount: DAO_TREASURY.subaccount,
+                    memo: null,
+                    to: proposal.receiver as Account
+                };
+                handle_transfer(transferArgs, DAO_TREASURY);
+                console.log("transfer succeeded");
+            } else if ("installAppAction" in type) {
+                let canisterId = proposal.canister as Principal;
+                console.log("installing app action");
+
+                if (!canisterId) {
+                    const createCanisterResultCallResult = await _createCanister(proposal);
+                    if ("Ok" in createCanisterResultCallResult) {
+                        canisterId = (createCanisterResultCallResult.Ok?.canister_id) as Principal;
+                    }
+                }
+                if (canisterId) {
+
+                    const wasm = await _installWasm(canisterId, proposal);
+                    if ("Ok" in wasm) {
+                        registerCanister(proposal.appName || "", canisterId.toText());
+                        state.proposals.set(proposal.id, proposal as Proposal);
+                        console.log("wasm installed");
+                    } else {
+                        proposal.error = {
+                            other: wasm.Err || ""
+                        };
+                        state.proposals.set(proposal?.id, proposal);
+                    }
+                }
+
+            } else if ("deleteAppAction" in type) {
+                let canisterId = proposal.canister as Principal;
+                const drainCanister = await _tryDrainCanister(canisterId);
+                if ("Err" in drainCanister) {
                     proposal.error = {
-                        other: wasm.Err || ""
+                        other: drainCanister.Err || ""
                     };
                     state.proposals.set(proposal?.id, proposal);
+                    console.log("drain failed", drainCanister.Err);
                 }
-            }
 
-        } else if ("deleteAppAction" in type) {
-            let canisterId = proposal.canister as Principal;
-            const drainCanister = await _tryDrainCanister(canisterId);
-            if ("Err" in drainCanister) {
-                proposal.error = {
-                    other: drainCanister.Err || ""
-                };
-                state.proposals.set(proposal?.id, proposal);
-                console.log("drain failed", drainCanister.Err);
+                const stopAndDelete = await _stopAndDeleteCanister(canisterId);
+                if ("Ok" in stopAndDelete) {
+                    deleteCanister(canisterId.toText());
+                } else {
+                    proposal.error = {
+                        other: stopAndDelete.Err || ""
+                    };
+                    state.proposals.set(proposal?.id, proposal);
+                    return;
+                }
+            } else if ("addDeployerAction" in type) {
+                addDeployer(proposal.deployer);
+            } else if ("removeDeployerAction" in type) {
+                removeDeployer(proposal.deployer);
+            } else if ("changeProposalPrice" in type) {
+                if (proposal.proposalCost)
+                    state.proposalCost = proposal.proposalCost;
             }
-
-            const stopAndDelete = await _stopAndDeleteCanister(canisterId);
-            if ("Ok" in stopAndDelete) {
-                deleteCanister(canisterId.toText());
-            } else {
-                proposal.error = {
-                    other: stopAndDelete.Err || ""
-                };
-                state.proposals.set(proposal?.id, proposal);
-                return;
-            }
-        } else if ("addDeployerAction" in type){
-            addDeployer(proposal.deployer);
-        } else if ("removeDeployerAction" in type){
-            removeDeployer(proposal.deployer);
-        } else if("changeProposalPrice" in type){
-            if (proposal.proposalCost)
-            state.proposalCost = proposal.proposalCost;
         }
+        proposal.ended = true;
+        state.proposals.set(proposal?.id, proposal);
+        proposalToRemove.push(proposal.id);
     }
-    proposal.ended = true;
-    state.proposals.set(proposal?.id, proposal);
-    state.proposal = null;
+
+    state.activeProposals = state.activeProposals.filter(x => !proposalToRemove.includes(x.id));
 }

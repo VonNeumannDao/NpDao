@@ -8,7 +8,6 @@ import ProposalFetcher from "./components/ProposalFetcher";
 import AdminOnly from "./components/AdminOnly";
 import UploadCard from "./components/UploadCard";
 import NonProfitDAOPage from "./components/NonProfitDAOPage";
-import NonProfitDonation from "./components/NonProfitDonation";
 import {Container} from "@mui/material";
 import UtilityBar from "./components/UtilityBar";
 import Staking from "./components/Staking";
@@ -18,7 +17,7 @@ import TokenSnapshotButton from "./components/TokenSnapshotButton";
 import DrainICPButton from "./components/DrainICPButton";
 import CustodianActions from "./components/CustodianActions";
 import {_SERVICE} from "./declarations/token/token.did";
-import MintTokens from "./components/MintTokens";
+import DistributionXTC from "./components/DistributionXTC";
 
 const Main = () => {
     const {isConnected, principal, disconnect, activeProvider} = useConnect();
@@ -29,7 +28,7 @@ const Main = () => {
             disconnect();
         }
         console.log("starting in "  +process.env.NODE_ENV)
-        console.log(process.env.TOKEN_CANISTER_ID)
+        console.log("using network "  +process.env.DFX_NETWORK)
 
     }, [isConnected, principal]);
 
@@ -46,7 +45,7 @@ const Main = () => {
                     <Route path="/" element={<Home/>}/>
                     <Route path="/proposals/:id" element={<ProposalFetcher/>}/>
                     <Route path="/about" element={<NonProfitDAOPage/>}/>
-                    <Route path="/distribution" element={<NonProfitDonation/>}/>
+                    <Route path="/distribution" element={<DistributionXTC/>}/>
                     <Route path="/staking" element={<Staking/>}/>
                     <Route path="/transactions" element={<TransactionTable/>}/>
                     <Route path="/admin" element={

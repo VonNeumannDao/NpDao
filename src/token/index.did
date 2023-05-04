@@ -54,6 +54,7 @@ type IcrcTransferArgs = record {
   amount : nat;
 };
 type IcrcTransferResult = variant { Ok : nat; Err : IcRcTransferError };
+type ManualReply = variant { Ok : text; Err : text };
 type Mint = record {
   to : Account;
   memo : opt vec nat8;
@@ -133,7 +134,8 @@ type _InlineIcRcTransferErrorGenericError = record {
 };
 type _InlineProposalErrorInsufficientFunds = record { balance : nat };
 service : () -> {
-  activeProposal : () -> (ActiveProposal) query;
+  activeProposal : (nat64) -> (ActiveProposal) query;
+  activeProposals : () -> (vec ProposalViewResponse) query;
   addCustodian : (opt text) -> (vec text);
   addDeployer : (opt text) -> (vec text);
   airdrop_claim : () -> (text);
@@ -183,7 +185,7 @@ service : () -> {
   icrc1_decimals : () -> (nat8) query;
   icrc1_fee : () -> (nat) query;
   icrc1_metadata : () -> (vec record { text; Value }) query;
-  icrc1_minting_account : () -> (Account) query;
+  icrc1_minting_account : () -> (opt Account) query;
   icrc1_name : () -> (text) query;
   icrc1_supported_standards : () -> (vec SupportedStandard) query;
   icrc1_symbol : () -> (text) query;
@@ -202,8 +204,9 @@ service : () -> {
   total_transactions_debug : () -> (text);
   tryDrainCanister : (principal) -> (text);
   vote : (Account, nat, bool) -> (ProposalResponse);
-  voteStatus : () -> (VoteStatusResponse) query;
-  xtcDistributeToken : (nat) -> (text);
+  voteStatus : (nat64) -> (VoteStatusResponse) query;
+  voteStatuses : () -> (vec VoteStatus) query;
+  xtcDistributeToken : (nat) -> (ManualReply);
   xtcDistributionBalance : () -> (nat) query;
   xtcDistributionExchangeRate : () -> (nat) query;
 }

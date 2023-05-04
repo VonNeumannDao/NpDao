@@ -2,15 +2,28 @@ import {$init, $query, $update, ic, nat, Opt, StableBTreeMap, Vec} from "azle";
 import {ArchiveResponse, GetTransactionsRequest, TransactionRange, TransactionWithId} from "../token/types";
 import prodCanister from "../../canister_ids.json";
 
-const prodCanisterIds = [prodCanister.token.ic, prodCanister.archive.ic];
+const prodCanisterIds = (env: string) => {
+    if (env === "prod") {
+        return [prodCanister.token.ic, prodCanister.archive.ic];
+    } else  if (env === "stage") {
+        return [prodCanister.token.staging, prodCanister.archive.staging];
+    } else {
+        return [];
+    }
+};
 export let archivedTransaction = new StableBTreeMap<string, TransactionWithId>(9, 100, 400);
 
-let isDev = true;
+let env: "dev" | "prod" | "stage" = "dev";
 
 $init;
 export function init(): void {
-    if (prodCanister.archive.ic === ic.id.toString()) {
-        isDev = false;
+    const canisterId = ic.id.toString();
+    if (prodCanister.archive.ic === canisterId) {
+        env = "prod";
+    } else if (prodCanister.archive.staging === canisterId) {
+        env = "stage";
+    } else {
+        env = "dev";
     }
 }
 
@@ -18,10 +31,11 @@ $update;
 export async function archive(transactions: Vec<TransactionWithId>): Promise<ArchiveResponse> {
     console.log("Archiving transactions");
     const caller = ic.caller();
-    if (!isDev && !prodCanisterIds.includes(caller.toString())) {
-        console.log("Unauthorized " + isDev.toString());
+    if (env !== "dev" && !prodCanisterIds(env).includes(caller.toString())) {
+        console.log("Unauthorized " + env);
         return { Err: 401 };
     }
+
     transactions.forEach((transaction) => {
         archivedTransaction.insert(transaction.id.toString(), transaction);
     });

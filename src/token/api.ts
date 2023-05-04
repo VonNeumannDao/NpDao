@@ -17,8 +17,18 @@ import {archiveCanister} from "./utils";
 
 $query;
 export function getQueryArchiveFn(): QueryArchiveFn {
-    return [Principal.fromText(state.isDev ? devCanister.archive.local : prodCanister.archive.ic), 'get_transactions'];
+    let archiveCanisterId;
+    if (state.env === 'stage') {
+        archiveCanisterId = prodCanister.archive.staging;
+    } else if (state.env === "prod") {
+        archiveCanisterId = prodCanister.archive.ic;
+    } else {
+        archiveCanisterId = devCanister.archive.local;
+    }
+    return [Principal.fromText(archiveCanisterId), 'get_transactions'];
 }
+
+
 $update
 export async function total_transactions_debug(): Promise<string> {
     const len = await archiveCanister(ic.id().toText()).length().call();
@@ -26,7 +36,7 @@ export async function total_transactions_debug(): Promise<string> {
     if ("Err" in len) {
         return "Err: " + len.Err;
     }
-    return state.isDev + " ArchivedTransactions: " + archivedLen + " transactions: " + state.transactions.length;
+    return state.env + " ArchivedTransactions: " + archivedLen + " transactions: " + state.transactions.length;
 }
 
 $query;
@@ -116,7 +126,7 @@ export function icrc1_metadata(): Vec<Metadatum> {
 
 $query;
 
-export function icrc1_minting_account(): Account {
+export function icrc1_minting_account(): Opt<Account> {
     return state.minting_account;
 }
 
